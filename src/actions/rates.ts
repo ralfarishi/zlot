@@ -1,0 +1,57 @@
+"use server";
+
+import { db } from "@/src/db";
+import { rates } from "@/src/db/schema";
+import {
+	insertRateSchema,
+	updateRateSchema,
+	type InsertRate,
+	type UpdateRate,
+} from "@/src/db/validations";
+import { requireAuth, requireRole } from "@/src/lib/auth-guard";
+import { logActivity } from "./activity-logs";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+
+export const getRates = async () => {
+	await requireAuth();
+	return await db.query.rates.findMany();
+};
+
+export const createRate = async (data: InsertRate) => {
+	await requireRole(["admin"]);
+	const validated = insertRateSchema.parse(data);
+
+	const result = await db.insert(rates).values(validated).returning();
+	await logActivity(`Created rate for ${validated.vehicleType}: ${validated.hourlyRate}`);
+	revalidatePath("/dashboard/rates");
+	return result[0];
+};
+
+export const updateRate = async (id: string, data: UpdateRate) => {
+	await requireRole(["admin"]);
+	const validated = updateRateSchema.parse(data);
+
+	const result = await db
+		.update(rates)
+		.set({ ...validated, updatedAt: new Date() })
+		.where(eq(rates.id, BigInt(id)))
+		.returning();
+
+	await logActivity(`Updated rate for ${result[0].vehicleType}: ${result[0].hourlyRate}`);
+	revalidatePath("/dashboard/rates");
+	return result[0];
+};
+
+export const deleteRate = async (id: number) => {
+	await requireRole(["admin"]);
+
+	const result = await db
+		.delete(rates)
+		.where(eq(rates.id, BigInt(id)))
+		.returning();
+
+	await logActivity(`Deleted rate for ${result[0].vehicleType}`);
+	revalidatePath("/dashboard/rates");
+	return result[0];
+};
