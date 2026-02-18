@@ -129,6 +129,10 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+button {
+	cursor: pointer;
+}
+
 /* ─── Focus Ring ─── */
 :focus-visible {
 	outline: 2px solid var(--brand-accent-2);

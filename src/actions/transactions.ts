@@ -6,94 +6,112 @@ import { requireAuth } from "@/src/lib/auth-guard";
 import { logActivity } from "./activity-logs";
 import { eq, and, isNull, sql, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const logEntrySchema = z.object({
+	plateNumber: z.string().min(3).max(20),
+	vehicleType: z.enum(["motorcycle", "car", "other"]),
+	areaId: z.number(),
+	color: z.string().optional().nullable(),
+	ownerName: z.string().optional().nullable(),
+});
+
+const logExitSchema = z.object({
+	transactionId: z.string().min(1),
+	paymentMethod: z.enum(["QRIS", "CASH"]),
+	cashReceived: z.string().optional().nullable(),
+	cashChange: z.string().optional().nullable(),
+});
 
 /**
  * LOG VEHICLE ENTRY
  */
-export const logEntry = async (data: {
-	plateNumber: string;
-	vehicleType: "motorcycle" | "car" | "other";
-	areaId: number;
-	color?: string;
-	ownerName?: string;
-}) => {
+export const logEntry = async (rawInput: unknown) => {
 	const user = await requireAuth();
+
+	const validation = logEntrySchema.safeParse(rawInput);
+	if (!validation.success) {
+		throw new Error(`Invalid input: ${JSON.stringify(validation.error.flatten().fieldErrors)}`);
+	}
+
+	const data = validation.data;
 	const plateUpper = data.plateNumber.toUpperCase();
 
-	// 1. Check if vehicle already in an active transaction
-	const activeTx = await db.query.transactions.findFirst({
-		where: and(
-			isNull(transactions.exitTime),
-			eq(transactions.status, "entered"),
-			sql`${transactions.vehicleId} IN (SELECT id FROM ${vehicles} WHERE plate_number = ${plateUpper})`,
-		),
-	});
+	return await db.transaction(async (tx) => {
+		// 1. Check if vehicle already in an active transaction
+		const activeTx = await tx.query.transactions.findFirst({
+			where: and(
+				isNull(transactions.exitTime),
+				eq(transactions.status, "entered"),
+				sql`${transactions.vehicleId} IN (SELECT id FROM ${vehicles} WHERE plate_number = ${plateUpper})`,
+			),
+		});
 
-	if (activeTx) {
-		throw new Error("Vehicle is already registered inside the facility.");
-	}
+		if (activeTx) {
+			throw new Error("Vehicle is already registered inside the facility.");
+		}
 
-	// 2. Ensure vehicle exists or create it
-	let vehicleRecord = await db.query.vehicles.findFirst({
-		where: eq(vehicles.plateNumber, plateUpper),
-	});
+		// 2. Ensure vehicle exists or create it
+		let vehicleRecord = await tx.query.vehicles.findFirst({
+			where: eq(vehicles.plateNumber, plateUpper),
+		});
 
-	if (!vehicleRecord) {
-		const [newVehicle] = await db
-			.insert(vehicles)
+		if (!vehicleRecord) {
+			const [newVehicle] = await tx
+				.insert(vehicles)
+				.values({
+					plateNumber: plateUpper,
+					vehicleType: data.vehicleType,
+					color: data.color || null,
+					ownerName: data.ownerName || null,
+					profileId: user.id,
+				})
+				.returning();
+			vehicleRecord = newVehicle;
+		}
+
+		// 3. Get appropriate rate
+		const rateRecord = await tx.query.rates.findFirst({
+			where: eq(rates.vehicleType, data.vehicleType),
+		});
+
+		if (!rateRecord) {
+			throw new Error(`No rate configuration found for vehicle type: ${data.vehicleType}`);
+		}
+
+		// 4. Create Transaction
+		const datePrefix = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+		const { nanoid } = await import("nanoid");
+		const transactionNumber = `ZLT-${datePrefix}-${nanoid(6).toUpperCase()}`;
+
+		const [newTx] = await tx
+			.insert(transactions)
 			.values({
-				plateNumber: plateUpper,
-				vehicleType: data.vehicleType,
-				color: data.color || null,
-				ownerName: data.ownerName || null,
+				vehicleId: vehicleRecord.id,
+				transactionNumber,
+				areaId: BigInt(data.areaId),
+				rateId: rateRecord.id,
 				profileId: user.id,
+				entryTime: new Date(),
+				status: "entered",
 			})
 			.returning();
-		vehicleRecord = newVehicle;
-	}
 
-	// 3. Get appropriate rate
-	const rateRecord = await db.query.rates.findFirst({
-		where: eq(rates.vehicleType, data.vehicleType),
+		// 5. Update Area Occupancy
+		await tx
+			.update(parkingAreas)
+			.set({
+				occupied: sql`${parkingAreas.occupied} + 1`,
+				updatedAt: new Date(),
+			})
+			.where(eq(parkingAreas.id, BigInt(data.areaId)));
+
+		await logActivity(`Log: Vehicle ENTRY [${plateUpper}] in Area ${data.areaId}`);
+
+		revalidatePath("/dashboard/parking", "layout");
+
+		return newTx;
 	});
-
-	if (!rateRecord) {
-		throw new Error(`No rate configuration found for vehicle type: ${data.vehicleType}`);
-	}
-
-	// 4. Create Transaction
-	const datePrefix = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-	const { nanoid } = await import("nanoid");
-	const transactionNumber = `ZLT-${datePrefix}-${nanoid(6).toUpperCase()}`;
-
-	const [newTx] = await db
-		.insert(transactions)
-		.values({
-			vehicleId: vehicleRecord.id,
-			transactionNumber,
-			areaId: BigInt(data.areaId),
-			rateId: rateRecord.id,
-			profileId: user.id,
-			entryTime: new Date(),
-			status: "entered",
-		})
-		.returning();
-
-	// 5. Update Area Occupancy
-	await db
-		.update(parkingAreas)
-		.set({
-			occupied: sql`${parkingAreas.occupied} + 1`,
-			updatedAt: new Date(),
-		})
-		.where(eq(parkingAreas.id, BigInt(data.areaId)));
-
-	await logActivity(`Log: Vehicle ENTRY [${plateUpper}] in Area ${data.areaId}`);
-
-	revalidatePath("/dashboard/parking");
-	revalidatePath("/dashboard/parking/active");
-
-	return newTx;
 };
 
 /**
@@ -107,64 +125,78 @@ export const logExit = async (
 ) => {
 	await requireAuth();
 
-	// 1. Fetch Transaction & Vehicle Details
-	const tx = await db.query.transactions.findFirst({
-		where: eq(transactions.id, BigInt(transactionId)),
-		with: {
-			vehicle: true,
-			rate: true,
-			employee: true,
-		},
+	const validation = logExitSchema.safeParse({
+		transactionId,
+		paymentMethod,
+		cashReceived,
+		cashChange,
 	});
 
-	if (!tx || tx.exitTime) {
-		throw new Error("Transaction not found or vehicle already exited.");
+	if (!validation.success) {
+		throw new Error(
+			`Invalid exit input: ${JSON.stringify(validation.error.flatten().fieldErrors)}`,
+		);
 	}
 
-	// 2. Calculate Fee
-	const exitTime = new Date();
-	const diffMs = exitTime.getTime() - tx.entryTime.getTime();
-	const diffHrs = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60))); // Min 1 hour
-	const totalCost = (diffHrs * Number(tx.rate.hourlyRate)).toString();
+	return await db.transaction(async (tx) => {
+		// 1. Fetch Transaction & Vehicle Details
+		const currentTx = await tx.query.transactions.findFirst({
+			where: eq(transactions.id, BigInt(transactionId)),
+			with: {
+				vehicle: true,
+				rate: true,
+				employee: true,
+			},
+		});
 
-	// 3. Update Transaction
-	const [updatedTx] = await db
-		.update(transactions)
-		.set({
-			exitTime,
-			durationHours: diffHrs.toString(),
-			totalCost,
-			paymentMethod,
-			cashReceived: cashReceived || null,
-			cashChange: cashChange || null,
-			status: "exited",
-			updatedAt: new Date(),
-		})
-		.where(eq(transactions.id, BigInt(transactionId)))
-		.returning();
+		if (!currentTx || currentTx.exitTime) {
+			throw new Error("Transaction not found or vehicle already exited.");
+		}
 
-	// 4. Decrypt Area Occupancy
-	await db
-		.update(parkingAreas)
-		.set({
-			occupied: sql`${parkingAreas.occupied} - 1`,
-			updatedAt: new Date(),
-		})
-		.where(eq(parkingAreas.id, tx.areaId));
+		// 2. Calculate Fee
+		const exitTime = new Date();
+		const diffMs = exitTime.getTime() - currentTx.entryTime.getTime();
+		const diffHrs = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60))); // Min 1 hour
+		const totalCost = (diffHrs * Number(currentTx.rate.hourlyRate)).toString();
 
-	await logActivity(
-		`Log: Vehicle EXIT [${tx.vehicle.plateNumber}] - Fee: $${totalCost} (${paymentMethod})`,
-	);
+		// 3. Update Transaction
+		const [updatedTx] = await tx
+			.update(transactions)
+			.set({
+				exitTime,
+				durationHours: diffHrs.toString(),
+				totalCost,
+				paymentMethod,
+				cashReceived: cashReceived || null,
+				cashChange: cashChange || null,
+				status: "exited",
+				updatedAt: new Date(),
+			})
+			.where(eq(transactions.id, BigInt(transactionId)))
+			.returning();
 
-	revalidatePath("/dashboard/parking");
-	revalidatePath("/dashboard/parking/active");
+		// 4. Update Area Occupancy
+		await tx
+			.update(parkingAreas)
+			.set({
+				occupied: sql`${parkingAreas.occupied} - 1`,
+				updatedAt: new Date(),
+			})
+			.where(eq(parkingAreas.id, currentTx.areaId));
 
-	return {
-		...updatedTx,
-		vehicle: tx.vehicle,
-		rate: tx.rate,
-		employee: tx.employee,
-	};
+		await logActivity(
+			`Log: Vehicle EXIT [${currentTx.vehicle.plateNumber}] - Fee: $${totalCost} (${paymentMethod})`,
+		);
+
+		revalidatePath("/dashboard/parking", "layout");
+
+		return {
+			...updatedTx,
+			vehicle: currentTx.vehicle,
+			rate: currentTx.rate,
+			employee: currentTx.employee,
+		};
+	});
 };
 
 /**
@@ -189,8 +221,7 @@ export const deleteTransaction = async (id: string) => {
 		`Deleted transaction ${tx.transactionNumber || tx.id.toString()} for vehicle [${tx.vehicle.plateNumber}]`,
 	);
 
-	revalidatePath("/dashboard/history");
-	revalidatePath("/dashboard/parking");
+	revalidatePath("/dashboard/parking", "layout");
 };
 
 /**

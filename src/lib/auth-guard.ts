@@ -3,11 +3,6 @@ import { redirect } from "next/navigation";
 
 export type UserRole = "admin" | "employee" | "owner";
 
-interface Profile {
-	id: string;
-	role: UserRole;
-}
-
 /**
  * Ensures user is authenticated. Returns user object.
  */
@@ -39,11 +34,17 @@ export const requireRole = async (allowedRoles: UserRole[]) => {
 		.eq("id", user.id)
 		.single();
 
-	if (error || !profile || !allowedRoles.includes(profile.role as UserRole)) {
+	if (error || !profile) {
+		console.error("Profile lookup failed:", error);
 		return redirect("/dashboard/unauthorized");
 	}
 
-	return { user, profile: profile as Profile };
+	const role = profile.role as UserRole;
+	if (!allowedRoles.includes(role)) {
+		return redirect("/dashboard/unauthorized");
+	}
+
+	return { user, profile: { id: profile.id, role } };
 };
 
 /**
