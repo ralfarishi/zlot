@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useCallback } from "react";
+import { useReducer, useTransition, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { findActiveTransactionByPlate, logExit } from "@/src/actions/transactions";
 import {
@@ -14,9 +14,9 @@ import {
 	MapPin,
 	Receipt,
 	QrCode,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 import { cn, formatIDR, formatLongDuration } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ParkingReceipt } from "@/app/dashboard/history/parking-receipt";
 
 interface Vehicle {
@@ -43,41 +43,84 @@ interface Transaction {
 	employee: { fullName: string | null };
 }
 
+type State = {
+	plate: string;
+	paymentMethod: "QRIS" | "CASH";
+	received: string;
+	tx: Transaction | null;
+	error: string | null;
+	success: boolean;
+};
+
+type Action =
+	| { type: "SET_PLATE"; payload: string }
+	| { type: "SET_PAYMENT_METHOD"; payload: "QRIS" | "CASH" }
+	| { type: "SET_RECEIVED"; payload: string }
+	| { type: "SET_TRANSACTION"; payload: Transaction | null }
+	| { type: "SET_ERROR"; payload: string | null }
+	| { type: "SET_SUCCESS"; payload: boolean }
+	| { type: "RESET" };
+
+const initialState: State = {
+	plate: "",
+	paymentMethod: "CASH",
+	received: "",
+	tx: null,
+	error: null,
+	success: false,
+};
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "SET_PLATE":
+			return { ...state, plate: action.payload.toUpperCase() };
+		case "SET_PAYMENT_METHOD":
+			return { ...state, paymentMethod: action.payload };
+		case "SET_RECEIVED":
+			return { ...state, received: action.payload };
+		case "SET_TRANSACTION":
+			return { ...state, tx: action.payload, error: null };
+		case "SET_ERROR":
+			return { ...state, error: action.payload };
+		case "SET_SUCCESS":
+			return { ...state, success: action.payload };
+		case "RESET":
+			return initialState;
+		default:
+			return state;
+	}
+}
+
 export const ExitForm = () => {
+	const [state, dispatch] = useReducer(reducer, initialState);
 	const [isPending, startTransition] = useTransition();
 	const [isSearching, startSearch] = useTransition();
 	const searchParams = useSearchParams();
 	const plateParam = searchParams.get("plate");
 
-	const [plate, setPlate] = useState(plateParam || "");
-	const [paymentMethod, setPaymentMethod] = useState<"QRIS" | "CASH">("CASH");
-	const [received, setReceived] = useState("");
-	const [tx, setTx] = useState<Transaction | null>(null);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState(false);
+	const { plate, paymentMethod, received, tx, error, success } = state;
 
 	const handleSearch = useCallback(async (plateToSearch: string) => {
 		const trimmed = plateToSearch.replaceAll(" ", "");
 		if (!trimmed) return;
 		if (trimmed.length > 8) {
-			setError("Plate number must be 8 characters or less.");
+			dispatch({ type: "SET_ERROR", payload: "Plate number must be 8 characters or less." });
 			return;
 		}
-		setError(null);
 		startSearch(async () => {
 			try {
 				const result = (await findActiveTransactionByPlate(
 					plateToSearch,
 				)) as unknown as Transaction | null;
 				if (!result) {
-					setError("No active registry found for this plate.");
-					setTx(null);
+					dispatch({ type: "SET_ERROR", payload: "No active registry found for this plate." });
+					dispatch({ type: "SET_TRANSACTION", payload: null });
 				} else {
-					setTx(result);
+					dispatch({ type: "SET_TRANSACTION", payload: result });
 				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : "Search failed.";
-				setError(message);
+				dispatch({ type: "SET_ERROR", payload: message });
 			}
 		});
 	}, []);
@@ -90,15 +133,23 @@ export const ExitForm = () => {
 		}
 	}, [plateParam, handleSearch, tx]);
 
+	const estimatedFee = useMemo(() => {
+		if (!tx) return 0;
+		const start = new Date(tx.entryTime).getTime();
+		const now = new Date().getTime();
+		const diffHrs = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60)));
+		return diffHrs * Number(tx.rate.hourlyRate);
+	}, [tx]);
+
 	const handleProcessExit = async () => {
 		if (!tx) return;
-		if (paymentMethod === "CASH" && Number(received) < calculateEstimatedFee()) {
-			setError("Insufficient cash received to settle fee.");
+		if (paymentMethod === "CASH" && Number(received) < estimatedFee) {
+			dispatch({ type: "SET_ERROR", payload: "Insufficient cash received to settle fee." });
 			return;
 		}
-		setError(null);
-		const fee = calculateEstimatedFee();
-		const changeAmount = paymentMethod === "CASH" ? Math.max(0, Number(received) - fee) : 0;
+
+		const changeAmount =
+			paymentMethod === "CASH" ? Math.max(0, Number(received) - estimatedFee) : 0;
 
 		startTransition(async () => {
 			try {
@@ -108,37 +159,17 @@ export const ExitForm = () => {
 					paymentMethod === "CASH" ? received : undefined,
 					paymentMethod === "CASH" ? String(changeAmount) : undefined,
 				);
-				setSuccess(true);
+				dispatch({ type: "SET_SUCCESS", payload: true });
 			} catch (err) {
 				const message = err instanceof Error ? err.message : "Exit protocol failed.";
-				setError(message);
+				dispatch({ type: "SET_ERROR", payload: message });
 			}
 		});
 	};
 
-	// Helper to calculate estimated fee in real-time
-	const calculateEstimatedFee = () => {
-		if (!tx) return 0;
-		const start = new Date(tx.entryTime).getTime();
-		const now = new Date().getTime();
-		const diffHrs = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60)));
-		return diffHrs * Number(tx.rate.hourlyRate);
-	};
-
-	const formatDuration = (start: Date) => {
-		const diffMs = new Date().getTime() - new Date(start).getTime();
-		const hrs = Math.floor(diffMs / (1000 * 60 * 60));
-		const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-		return `${hrs}h ${mins}m`;
-	};
-
 	if (success) {
-		const calculatedFee = calculateEstimatedFee();
-		const cashChangeValue =
-			paymentMethod === "CASH" ? Math.max(0, Number(received) - calculatedFee) : 0;
-
 		return (
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, scale: 0.95 }}
 				animate={{ opacity: 1, scale: 1 }}
 				className="min-h-[80vh] flex flex-col items-center justify-center p-(--space-lg) text-center"
@@ -165,17 +196,20 @@ export const ExitForm = () => {
 								entryTime: tx.entryTime,
 								exitTime: new Date(),
 								durationHours: formatLongDuration(tx.entryTime, new Date()),
-								totalCost: String(calculatedFee),
+								totalCost: String(estimatedFee),
 								hourlyRate: tx.rate.hourlyRate,
 								staffName: tx.employee.fullName,
 								paymentMethod: paymentMethod,
 								cashReceived: paymentMethod === "CASH" ? received : null,
-								cashChange: paymentMethod === "CASH" ? String(cashChangeValue) : null,
+								cashChange:
+									paymentMethod === "CASH"
+										? String(Math.max(0, Number(received) - estimatedFee))
+										: null,
 							}}
 						/>
 					</div>
 				)}
-			</motion.div>
+			</m.div>
 		);
 	}
 
@@ -201,7 +235,10 @@ export const ExitForm = () => {
 
 					<div className="p-(--space-lg) space-y-(--space-lg)">
 						<div className="space-y-2">
-							<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+							<label
+								htmlFor="plate-search"
+								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+							>
 								Identify Target (Plate / ID)
 							</label>
 							<div className="flex gap-2">
@@ -212,10 +249,11 @@ export const ExitForm = () => {
 										weight="bold"
 									/>
 									<input
+										id="plate-search"
 										type="text"
 										value={plate}
 										maxLength={8}
-										onChange={(e) => setPlate(e.target.value.toUpperCase())}
+										onChange={(e) => dispatch({ type: "SET_PLATE", payload: e.target.value })}
 										onKeyDown={(e) => e.key === "Enter" && handleSearch(plate)}
 										placeholder="SCAN OR ENTER PLATE"
 										className="w-full rounded-button border-2 border-border bg-surface-elevated/50 px-10 py-3.5 text-xl font-black tracking-widest text-text-primary outline-none focus:border-danger focus:ring-4 focus:ring-danger/5 transition-all uppercase placeholder:opacity-20"
@@ -243,7 +281,7 @@ export const ExitForm = () => {
 
 						<AnimatePresence mode="wait">
 							{tx ? (
-								<motion.div
+								<m.div
 									initial={{ opacity: 0, y: 10 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, scale: 0.95 }}
@@ -283,7 +321,7 @@ export const ExitForm = () => {
 													Duration
 												</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-													{formatDuration(tx.entryTime)}
+													{formatLongDuration(tx.entryTime, null)}
 												</p>
 												<p className="text-[9px] font-bold text-text-secondary uppercase">
 													Entered{" "}
@@ -321,7 +359,7 @@ export const ExitForm = () => {
 											</div>
 										</div>
 									</div>
-								</motion.div>
+								</m.div>
 							) : (
 								<div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border p-12 text-center opacity-40">
 									<MagnifyingGlass size={48} className="mb-4 text-text-secondary" weight="thin" />
@@ -336,7 +374,7 @@ export const ExitForm = () => {
 			</div>
 
 			<div className="md:col-span-2 flex flex-col gap-(--space-lg)">
-				<motion.div
+				<m.div
 					className={cn(
 						"rounded-card border-2 p-(--space-lg) shadow-xl relative overflow-hidden transition-all",
 						tx
@@ -352,18 +390,21 @@ export const ExitForm = () => {
 						Total Outstanding
 					</p>
 					<h2 className="text-5xl font-black text-text-primary mt-2 tracking-tighter">
-						{formatIDR(tx ? calculateEstimatedFee() : 0)}
+						{formatIDR(estimatedFee)}
 					</h2>
 
 					{/* Payment Method Selector */}
 					<div className="mt-8 space-y-3">
-						<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+						<label
+							htmlFor="payment-method"
+							className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+						>
 							Settlement Method
 						</label>
-						<div className="grid grid-cols-2 gap-2">
+						<div id="payment-method" className="grid grid-cols-2 gap-2">
 							<button
 								type="button"
-								onClick={() => setPaymentMethod("CASH")}
+								onClick={() => dispatch({ type: "SET_PAYMENT_METHOD", payload: "CASH" })}
 								className={cn(
 									"flex items-center justify-center gap-2 rounded-xl border-2 py-3 px-4 transition-all",
 									paymentMethod === "CASH"
@@ -376,7 +417,7 @@ export const ExitForm = () => {
 							</button>
 							<button
 								type="button"
-								onClick={() => setPaymentMethod("QRIS")}
+								onClick={() => dispatch({ type: "SET_PAYMENT_METHOD", payload: "QRIS" })}
 								className={cn(
 									"flex items-center justify-center gap-2 rounded-xl border-2 py-3 px-4 transition-all",
 									paymentMethod === "QRIS"
@@ -391,23 +432,27 @@ export const ExitForm = () => {
 					</div>
 
 					{paymentMethod === "CASH" && (
-						<motion.div
+						<m.div
 							initial={{ opacity: 0, height: 0 }}
 							animate={{ opacity: 1, height: "auto" }}
 							className="mt-6 space-y-3 overflow-hidden"
 						>
-							<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+							<label
+								htmlFor="cash-received"
+								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+							>
 								Cash Handling
 							</label>
 							<div className="grid grid-cols-2 gap-2">
 								<div className="relative">
 									<input
+										id="cash-received"
 										type="text"
 										placeholder="RECEIVED"
 										value={received}
 										onChange={(e) => {
 											const val = e.target.value.replace(/\D/g, "");
-											setReceived(val);
+											dispatch({ type: "SET_RECEIVED", payload: val });
 										}}
 										className="w-full rounded-xl border-2 border-border bg-surface px-3 py-3 text-sm font-black text-text-primary outline-none focus:border-secondary transition-all"
 									/>
@@ -422,16 +467,14 @@ export const ExitForm = () => {
 									<span
 										className={cn(
 											"text-sm font-black mt-0.5",
-											Number(received) >= calculateEstimatedFee()
-												? "text-success"
-												: "text-text-secondary/30",
+											Number(received) >= estimatedFee ? "text-success" : "text-text-secondary/30",
 										)}
 									>
-										{formatIDR(Math.max(0, Number(received) - calculateEstimatedFee()))}
+										{formatIDR(Math.max(0, Number(received) - estimatedFee))}
 									</span>
 								</div>
 							</div>
-						</motion.div>
+						</m.div>
 					)}
 
 					<div className="mt-6 space-y-3">
@@ -451,7 +494,7 @@ export const ExitForm = () => {
 							Final total calculated upon processing
 						</p>
 					</div>
-				</motion.div>
+				</m.div>
 
 				<div className="rounded-card border border-border bg-surface-elevated/50 p-(--space-md) flex items-center gap-3">
 					<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface text-text-secondary shadow-sm ring-1 ring-border">

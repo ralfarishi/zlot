@@ -23,7 +23,7 @@ export async function getActivityLogs({
 	offset?: number;
 	search?: string;
 } = {}) {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	const baseWhere = search ? or(ilike(activityLogs.activity, `%${search}%`)) : undefined;
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { PaperPlaneTilt, CheckCircle, Envelope, Phone, MapPin } from "@phosphor-icons/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 type FormState = "idle" | "sending" | "sent";
 
@@ -57,7 +57,7 @@ const ContactPage = () => {
 			<div className="mx-auto max-w-6xl">
 				<div className="grid gap-16 md:grid-cols-2">
 					{/* Text Side */}
-					<motion.div
+					<m.div
 						initial={{ x: -20, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						className="flex flex-col justify-center"
@@ -106,17 +106,17 @@ const ContactPage = () => {
 								</div>
 							</div>
 						</div>
-					</motion.div>
+					</m.div>
 
 					{/* Form Side */}
-					<motion.div
+					<m.div
 						initial={{ x: 20, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						className="relative"
 					>
 						<AnimatePresence mode="wait">
 							{formState === "sent" ? (
-								<motion.div
+								<m.div
 									key="success"
 									initial={{ scale: 0.9, opacity: 0 }}
 									animate={{ scale: 1, opacity: 1 }}
@@ -136,9 +136,9 @@ const ContactPage = () => {
 									>
 										Send Another
 									</button>
-								</motion.div>
+								</m.div>
 							) : (
-								<motion.form
+								<m.form
 									key="form"
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
@@ -149,10 +149,14 @@ const ContactPage = () => {
 								>
 									<div className="space-y-8">
 										<div>
-											<label className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary">
+											<label
+												htmlFor="name"
+												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
+											>
 												Your Name
 											</label>
 											<input
+												id="name"
 												name="name"
 												placeholder="John Wick"
 												className="w-full rounded-2xl border-2 border-border bg-surface px-6 py-4 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
@@ -162,10 +166,14 @@ const ContactPage = () => {
 											)}
 										</div>
 										<div>
-											<label className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary">
+											<label
+												htmlFor="email"
+												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
+											>
 												Work Email
 											</label>
 											<input
+												id="email"
 												name="email"
 												type="email"
 												placeholder="john@continent.al"
@@ -176,10 +184,14 @@ const ContactPage = () => {
 											)}
 										</div>
 										<div>
-											<label className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary">
+											<label
+												htmlFor="message"
+												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
+											>
 												The Brief
 											</label>
 											<textarea
+												id="message"
 												name="message"
 												rows={4}
 												placeholder="Tell us about your parking empire..."
@@ -208,10 +220,10 @@ const ContactPage = () => {
 											)}
 										</button>
 									</div>
-								</motion.form>
+								</m.form>
 							)}
 						</AnimatePresence>
-					</motion.div>
+					</m.div>
 				</div>
 			</div>
 		</div>

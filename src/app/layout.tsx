@@ -36,6 +36,7 @@ export const metadata: Metadata = {
 };
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { FramerProvider } from "@/components/providers/framer-provider";
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 	const cookieStore = await cookies();
@@ -52,7 +53,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 			<body>
 				<ThemeProvider initialTheme={theme}>
 					<QueryProvider>
-						<NuqsAdapter>{children}</NuqsAdapter>
+						<FramerProvider>
+							<NuqsAdapter>{children}</NuqsAdapter>
+						</FramerProvider>
 					</QueryProvider>
 				</ThemeProvider>
 			</body>

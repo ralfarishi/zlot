@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Coin, ArrowsClockwise } from "@phosphor-icons/react/dist/ssr";
+import { Plus, X, Coin, ArrowsClockwise } from "@phosphor-icons/react";
 import { createRate } from "@/src/actions/rates";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 export const CreateRateForm = () => {
 	const router = useRouter();
@@ -40,7 +40,7 @@ export const CreateRateForm = () => {
 		<div className="relative">
 			<AnimatePresence mode="wait">
 				{!isOpen ? (
-					<motion.button
+					<m.button
 						key="add-btn"
 						initial={{ opacity: 0, scale: 0.95 }}
 						animate={{ opacity: 1, scale: 1 }}
@@ -50,9 +50,9 @@ export const CreateRateForm = () => {
 					>
 						<Plus size={16} weight="bold" />
 						Provision Rate
-					</motion.button>
+					</m.button>
 				) : (
-					<motion.div
+					<m.div
 						key="form"
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -82,11 +82,15 @@ export const CreateRateForm = () => {
 
 						<form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row sm:items-end">
 							<div className="flex-1 space-y-1.5">
-								<label className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60">
+								<label
+									htmlFor="vehicle-type-rate"
+									className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60"
+								>
 									Vehicle Category
 								</label>
 								<div className="relative">
 									<select
+										id="vehicle-type-rate"
 										name="vehicleType"
 										className="w-full appearance-none rounded-button border border-border bg-surface px-4 py-2 text-xs font-bold outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 shadow-sm"
 										defaultValue=""
@@ -102,10 +106,14 @@ export const CreateRateForm = () => {
 							</div>
 
 							<div className="flex-1 space-y-1.5">
-								<label className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60">
+								<label
+									htmlFor="hourly-rate"
+									className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60"
+								>
 									Hourly Tariff (IDR)
 								</label>
 								<input
+									id="hourly-rate"
 									name="hourlyRate"
 									type="number"
 									step="0.01"
@@ -127,7 +135,7 @@ export const CreateRateForm = () => {
 								)}
 							</button>
 						</form>
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 		</div>

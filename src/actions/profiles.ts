@@ -11,7 +11,7 @@ import {
 	type InsertProfile,
 	type UpdateProfile,
 } from "@/src/db/validations";
-import { requireRole } from "@/src/lib/auth-guard";
+import { requireAuth, requireRole } from "@/src/lib/auth-guard";
 import { logActivity } from "./activity-logs";
 import { eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -131,7 +131,6 @@ export const toggleProfileActive = async (id: string, isActive: boolean) => {
 	revalidatePath("/dashboard/users");
 	return result[0];
 };
-
 export const deleteProfile = async (id: string) => {
 	await requireRole(["admin"]);
 
@@ -151,4 +150,54 @@ export const logout = async () => {
 	await supabase.auth.signOut();
 	revalidatePath("/", "layout");
 	redirect("/login");
+};
+
+/**
+ * Updates a user's password.
+ * Only allowed for:
+ * 1. Admin updating any user.
+ * 2. User updating their own password.
+ */
+export const updatePassword = async (targetUserId: string, newPassword: string) => {
+	const auth = await requireAuth();
+	const supabase = await createClient();
+
+	// Check if admin
+	const { data: profile } = await supabase
+		.from("profiles")
+		.select("role")
+		.eq("id", auth.id)
+		.single();
+
+	const isAdmin = profile?.role === "admin";
+	const isSelf = auth.id === targetUserId;
+
+	if (!isAdmin && !isSelf) {
+		throw new Error("Unauthorized security escalation attempt detected.");
+	}
+
+	if (newPassword.length < 6) {
+		throw new Error("Password must be at least 6 characters.");
+	}
+
+	if (isAdmin && !isSelf) {
+		// Admin updating another user via Admin API
+		const admin = createAdminClient();
+		const { error } = await admin.auth.admin.updateUserById(targetUserId, {
+			password: newPassword,
+		});
+
+		if (error) throw new Error(error.message);
+		await logActivity(`Admin reset password for user artifact ${targetUserId.slice(-4)}`);
+	} else {
+		// User updating self via Client API
+		const { error } = await supabase.auth.updateUser({
+			password: newPassword,
+		});
+
+		if (error) throw new Error(error.message);
+		await logActivity(`User updated personal security credentials`);
+	}
+
+	return { success: true };
 };

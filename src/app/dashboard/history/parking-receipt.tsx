@@ -2,9 +2,9 @@
 
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import { Printer, X } from "@phosphor-icons/react/dist/ssr";
+import { Printer, X } from "@phosphor-icons/react";
 import { formatIDR, formatLongDuration } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { format } from "date-fns";
 
 export interface ReceiptData {
@@ -46,7 +46,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 	const duration = formatLongDuration(data.entryTime, data.exitTime);
 
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, height: 0 }}
 			animate={{ opacity: 1, height: "auto" }}
 			exit={{ opacity: 0, height: 0 }}
@@ -322,6 +322,6 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					</div>
 				</div>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 };

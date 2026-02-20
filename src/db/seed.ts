@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { profiles } from "./schema/profiles";
 import { eq } from "drizzle-orm";
+import { db } from "./index";
 
 // ─── Admin Seed Credentials ───────────────────────────────
 const ADMIN_EMAIL = "admin@zlot.com";

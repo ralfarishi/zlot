@@ -13,8 +13,8 @@ import {
 	Trash,
 	CaretLeft,
 	CaretRight,
-} from "@phosphor-icons/react/dist/ssr";
-import { motion } from "framer-motion";
+} from "@phosphor-icons/react";
+import { m } from "framer-motion";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { cn } from "@/lib/utils";
 import { deleteLog } from "@/src/actions/activity-logs";
@@ -121,7 +121,7 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 								<th className="px-(--space-md) py-4 w-12" />
 							</tr>
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={data.map((d) => d.id).join()}
 							variants={{
 								show: { transition: { staggerChildren: 0.05 } },
@@ -140,7 +140,7 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 								</tr>
 							) : (
 								data.map((log) => (
-									<motion.tr
+									<m.tr
 										key={log.id}
 										variants={{
 											hidden: { opacity: 0, x: -5 },
@@ -197,10 +197,10 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 												<Trash size={16} weight="duotone" />
 											</button>
 										</td>
-									</motion.tr>
+									</m.tr>
 								))
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
 

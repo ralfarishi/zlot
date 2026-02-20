@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
-import { db } from "../index";
-import { profiles } from "../schema";
+import { db } from "./index";
+import { profiles } from "./schema";
 import { eq } from "drizzle-orm";
 import { fileURLToPath } from "url";
 
@@ -76,19 +76,19 @@ export async function seedUsers() {
 	const [existingProfile] = await db.select().from(profiles).where(eq(profiles.id, userId));
 
 	if (existingProfile) {
-		if (existingProfile.role !== "OWNER") {
-			await db.update(profiles).set({ role: "OWNER" }).where(eq(profiles.id, userId));
-			console.log("✅ Updated existing profile to OWNER role.");
+		if (existingProfile.role !== "owner") {
+			await db.update(profiles).set({ role: "owner" }).where(eq(profiles.id, userId));
+			console.log("✅ Updated existing profile to owner role.");
 		} else {
-			console.log("ℹ️ Profile already has OWNER role.");
+			console.log("ℹ️ Profile already has owner role.");
 		}
 	} else {
 		await db.insert(profiles).values({
 			id: userId,
 			fullName: OWNER_NAME,
-			role: "OWNER",
+			role: "owner",
 		});
-		console.log("✅ Created profile with OWNER role.");
+		console.log("✅ Created profile with owner role.");
 	}
 }
 

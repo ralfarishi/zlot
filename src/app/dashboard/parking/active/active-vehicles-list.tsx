@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueryState, parseAsString } from "nuqs";
-import { Timer, MapPin, MagnifyingGlass, Car, SteeringWheel } from "@phosphor-icons/react/dist/ssr";
-import { motion, AnimatePresence } from "framer-motion";
+import { Timer, MapPin, MagnifyingGlass, Car, SteeringWheel } from "@phosphor-icons/react";
+import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatLongDuration } from "@/lib/utils";
 
@@ -61,7 +61,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 			<div className="grid gap-(--space-md) sm:grid-cols-2 lg:grid-cols-4">
 				<AnimatePresence mode="popLayout">
 					{filtered.map((tx) => (
-						<motion.div
+						<m.div
 							layout
 							key={tx.id.toString()}
 							initial={{ opacity: 0, scale: 0.95 }}
@@ -115,13 +115,13 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 							<div className="absolute -right-2 -top-2 size-12 opacity-[0.03] transition-transform group-hover:scale-150">
 								<Car size={48} weight="fill" />
 							</div>
-						</motion.div>
+						</m.div>
 					))}
 				</AnimatePresence>
 			</div>
 
 			{filtered.length === 0 && (
-				<motion.div
+				<m.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					className="flex flex-col items-center justify-center p-16 rounded-card border-2 border-dashed border-border bg-surface-elevated/30"
@@ -130,7 +130,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 					<p className="text-xs font-black uppercase tracking-widest text-text-secondary/40 italic">
 						No active telemetry signals found
 					</p>
-				</motion.div>
+				</m.div>
 			)}
 		</div>
 	);

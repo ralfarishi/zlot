@@ -14,11 +14,21 @@ import {
 	MagnifyingGlass,
 	CaretUp,
 	CaretDown,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 import { updateRate, deleteRate } from "@/src/actions/rates";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn, formatIDR } from "@/lib/utils";
 import { useQueryState, parseAsString } from "nuqs";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Warning } from "@phosphor-icons/react";
 
 interface Rate {
 	id: string;
@@ -44,6 +54,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editValue, setEditValue] = useState("");
 	const [isPending, startTransition] = useTransition();
+	const [isAlertOpen, setIsAlertOpen] = useState(false);
 
 	// nuqs state
 	const [search, setSearch] = useQueryState(
@@ -94,8 +105,22 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 
 	const handleDelete = (id: string) => {
 		startTransition(async () => {
-			await deleteRate(parseInt(id));
-			router.refresh();
+			try {
+				const res = await deleteRate(Number(id));
+				if (typeof res === "object" && res && "success" in res && !res.success) {
+					if (res.error === "REFERENCE_EXISTS") {
+						setIsAlertOpen(true);
+					}
+				} else {
+					router.refresh();
+				}
+			} catch (err) {
+				// Fallback: if the delete fails with a constraint error that wasn't caught on server
+				const message = err instanceof Error ? err.message : "";
+				if (message.includes("referenced") || message.includes("23503")) {
+					setIsAlertOpen(true);
+				}
+			}
 		});
 	};
 
@@ -131,7 +156,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 				</div>
 			</div>
 
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card backdrop-blur-sm"
@@ -178,7 +203,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 								</th>
 							</tr>
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={data.map((d) => d.id).join()}
 							variants={{
 								show: { transition: { staggerChildren: 0.05 } },
@@ -197,7 +222,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 								</tr>
 							) : (
 								data.map((rate) => (
-									<motion.tr
+									<m.tr
 										key={rate.id}
 										variants={{
 											hidden: { opacity: 0, x: -10 },
@@ -218,7 +243,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 										<td className="px-(--space-md) py-4">
 											{editingId === rate.id ? (
 												<div className="flex items-center gap-2">
-													<motion.input
+													<m.input
 														initial={{ width: 80, opacity: 0 }}
 														animate={{ width: 120, opacity: 1 }}
 														type="number"
@@ -231,7 +256,6 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 															if (e.key === "Escape") cancelEdit();
 														}}
 														className="rounded-button border border-primary bg-surface-elevated px-3 py-1.5 font-mono text-sm font-bold outline-none shadow-sm shadow-primary/10"
-														autoFocus
 													/>
 												</div>
 											) : (
@@ -261,7 +285,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 											<div className="flex items-center justify-end gap-1">
 												<AnimatePresence mode="wait">
 													{editingId === rate.id ? (
-														<motion.div
+														<m.div
 															key="editing"
 															initial={{ opacity: 0, scale: 0.8 }}
 															animate={{ opacity: 1, scale: 1 }}
@@ -285,9 +309,9 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 															>
 																<X size={18} weight="bold" />
 															</button>
-														</motion.div>
+														</m.div>
 													) : (
-														<motion.div
+														<m.div
 															key="static"
 															initial={{ opacity: 0 }}
 															animate={{ opacity: 1 }}
@@ -311,18 +335,41 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 															>
 																<Trash size={18} weight="duotone" />
 															</button>
-														</motion.div>
+														</m.div>
 													)}
 												</AnimatePresence>
 											</div>
 										</td>
-									</motion.tr>
+									</m.tr>
 								))
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
-			</motion.div>
+			</m.div>
+
+			<AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+				<AlertDialogContent className="rounded-2xl sm:max-w-md">
+					<AlertDialogHeader>
+						<AlertDialogTitle className="flex items-center gap-2 text-xl font-black uppercase tracking-tight text-danger">
+							<div className="rounded-lg bg-danger/10 p-2 text-danger">
+								<Warning size={20} weight="bold" />
+							</div>
+							Immutable Protocol
+						</AlertDialogTitle>
+						<AlertDialogDescription className="pt-2 text-sm font-bold leading-relaxed text-text-secondary uppercase tracking-tight">
+							This pricing artifact cannot be purged. It is currently hardcoded into the
+							system&apos;s historical transaction directory. Deletion would breach data integrity
+							protocols.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter className="mt-4 flex-row gap-2 sm:gap-2">
+						<AlertDialogAction className="m-0 h-11 flex-1 rounded-xl bg-danger text-[10px] font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-danger/20 hover:bg-danger/90">
+							Acknowledge
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 };

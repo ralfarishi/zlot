@@ -10,7 +10,7 @@ import {
 	useReactTable,
 	type SortingState,
 } from "@tanstack/react-table";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/src/lib/utils";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
@@ -89,7 +89,7 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 				rowCount={table.getFilteredRowModel().rows.length}
 			/>
 
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card"
@@ -121,7 +121,7 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 								</tr>
 							))}
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={table
 								.getRowModel()
 								.rows.map((r) => r.id)
@@ -145,7 +145,7 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 								table.getRowModel().rows.map((row) => {
 									return (
 										<Fragment key={row.id}>
-											<motion.tr
+											<m.tr
 												variants={{
 													hidden: { opacity: 0, x: -10 },
 													show: { opacity: 1, x: 0 },
@@ -159,17 +159,17 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 														{flexRender(cell.column.columnDef.cell, cell.getContext())}
 													</td>
 												))}
-											</motion.tr>
+											</m.tr>
 										</Fragment>
 									);
 								})
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
 
 				<HistoryPagination table={table} />
-			</motion.div>
+			</m.div>
 
 			<Dialog
 				open={isReceiptOpen}

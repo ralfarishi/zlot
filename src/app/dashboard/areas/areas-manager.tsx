@@ -21,8 +21,8 @@ import {
 	ArrowsClockwise,
 	CaretUp,
 	CaretDown,
-} from "@phosphor-icons/react/dist/ssr";
-import { motion, AnimatePresence } from "framer-motion";
+} from "@phosphor-icons/react";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { deleteArea, updateArea, createArea } from "@/src/actions/parking-areas";
 import { useQueryState, parseAsString } from "nuqs";
@@ -141,7 +141,6 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								value={editData.areaName}
 								onChange={(e) => setEditData((d) => ({ ...d, areaName: e.target.value }))}
 								className="w-full rounded-button border border-primary bg-surface-elevated px-2 py-1 text-sm outline-none shadow-sm shadow-primary/10"
-								autoFocus
 							/>
 						);
 					}
@@ -192,7 +191,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								<span>{Math.round(percentage)}%</span>
 							</div>
 							<div className="h-1.5 w-full overflow-hidden rounded-full bg-border/40">
-								<motion.div
+								<m.div
 									initial={{ width: 0 }}
 									animate={{ width: `${percentage}%` }}
 									className={cn(
@@ -250,7 +249,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 				},
 			}),
 		],
-		[editingId, editData, handleSave, handleEdit, handleDelete],
+		[editingId, editData, handleSave, handleEdit],
 	);
 
 	// Memoize sorting state to prevent infinite loops
@@ -314,7 +313,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 
 			<AnimatePresence>
 				{isAdding && (
-					<motion.div
+					<m.div
 						initial={{ height: 0, opacity: 0 }}
 						animate={{ height: "auto", opacity: 1 }}
 						exit={{ height: 0, opacity: 0 }}
@@ -322,10 +321,14 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 					>
 						<div className="grid gap-(--space-md) md:grid-cols-3 rounded-card border border-border bg-surface-elevated/30 p-(--space-md) mb-(--space-md)">
 							<div className="space-y-1.5">
-								<label className="text-[10px] font-bold uppercase text-text-secondary">
+								<label
+									htmlFor="new-area-name"
+									className="text-[10px] font-bold uppercase text-text-secondary"
+								>
 									Area Name
 								</label>
 								<input
+									id="new-area-name"
 									type="text"
 									value={editData.areaName}
 									onChange={(e) => setEditData((d) => ({ ...d, areaName: e.target.value }))}
@@ -334,10 +337,14 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								/>
 							</div>
 							<div className="space-y-1.5">
-								<label className="text-[10px] font-bold uppercase text-text-secondary">
+								<label
+									htmlFor="new-area-capacity"
+									className="text-[10px] font-bold uppercase text-text-secondary"
+								>
 									Capacity
 								</label>
 								<input
+									id="new-area-capacity"
 									type="number"
 									value={editData.capacity}
 									onChange={(e) => setEditData((d) => ({ ...d, capacity: e.target.value }))}
@@ -354,11 +361,11 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								</button>
 							</div>
 						</div>
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card"
@@ -395,7 +402,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								</tr>
 							))}
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={table
 								.getRowModel()
 								.rows.map((r) => r.id)
@@ -417,7 +424,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								</tr>
 							) : (
 								table.getRowModel().rows.map((row) => (
-									<motion.tr
+									<m.tr
 										key={row.id}
 										variants={{
 											hidden: { opacity: 0, x: -10 },
@@ -430,13 +437,13 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</td>
 										))}
-									</motion.tr>
+									</m.tr>
 								))
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
-			</motion.div>
+			</m.div>
 
 			<AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
 				<AlertDialogContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Users, Target, RocketLaunch, ChatCenteredDots, Heart } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const VALUES = [
 	{
@@ -39,15 +39,15 @@ const AboutPage = () => {
 			<div className="mx-auto max-w-5xl">
 				{/* Heading */}
 				<div className="mb-(--space-2xl) text-center">
-					<motion.h1
+					<m.h1
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						className="font-display text-5xl font-black tracking-tighter md:text-8xl"
 					>
 						Parking, <br />
 						<span className="text-secondary italic">Redefined.</span>
-					</motion.h1>
-					<motion.p
+					</m.h1>
+					<m.p
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.1 }}
@@ -55,12 +55,12 @@ const AboutPage = () => {
 					>
 						Zlot isn&apos;t just a database. It&apos;s a movement to bring parking management into
 						the 21st century. No more clunky 2005 interfaces. Just smooth, fast, and reliable ops.
-					</motion.p>
+					</m.p>
 				</div>
 
 				<div className="grid gap-12 md:grid-cols-2 mt-20">
 					{/* Story */}
-					<motion.div
+					<m.div
 						initial={{ x: -20, opacity: 0 }}
 						whileInView={{ x: 0, opacity: 1 }}
 						viewport={{ once: true }}
@@ -75,10 +75,10 @@ const AboutPage = () => {
 							screens, and the frustrated owners. We knew there was a better way. Zlot was born from
 							a desire to make operations invisible—so smooth you forget the software is even there.
 						</p>
-					</motion.div>
+					</m.div>
 
 					{/* Vision */}
-					<motion.div
+					<m.div
 						initial={{ x: 20, opacity: 0 }}
 						whileInView={{ x: 0, opacity: 1 }}
 						viewport={{ once: true }}
@@ -93,13 +93,13 @@ const AboutPage = () => {
 							We&apos;re building the infrastructure that lets business owners scale from one lot to
 							one thousand without breaking a sweat.
 						</p>
-					</motion.div>
+					</m.div>
 				</div>
 
 				{/* Values */}
 				<div className="mt-32 grid gap-8 md:grid-cols-3">
 					{VALUES.map((value, i) => (
-						<motion.div
+						<m.div
 							key={value.title}
 							initial={{ y: 20, opacity: 0 }}
 							whileInView={{ y: 0, opacity: 1 }}
@@ -116,7 +116,7 @@ const AboutPage = () => {
 							<p className="mt-(--space-sm) text-text-secondary leading-relaxed">
 								{value.description}
 							</p>
-						</motion.div>
+						</m.div>
 					))}
 				</div>
 			</div>

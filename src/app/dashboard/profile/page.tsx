@@ -12,6 +12,7 @@ import {
 	SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 import { logout } from "@/src/actions/profiles";
+import { PasswordForm } from "./password-form";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -172,6 +173,11 @@ const ProfilePage = async () => {
 							<span className="text-[10px] font-black uppercase text-text-secondary">Disabled</span>
 						</div>
 					</div>
+				</div>
+
+				{/* Password Change Policy */}
+				<div className="md:col-span-2">
+					<PasswordForm userId={user.id} />
 				</div>
 			</div>
 		</div>

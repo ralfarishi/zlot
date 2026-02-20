@@ -2,7 +2,7 @@
 
 import { db } from "@/src/db";
 import { transactions, vehicles, parkingAreas, rates } from "@/src/db/schema";
-import { requireAuth } from "@/src/lib/auth-guard";
+import { requireAuth, requireRole } from "@/src/lib/auth-guard";
 import { logActivity } from "./activity-logs";
 import { eq, and, isNull, sql, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -203,7 +203,7 @@ export const logExit = async (
  * DELETE TRANSACTION
  */
 export const deleteTransaction = async (id: string) => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	// 1. Fetch transaction to get plate for logging
 	const tx = await db.query.transactions.findFirst({
@@ -279,7 +279,7 @@ export const getAllTransactions = async () => {
  * ANALYTICS: Get summary stats for today
  */
 export const getAnalyticsStats = async () => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	const todayStart = new Date();
 	todayStart.setHours(0, 0, 0, 0);
@@ -365,7 +365,7 @@ export const getAnalyticsStats = async () => {
  * ANALYTICS: Revenue by day (last N days)
  */
 export const getRevenueByDay = async (days = 7) => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	const since = new Date();
 	since.setDate(since.getDate() - days);
@@ -400,7 +400,7 @@ export const getRevenueByDay = async (days = 7) => {
  * ANALYTICS: Occupancy by area
  */
 export const getOccupancyByArea = async () => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	const areas = await db.query.parkingAreas.findMany({
 		where: isNull(parkingAreas.deletedAt),

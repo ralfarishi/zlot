@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, SignIn, House } from "@phosphor-icons/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { createClient } from "@/src/lib/supabase/client";
 
 interface FormErrors {
@@ -71,21 +71,21 @@ const LoginPage = () => {
 				<div className="absolute -bottom-24 -right-24 size-96 rounded-full bg-accent-2 blur-3xl" />
 			</div>
 
-			<motion.div
+			<m.div
 				initial={{ scale: 0.9, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
 				className="w-full max-w-md"
 			>
 				{/* Logo/Header */}
 				<div className="mb-8 text-center">
-					<motion.div
+					<m.div
 						initial={{ y: -20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.1 }}
 						className="mx-auto mb-6 flex size-16 items-center justify-center rounded-3xl bg-primary text-text-inverse shadow-2xl"
 					>
 						<House weight="fill" size={32} />
-					</motion.div>
+					</m.div>
 					<h1 className="font-display text-4xl font-extrabold tracking-tight">Launch Console.</h1>
 					<p className="mt-2 text-lg font-medium text-text-secondary">
 						Welcome back, elite operator.
@@ -96,23 +96,27 @@ const LoginPage = () => {
 				<div className="rounded-[40px] border border-border bg-surface/80 p-10 shadow-2xl backdrop-blur-xl">
 					<AnimatePresence mode="wait">
 						{errors.form && (
-							<motion.div
+							<m.div
 								initial={{ height: 0, opacity: 0 }}
 								animate={{ height: "auto", opacity: 1 }}
 								exit={{ height: 0, opacity: 0 }}
 								className="mb-6 rounded-2xl bg-danger/10 p-4 text-center text-sm font-bold text-danger border border-danger/20"
 							>
 								{errors.form}
-							</motion.div>
+							</m.div>
 						)}
 					</AnimatePresence>
 
 					<form onSubmit={handleSubmit} noValidate className="space-y-6">
 						<div>
-							<label className="mb-2 block text-xs font-bold uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="email"
+								className="mb-2 block text-xs font-bold uppercase tracking-widest text-text-secondary"
+							>
 								Your Email
 							</label>
 							<input
+								id="email"
 								name="email"
 								type="email"
 								placeholder="you@company.com"
@@ -122,11 +126,15 @@ const LoginPage = () => {
 						</div>
 
 						<div>
-							<label className="mb-2 block text-xs font-bold uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="password"
+								className="mb-2 block text-xs font-bold uppercase tracking-widest text-text-secondary"
+							>
 								Secret Access Code
 							</label>
 							<div className="relative">
 								<input
+									id="password"
 									name="password"
 									type={showPassword ? "text" : "password"}
 									placeholder="••••••••"
@@ -177,7 +185,7 @@ const LoginPage = () => {
 					</div>
 				</div>
 
-				<motion.div
+				<m.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.5 }}
@@ -190,8 +198,8 @@ const LoginPage = () => {
 						<House weight="duotone" size={20} />
 						Back to Surface
 					</Link>
-				</motion.div>
-			</motion.div>
+				</m.div>
+			</m.div>
 		</div>
 	);
 };

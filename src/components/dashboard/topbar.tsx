@@ -2,12 +2,12 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { List, SignOut, User, Sun, Moon } from "@phosphor-icons/react/dist/ssr";
+import { List, SignOut, User, Sun, Moon } from "@phosphor-icons/react";
 import { logout } from "@/src/actions/profiles";
 import { useTheme } from "@/components/providers/theme-provider";
 import type { UserRole } from "@/src/lib/auth-guard";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface TopbarProps {
 	userName: string;
@@ -68,7 +68,7 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 							aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
 						>
 							<AnimatePresence mode="wait">
-								<motion.div
+								<m.div
 									key={theme}
 									initial={{ scale: 0.5, rotate: -45, opacity: 0 }}
 									animate={{ scale: 1, rotate: 0, opacity: 1 }}
@@ -80,7 +80,7 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 									) : (
 										<Sun size={20} weight="duotone" />
 									)}
-								</motion.div>
+								</m.div>
 							</AnimatePresence>
 						</button>
 

@@ -12,14 +12,16 @@ import {
 	SignIn,
 	Sun,
 	Moon,
+	Files,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/components/providers/theme-provider";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { m, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 const NAV_LINKS = [
 	{ href: "/about", label: "About", icon: Info },
 	{ href: "/pricing", label: "Pricing", icon: Tag },
 	{ href: "/contact", label: "Contact", icon: EnvelopeSimple },
+	{ href: "/docs/architecture", label: "Docs", icon: Files },
 ] as const;
 
 export const Navbar = () => {
@@ -40,7 +42,7 @@ export const Navbar = () => {
 	);
 
 	return (
-		<motion.header
+		<m.header
 			style={{
 				width: navWidth,
 				top: navTop,
@@ -86,11 +88,11 @@ export const Navbar = () => {
 							aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
 						>
 							<AnimatePresence mode="wait">
-								<motion.div
+								<m.div
 									key={theme}
-									initial={{ scale: 0, rotate: -90, opacity: 0 }}
+									initial={{ scale: 0.95, rotate: -90, opacity: 0 }}
 									animate={{ scale: 1, rotate: 0, opacity: 1 }}
-									exit={{ scale: 0, rotate: 90, opacity: 0 }}
+									exit={{ scale: 0.95, rotate: 90, opacity: 0 }}
 									transition={{ duration: 0.25 }}
 								>
 									{theme === "light" ? (
@@ -98,7 +100,7 @@ export const Navbar = () => {
 									) : (
 										<Sun size={20} weight="duotone" />
 									)}
-								</motion.div>
+								</m.div>
 							</AnimatePresence>
 						</button>
 
@@ -126,23 +128,23 @@ export const Navbar = () => {
 				>
 					<AnimatePresence mode="wait">
 						{isOpen ? (
-							<motion.div
+							<m.div
 								key="close"
-								initial={{ rotate: -90, opacity: 0 }}
-								animate={{ rotate: 0, opacity: 1 }}
-								exit={{ rotate: 90, opacity: 0 }}
+								initial={{ rotate: -90, opacity: 0, scale: 0.95 }}
+								animate={{ rotate: 0, opacity: 1, scale: 1 }}
+								exit={{ rotate: 90, opacity: 0, scale: 0.95 }}
 							>
 								<X size={24} weight="bold" />
-							</motion.div>
+							</m.div>
 						) : (
-							<motion.div
+							<m.div
 								key="menu"
-								initial={{ rotate: 90, opacity: 0 }}
-								animate={{ rotate: 0, opacity: 1 }}
-								exit={{ rotate: -90, opacity: 0 }}
+								initial={{ rotate: 90, opacity: 0, scale: 0.95 }}
+								animate={{ rotate: 0, opacity: 1, scale: 1 }}
+								exit={{ rotate: -90, opacity: 0, scale: 0.95 }}
 							>
 								<List size={24} weight="bold" />
-							</motion.div>
+							</m.div>
 						)}
 					</AnimatePresence>
 				</button>
@@ -151,7 +153,7 @@ export const Navbar = () => {
 			{/* Mobile drawer */}
 			<AnimatePresence>
 				{isOpen && (
-					<motion.div
+					<m.div
 						initial={{ height: 0, opacity: 0 }}
 						animate={{ height: "auto", opacity: 1 }}
 						exit={{ height: 0, opacity: 0 }}
@@ -160,7 +162,7 @@ export const Navbar = () => {
 					>
 						<div className="flex flex-col gap-2 px-(--space-lg) pb-8 pt-4">
 							{NAV_LINKS.map((link, idx) => (
-								<motion.div
+								<m.div
 									key={link.href}
 									initial={{ x: -20, opacity: 0 }}
 									animate={{ x: 0, opacity: 1 }}
@@ -176,10 +178,10 @@ export const Navbar = () => {
 										</div>
 										{link.label}
 									</Link>
-								</motion.div>
+								</m.div>
 							))}
 
-							<motion.div
+							<m.div
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}
 								transition={{ delay: 0.4 }}
@@ -213,11 +215,11 @@ export const Navbar = () => {
 									<span>Sign In to Console</span>
 									<SignIn size={22} weight="bold" />
 								</Link>
-							</motion.div>
+							</m.div>
 						</div>
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
-		</motion.header>
+		</m.header>
 	);
 };

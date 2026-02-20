@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateProfile, deleteProfile } from "@/src/actions/profiles";
+import { updateProfile, deleteProfile, updatePassword } from "@/src/actions/profiles";
 import {
 	IdentificationCard,
 	WarningCircle,
@@ -10,8 +10,8 @@ import {
 	Trash,
 	FloppyDisk,
 	ArrowLeft,
-} from "@phosphor-icons/react/dist/ssr";
-import { motion } from "framer-motion";
+} from "@phosphor-icons/react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface Profile {
@@ -44,11 +44,21 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 
 			setErrors({});
 			startTransition(async () => {
-				await updateProfile(profile.id, {
-					fullName,
-					role: role as "admin" | "employee" | "owner",
-				});
-				router.push("/dashboard/users");
+				try {
+					await updateProfile(profile.id, {
+						fullName,
+						role: role as "admin" | "employee" | "owner",
+					});
+
+					const password = formData.get("password")?.toString();
+					if (password) {
+						await updatePassword(profile.id, password);
+					}
+
+					router.push("/dashboard/users");
+				} catch (err) {
+					setErrors({ form: err instanceof Error ? err.message : "An unexpected error occurred" });
+				}
 			});
 		},
 		[profile.id, router],
@@ -67,7 +77,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 	}, [profile.id, router]);
 
 	return (
-		<motion.div
+		<m.div
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			className="space-y-(--space-lg)"
@@ -96,11 +106,15 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 					<div className="grid gap-6 sm:grid-cols-2">
 						{/* Full Name Field */}
 						<div className="space-y-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="full-name"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								Full Name
 							</label>
 							<div className="relative">
 								<input
+									id="full-name"
 									name="fullName"
 									type="text"
 									defaultValue={profile.fullName}
@@ -122,11 +136,15 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 
 						{/* Role Field */}
 						<div className="space-y-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="role"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								Access Role
 							</label>
 							<div className="relative">
 								<select
+									id="role"
 									name="role"
 									defaultValue={profile.role}
 									className={cn(
@@ -142,7 +160,40 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 								</select>
 							</div>
 						</div>
+
+						{/* Password Field */}
+						<div className="space-y-2 sm:col-span-2">
+							<label
+								htmlFor="password"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
+								Security Override (Reset Password)
+							</label>
+							<div className="relative">
+								<input
+									id="password"
+									name="password"
+									type="password"
+									placeholder="•••••••• (Leave blank to keep current)"
+									className={cn(
+										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm border-border focus:border-primary/50 focus:ring-4 focus:ring-primary/5",
+									)}
+								/>
+							</div>
+							<p className="text-[10px] font-bold text-text-secondary/40 uppercase tracking-tighter pl-1">
+								Only input a value if a credential reset is required
+							</p>
+						</div>
 					</div>
+
+					{errors.form && (
+						<div className="rounded-lg bg-danger/10 p-3 flex items-center gap-2 border border-danger/20">
+							<WarningCircle size={16} className="text-danger" weight="bold" />
+							<p className="text-xs font-bold text-danger uppercase tracking-tight">
+								{errors.form}
+							</p>
+						</div>
+					)}
 
 					{/* Action Buttons */}
 					<div className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-end border-t border-border mt-6">
@@ -205,6 +256,6 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 					</button>
 				</div>
 			</div>
-		</motion.div>
+		</m.div>
 	);
 };

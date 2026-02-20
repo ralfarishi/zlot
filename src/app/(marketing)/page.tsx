@@ -13,7 +13,7 @@ import {
 	Globe,
 	Quotes,
 } from "@phosphor-icons/react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { m, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 const FEATURES = [
@@ -106,11 +106,11 @@ const LandingPage = () => {
 					<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4" />
 				</div>
 
-				<motion.div
+				<m.div
 					style={{ opacity, scale }}
 					className="mx-auto flex max-w-6xl flex-col items-center text-center"
 				>
-					<motion.div
+					<m.div
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ duration: 0.5 }}
@@ -118,9 +118,9 @@ const LandingPage = () => {
 					>
 						<Sparkle weight="fill" className="animate-pulse" />
 						Future-Proof Parking Operations
-					</motion.div>
+					</m.div>
 
-					<motion.h1
+					<m.h1
 						initial={{ y: 30, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -128,9 +128,9 @@ const LandingPage = () => {
 					>
 						Parking, <br />
 						<span className="text-secondary italic">Simplified.</span>
-					</motion.h1>
+					</m.h1>
 
-					<motion.p
+					<m.p
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.2, duration: 0.8 }}
@@ -138,9 +138,9 @@ const LandingPage = () => {
 					>
 						Scale your revenue, automate your lot, and outpace the competition. Zlot is the elite
 						command center for modern parking operators.
-					</motion.p>
+					</m.p>
 
-					<motion.div
+					<m.div
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						transition={{ delay: 0.3, duration: 0.8 }}
@@ -165,18 +165,18 @@ const LandingPage = () => {
 							See Performance
 							<ArrowUpRight size={20} weight="bold" className="text-text-secondary" />
 						</Link>
-					</motion.div>
-				</motion.div>
+					</m.div>
+				</m.div>
 
 				{/* Floating scroll indicator */}
-				<motion.div
+				<m.div
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 1, duration: 1 }}
 					className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:block"
 				>
 					<div className="w-px h-16 bg-linear-to-b from-primary/50 to-transparent" />
-				</motion.div>
+				</m.div>
 			</section>
 
 			{/* Stats Section */}
@@ -186,7 +186,7 @@ const LandingPage = () => {
 				</div>
 				<div className="mx-auto grid max-w-6xl grid-cols-2 gap-12 px-(--space-lg) md:grid-cols-4 relative z-10">
 					{STATS.map((stat, i) => (
-						<motion.div
+						<m.div
 							key={stat.label}
 							initial={{ opacity: 0, y: 30 }}
 							whileInView={{ opacity: 1, y: 0 }}
@@ -203,7 +203,7 @@ const LandingPage = () => {
 							<p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-text-inverse/50">
 								{stat.label}
 							</p>
-						</motion.div>
+						</m.div>
 					))}
 				</div>
 			</section>
@@ -224,7 +224,7 @@ const LandingPage = () => {
 
 					<div className="grid gap-8 md:grid-cols-3">
 						{FEATURES.map((feature) => (
-							<motion.div
+							<m.div
 								key={feature.title}
 								initial={{ opacity: 0, y: 20 }}
 								whileInView={{ opacity: 1, y: 0 }}
@@ -243,7 +243,7 @@ const LandingPage = () => {
 								<p className="text-lg font-medium leading-relaxed text-text-secondary/80">
 									{feature.description}
 								</p>
-							</motion.div>
+							</m.div>
 						))}
 					</div>
 				</div>
@@ -258,7 +258,7 @@ const LandingPage = () => {
 				</div>
 
 				<div className="flex overflow-hidden">
-					<motion.div
+					<m.div
 						animate={{
 							x: [0, -1920],
 						}}
@@ -288,13 +288,13 @@ const LandingPage = () => {
 								</div>
 							</div>
 						))}
-					</motion.div>
+					</m.div>
 				</div>
 			</section>
 
 			{/* CTA Section */}
 			<section className="px-(--space-lg) py-32">
-				<motion.div
+				<m.div
 					initial={{ opacity: 0, y: 40 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
@@ -327,7 +327,7 @@ const LandingPage = () => {
 					<div className="absolute top-0 right-0 -mr-32 -mt-32 size-96 rounded-full bg-white/5 blur-3xl animate-pulse" />
 					<div className="absolute bottom-0 left-0 -ml-32 -mb-32 size-96 rounded-full bg-primary/20 blur-3xl" />
 					<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,var(--color-primary)_1px,transparent_1px)] bg-size-[64px_64px] opacity-10" />
-				</motion.div>
+				</m.div>
 			</section>
 		</div>
 	);

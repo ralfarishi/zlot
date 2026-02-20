@@ -17,10 +17,10 @@ import {
 	CaretRight,
 	X,
 	User,
-} from "@phosphor-icons/react/dist/ssr";
+} from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import type { UserRole } from "@/src/lib/auth-guard";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -128,7 +128,7 @@ const NavItem = ({
 	const Icon = item.icon;
 
 	return (
-		<motion.div
+		<m.div
 			variants={{
 				hidden: { opacity: 0, x: -10 },
 				show: { opacity: 1, x: 0 },
@@ -146,7 +146,7 @@ const NavItem = ({
 				)}
 			>
 				{isActive && (
-					<motion.div
+					<m.div
 						layoutId="active-nav"
 						className="absolute inset-y-1.5 left-0 w-1 rounded-full bg-secondary"
 						initial={false}
@@ -163,7 +163,7 @@ const NavItem = ({
 				/>
 				{!collapsed && <span className="truncate">{item.label}</span>}
 			</Link>
-		</motion.div>
+		</m.div>
 	);
 };
 
@@ -232,7 +232,7 @@ export const Sidebar = ({
 			</div>
 
 			{/* Nav */}
-			<motion.nav
+			<m.nav
 				className="flex-1 space-y-4 overflow-y-auto overflow-x-hidden p-(--space-sm)"
 				variants={{
 					show: {
@@ -264,7 +264,7 @@ export const Sidebar = ({
 						</div>
 					</div>
 				))}
-			</motion.nav>
+			</m.nav>
 		</div>
 	);
 
@@ -277,14 +277,14 @@ export const Sidebar = ({
 			<AnimatePresence>
 				{isOpen && (
 					<div className="fixed inset-0 z-50 md:hidden">
-						<motion.div
+						<m.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
 							className="absolute inset-0 bg-black/40 backdrop-blur-sm"
 							onClick={onClose}
 						/>
-						<motion.aside
+						<m.aside
 							initial={{ x: "-100%" }}
 							animate={{ x: 0 }}
 							exit={{ x: "-100%" }}
@@ -292,7 +292,7 @@ export const Sidebar = ({
 							className="absolute inset-y-0 left-0 w-64 shadow-2xl"
 						>
 							{sidebarContent}
-						</motion.aside>
+						</m.aside>
 					</div>
 				)}
 			</AnimatePresence>

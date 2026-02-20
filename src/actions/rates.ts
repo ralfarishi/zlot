@@ -46,12 +46,25 @@ export const updateRate = async (id: string, data: UpdateRate) => {
 export const deleteRate = async (id: number) => {
 	await requireRole(["admin"]);
 
-	const result = await db
-		.delete(rates)
-		.where(eq(rates.id, BigInt(id)))
-		.returning();
+	try {
+		const result = await db
+			.delete(rates)
+			.where(eq(rates.id, BigInt(id)))
+			.returning();
 
-	await logActivity(`Deleted rate for ${result[0].vehicleType}`);
-	revalidatePath("/dashboard/rates");
-	return result[0];
+		if (!result[0]) return { success: false, error: "NOT_FOUND" };
+
+		await logActivity(`Deleted rate for ${result[0].vehicleType}`);
+		revalidatePath("/dashboard/rates");
+		return { success: true, data: result[0] };
+	} catch (error) {
+		const isReferenceError =
+			(error && typeof error === "object" && "code" in error && error.code === "23503") ||
+			(error instanceof Error && error.message.includes("still referenced from table"));
+
+		if (isReferenceError) {
+			return { success: false, error: "REFERENCE_EXISTS" };
+		}
+		throw error;
+	}
 };

@@ -13,8 +13,8 @@ import {
 	PencilSimple,
 	ArrowsClockwise,
 	Trash,
-} from "@phosphor-icons/react/dist/ssr";
-import { motion } from "framer-motion";
+} from "@phosphor-icons/react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { useState, useTransition } from "react";
@@ -255,7 +255,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 						<Button
 							onClick={handleUpdate}
 							disabled={isPending}
-							className="flex-1 rounded-xl bg-primary hover:bg-primary/90 font-bold uppercase tracking-widest text-[10px] h-12 shadow-lg shadow-primary/20"
+							className="flex-1 rounded-xl bg-primary hover:bg-primary/90 font-bold uppercase tracking-widest text-[10px] h-12 shadow-lg shadow-primary/20 text-text-inverse"
 						>
 							{isPending ? (
 								<ArrowsClockwise className="animate-spin" size={16} weight="bold" />
@@ -397,7 +397,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 			</div>
 
 			{/* Table Container */}
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card backdrop-blur-sm"
@@ -439,7 +439,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 								</tr>
 							))}
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={table
 								.getRowModel()
 								.rows.map((r) => r.id)
@@ -461,7 +461,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 								</tr>
 							) : (
 								table.getRowModel().rows.map((row) => (
-									<motion.tr
+									<m.tr
 										key={row.id}
 										variants={{
 											hidden: { opacity: 0, x: -10 },
@@ -474,10 +474,10 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</td>
 										))}
-									</motion.tr>
+									</m.tr>
 								))
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
 
@@ -507,7 +507,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 						</div>
 					</div>
 				)}
-			</motion.div>
+			</m.div>
 		</div>
 	);
 };

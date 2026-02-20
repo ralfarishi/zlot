@@ -13,8 +13,8 @@ import {
 	CheckCircle,
 	WarningCircle,
 	ArrowsClockwise,
-} from "@phosphor-icons/react/dist/ssr";
-import { motion } from "framer-motion";
+} from "@phosphor-icons/react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const NewUserPage = () => {
@@ -64,7 +64,7 @@ const NewUserPage = () => {
 
 	return (
 		<div className="mx-auto max-w-2xl px-4">
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, scale: 0.95 }}
 				animate={{ opacity: 1, scale: 1 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card backdrop-blur-md"
@@ -101,12 +101,16 @@ const NewUserPage = () => {
 					<div className="grid gap-6 md:grid-cols-2">
 						{/* Full Name Field */}
 						<div className="space-y-2 md:col-span-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="full-name"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								<IdentificationCard size={14} weight="bold" />
 								Legal Full Name
 							</label>
 							<div className="relative">
 								<input
+									id="full-name"
 									name="fullName"
 									type="text"
 									placeholder="Unit Designation (e.g. John Doe)"
@@ -127,12 +131,16 @@ const NewUserPage = () => {
 
 						{/* Email Field */}
 						<div className="space-y-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="email"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								<Envelope size={14} weight="bold" />
 								Credential Proxy (Email)
 							</label>
 							<div className="relative">
 								<input
+									id="email"
 									name="email"
 									type="email"
 									placeholder="operator@zlot.system"
@@ -153,12 +161,16 @@ const NewUserPage = () => {
 
 						{/* Role Field */}
 						<div className="space-y-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="role"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								<ShieldCheck size={14} weight="bold" />
 								Access clearance
 							</label>
 							<div className="relative">
 								<select
+									id="role"
 									name="role"
 									defaultValue=""
 									className={cn(
@@ -185,12 +197,16 @@ const NewUserPage = () => {
 
 						{/* Password Field */}
 						<div className="space-y-2 md:col-span-2">
-							<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+							<label
+								htmlFor="password"
+								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
+							>
 								<Lock size={14} weight="bold" />
 								Initial Secret Cipher (Password)
 							</label>
 							<div className="relative">
 								<input
+									id="password"
 									name="password"
 									type="password"
 									placeholder="Minimum 8 characters"
@@ -246,7 +262,7 @@ const NewUserPage = () => {
 						Ensuring zlot security protocol compliance • V2.4.0
 					</p>
 				</div>
-			</motion.div>
+			</m.div>
 		</div>
 	);
 };

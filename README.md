@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZLOT | Industrial Parking Management System
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Supabase](https://img.shields.io/badge/Supabase-Auth/DB-3ECF8E?style=for-the-badge&logo=supabase)
+![Drizzle](https://img.shields.io/badge/Drizzle-ORM-C5F74F?style=for-the-badge)
+[![React Doctor](https://www.react.doctor/share/badge?p=zlot&s=90&e=1&w=52&f=39)](https://www.react.doctor/share?p=zlot&s=90&e=1&w=52&f=39)
 
-First, run the development server:
+Zlot is a premium, high-density parking management terminal built for modern operations. It provides real-time operational telemetry, automated fee calculation, and comprehensive personnel management.
+
+## 🚀 Quick Start
 
 ```bash
+# Clone and Install
+git clone <repo-url>
+npm run install
+
+# Configure Environment
+cp .env.example .env
+
+# Initialize Database
+npm run db:generate
+npm run db:migrate
+
+# Launch
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📖 Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For detailed guides, please refer to the following:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [**Installation Guide**](./docs/installation.md) - Full setup instructions.
+- [**System Architecture**](./docs/architecture.md) - Deep dive into the tech stack and data flow.
+- [**Feature Catalog**](./docs/features.md) - Detailed overview of operational modules.
+- [**Debugging Log**](./docs/DEBUGGING.md) - Retrospective on resolved issues.
 
-## Learn More
+## ✨ Key Features
 
-To learn more about Next.js, take a look at the following resources:
+- **Mission Control Dashboard**: Real-time operational load and revenue telemetry.
+- **Terminal Entry/Exit**: Blazing fast vehicle logging with automated rate calculation.
+- **Zone Saturation Telemetry**: Visual capacity monitoring across multiple parking areas.
+- **Role-Based Access**: Secure directory management for Admins, Owners, and Employees.
+- **Thermal Receipt Support**: Professional settlement documents with print integration.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Core**: Next.js 16 (App Router), TypeScript.
+- **Data**: PostgreSQL, Drizzle ORM, Supabase Auth.
+- **UI**: Tailwind CSS v4, Framer Motion, Phosphor Icons, Shadcn/UI.
+- **State**: Nuqs (URL state), TanStack Query.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Built with absolute precision for high-performance enterprise needs.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

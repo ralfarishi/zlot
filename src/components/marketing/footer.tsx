@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { House, TwitterLogo, GithubLogo, DiscordLogo } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const FOOTER_LINKS = [
 	{
@@ -55,14 +55,14 @@ export const Footer = () => {
 						</p>
 						<div className="mt-(--space-lg) flex gap-(--space-md)">
 							{[TwitterLogo, GithubLogo, DiscordLogo].map((Icon, i) => (
-								<motion.a
+								<m.a
 									key={i}
 									href="#"
 									whileHover={{ y: -3, color: "var(--color-primary)" }}
 									className="text-text-secondary transition-colors"
 								>
 									<Icon size={24} weight="duotone" />
-								</motion.a>
+								</m.a>
 							))}
 						</div>
 					</div>

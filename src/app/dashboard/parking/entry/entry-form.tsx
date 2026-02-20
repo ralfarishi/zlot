@@ -2,9 +2,9 @@
 
 import { useState, useTransition, useRef } from "react";
 import { logEntry } from "@/src/actions/transactions";
-import { ShieldCheck, ArrowsClockwise, CheckCircle, Check } from "@phosphor-icons/react/dist/ssr";
+import { ShieldCheck, ArrowsClockwise, CheckCircle, Check } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface Area {
 	id: string;
@@ -74,7 +74,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 		<div className="relative">
 			<AnimatePresence mode="wait">
 				{success ? (
-					<motion.div
+					<m.div
 						key="success"
 						initial={{ opacity: 0, scale: 0.9 }}
 						animate={{ opacity: 1, scale: 1 }}
@@ -90,9 +90,9 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 						<p className="mt-2 text-sm font-bold text-text-secondary uppercase tracking-widest opacity-60">
 							Vehicle telemetry recorded. Ready for next entry.
 						</p>
-					</motion.div>
+					</m.div>
 				) : (
-					<motion.form
+					<m.form
 						key="form"
 						ref={formRef}
 						initial={{ opacity: 0 }}
@@ -102,21 +102,25 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 						className="p-(--space-lg) space-y-(--space-xl)"
 					>
 						{error && (
-							<motion.div
+							<m.div
 								initial={{ opacity: 0, y: -10 }}
 								animate={{ opacity: 1, y: 0 }}
 								className="rounded-lg bg-danger/10 p-3 text-xs font-bold text-danger uppercase tracking-tight"
 							>
 								{error}
-							</motion.div>
+							</m.div>
 						)}
 
 						<div className="grid gap-(--space-lg) md:grid-cols-2">
 							<div className="space-y-2">
-								<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+								<label
+									htmlFor="plate-number"
+									className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+								>
 									Registry (Plate Number)
 								</label>
 								<input
+									id="plate-number"
 									name="plateNumber"
 									type="text"
 									required
@@ -132,10 +136,14 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								</p>
 							</div>
 							<div className="space-y-2">
-								<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+								<label
+									htmlFor="vehicle-type"
+									className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+								>
 									Classification
 								</label>
 								<select
+									id="vehicle-type"
 									name="vehicleType"
 									disabled={isPending}
 									className="w-full h-[52px] rounded-button border-2 border-border bg-surface-elevated/50 px-4 py-3 text-sm font-black text-text-primary outline-none focus:border-primary transition-all uppercase appearance-none cursor-pointer"
@@ -148,10 +156,17 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 						</div>
 
 						<div className="space-y-4">
-							<label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
+							<label
+								id="sector-assignment-label"
+								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
+							>
 								Sector Assignment
 							</label>
-							<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+							<div
+								role="group"
+								aria-labelledby="sector-assignment-label"
+								className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+							>
 								{areas.map((area) => {
 									const isFull = area.occupied >= area.capacity;
 									const isSelected = selectedArea === area.id;
@@ -224,7 +239,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								)}
 							</button>
 						</div>
-					</motion.form>
+					</m.form>
 				)}
 			</AnimatePresence>
 		</div>

@@ -8,7 +8,7 @@ import {
 	type InsertVehicle,
 	type UpdateVehicle,
 } from "@/src/db/validations";
-import { requireAuth } from "@/src/lib/auth-guard";
+import { requireAuth, requireRole } from "@/src/lib/auth-guard";
 import { logActivity } from "./activity-logs";
 import { eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -62,7 +62,7 @@ export const updateVehicle = async (id: string, data: UpdateVehicle) => {
 };
 
 export const deleteVehicle = async (id: string) => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 
 	const result = await db
 		.update(vehicles)

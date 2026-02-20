@@ -7,7 +7,7 @@ import {
 	getPaginationRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/src/lib/utils";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { Profile } from "./_components/types";
@@ -76,7 +76,7 @@ export const UsersTable = ({
 				isPending={isPending}
 			/>
 
-			<motion.div
+			<m.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="overflow-hidden rounded-card border border-border bg-surface shadow-card backdrop-blur-sm"
@@ -113,7 +113,7 @@ export const UsersTable = ({
 								</tr>
 							))}
 						</thead>
-						<motion.tbody
+						<m.tbody
 							key={table
 								.getRowModel()
 								.rows.map((r) => r.id)
@@ -135,7 +135,7 @@ export const UsersTable = ({
 								</tr>
 							) : (
 								table.getRowModel().rows.map((row) => (
-									<motion.tr
+									<m.tr
 										key={row.id}
 										variants={{
 											hidden: { opacity: 0, x: -10 },
@@ -148,15 +148,15 @@ export const UsersTable = ({
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</td>
 										))}
-									</motion.tr>
+									</m.tr>
 								))
 							)}
-						</motion.tbody>
+						</m.tbody>
 					</table>
 				</div>
 
 				<UserPagination table={table} onPageChange={handlePageChange} />
-			</motion.div>
+			</m.div>
 		</div>
 	);
 };

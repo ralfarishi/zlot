@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Check, Sparkle, Crown, Rocket } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const TIERS = [
 	{
@@ -71,14 +71,14 @@ const PricingPage = () => {
 			<div className="mx-auto max-w-6xl">
 				{/* Heading */}
 				<div className="mb-(--space-2xl) text-center">
-					<motion.h1
+					<m.h1
 						initial={{ y: 20, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						className="font-display text-5xl font-black tracking-tighter md:text-8xl"
 					>
 						Simple pricing. <br />
 						<span className="text-secondary italic">No hidden fees.</span>
-					</motion.h1>
+					</m.h1>
 					<p className="mt-(--space-lg) text-lg text-text-secondary md:text-2xl font-bold">
 						Pick the plan that fits your ambition. Upgrade anytime.
 					</p>
@@ -87,7 +87,7 @@ const PricingPage = () => {
 				{/* Tier Cards */}
 				<div className="grid gap-8 md:grid-cols-3">
 					{TIERS.map((tier, i) => (
-						<motion.div
+						<m.div
 							key={tier.name}
 							initial={{ y: 20, opacity: 0 }}
 							animate={{ y: 0, opacity: 1 }}
@@ -138,7 +138,7 @@ const PricingPage = () => {
 							>
 								{tier.cta}
 							</Link>
-						</motion.div>
+						</m.div>
 					))}
 				</div>
 			</div>

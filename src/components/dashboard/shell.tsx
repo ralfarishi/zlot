@@ -3,7 +3,7 @@
 import { Sidebar, useSidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import type { UserRole } from "@/src/lib/auth-guard";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface DashboardShellProps {
 	children: React.ReactNode;
@@ -22,13 +22,13 @@ export const DashboardShell = ({ children, userName, userRole }: DashboardShellP
 				<Topbar userName={userName} userRole={userRole} onMenuToggle={open} />
 
 				<main className="flex-1 overflow-y-auto p-(--space-md) md:p-(--space-lg)">
-					<motion.div
+					<m.div
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.3, ease: "easeOut" }}
 					>
 						{children}
-					</motion.div>
+					</m.div>
 				</main>
 			</div>
 		</div>

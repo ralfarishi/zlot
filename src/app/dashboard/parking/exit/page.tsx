@@ -1,6 +1,7 @@
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
+import * as React from "react";
 import { ExitForm } from "./exit-form";
 
 export const metadata: Metadata = {
@@ -22,7 +23,11 @@ const ExitPage = () => {
 				Back to Console
 			</Link>
 
-			<ExitForm />
+			<React.Suspense
+				fallback={<div className="h-96 w-full animate-pulse rounded-card bg-surface-elevated/50" />}
+			>
+				<ExitForm />
+			</React.Suspense>
 		</div>
 	);
 };
