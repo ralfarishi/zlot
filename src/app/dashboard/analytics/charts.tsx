@@ -112,3 +112,58 @@ export const OccupancyDistribution = ({ data }: { data: OccupancyDataPoint[] }) 
 		</ResponsiveContainer>
 	);
 };
+
+export const OperationalHeatmap = ({ data }: { data: { hour: number; count: number }[] }) => {
+	// Map 24 hours
+	const hours = Array.from({ length: 24 }, (_, i) => ({
+		hour: i,
+		count: data.find((d) => d.hour === i)?.count || 0,
+	}));
+
+	const maxCount = Math.max(...hours.map((h) => h.count), 1);
+
+	return (
+		<div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5 h-full content-center">
+			{hours.map((h) => (
+				<div
+					key={h.hour}
+					className="aspect-square rounded-[4px] border border-white/5 transition-all hover:scale-110 hover:border-primary/50 relative group"
+					style={{
+						backgroundColor: `rgba(var(--color-primary-rgb, 14, 165, 233), ${Math.max(0.05, h.count / maxCount)})`,
+					}}
+					title={`${h.hour}:00 - ${h.count} entries avg`}
+				>
+					<span className="absolute inset-0 flex items-center justify-center text-[8px] font-black opacity-0 group-hover:opacity-100 text-text-inverse pointer-events-none">
+						{h.hour}
+					</span>
+				</div>
+			))}
+		</div>
+	);
+};
+
+export const RevenueVelocity = ({ data }: { data: { name: string; revenue: number }[] }) => {
+	if (data.length === 0) return null;
+
+	return (
+		<ResponsiveContainer width="100%" height="100%">
+			<AreaChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+				<defs>
+					<linearGradient id="colorVelocity" x1="0" y1="0" x2="0" y2="1">
+						<stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2} />
+						<stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+					</linearGradient>
+				</defs>
+				<Area
+					type="monotone"
+					dataKey="revenue"
+					stroke="var(--color-primary)"
+					strokeWidth={1.5}
+					fillOpacity={1}
+					fill="url(#colorVelocity)"
+					isAnimationActive={false}
+				/>
+			</AreaChart>
+		</ResponsiveContainer>
+	);
+};

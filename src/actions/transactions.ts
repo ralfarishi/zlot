@@ -2,10 +2,10 @@
 
 import { db } from "@/src/db";
 import { transactions, vehicles, parkingAreas, rates } from "@/src/db/schema";
+import { revalidatePath } from "next/cache";
 import { requireAuth, requireRole } from "@/src/lib/auth-guard";
 import { logActivity } from "./activity-logs";
 import { eq, and, isNull, sql, desc } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const logEntrySchema = z.object({
@@ -98,17 +98,22 @@ export const logEntry = async (rawInput: unknown) => {
 			.returning();
 
 		// 5. Update Area Occupancy
-		await tx
+		const [targetArea] = await tx
 			.update(parkingAreas)
 			.set({
 				occupied: sql`${parkingAreas.occupied} + 1`,
 				updatedAt: new Date(),
 			})
-			.where(eq(parkingAreas.id, BigInt(data.areaId)));
+			.where(eq(parkingAreas.id, BigInt(data.areaId)))
+			.returning();
 
-		await logActivity(`Log: Vehicle ENTRY [${plateUpper}] in Area ${data.areaId}`);
+		await logActivity(
+			`Log: Vehicle ENTRY [${plateUpper}] in Area ${targetArea?.areaName || data.areaId}`,
+		);
 
 		revalidatePath("/dashboard/parking", "layout");
+		revalidatePath("/dashboard");
+		revalidatePath("/dashboard/analytics");
 
 		return newTx;
 	});
@@ -189,6 +194,8 @@ export const logExit = async (
 		);
 
 		revalidatePath("/dashboard/parking", "layout");
+		revalidatePath("/dashboard");
+		revalidatePath("/dashboard/analytics");
 
 		return {
 			...updatedTx,
@@ -222,6 +229,8 @@ export const deleteTransaction = async (id: string) => {
 	);
 
 	revalidatePath("/dashboard/parking", "layout");
+	revalidatePath("/dashboard");
+	revalidatePath("/dashboard/analytics");
 };
 
 /**
@@ -279,7 +288,7 @@ export const getAllTransactions = async () => {
  * ANALYTICS: Get summary stats for today
  */
 export const getAnalyticsStats = async () => {
-	await requireRole(["admin", "owner"]);
+	await requireAuth();
 
 	const todayStart = new Date();
 	todayStart.setHours(0, 0, 0, 0);
@@ -329,10 +338,14 @@ export const getAnalyticsStats = async () => {
 	const peakHourResult = await db
 		.select({
 			hour: sql<number>`EXTRACT(HOUR FROM ${transactions.entryTime})::int`,
-			count: sql<number>`COUNT(*)::int`,
 		})
 		.from(transactions)
-		.where(sql`${transactions.entryTime} >= ${todayStart.toISOString()}`)
+		.where(
+			and(
+				sql`${transactions.entryTime} >= ${todayStart.toISOString()}`,
+				sql`${transactions.entryTime} < ${new Date(todayStart.getTime() + 86400000).toISOString()}`,
+			),
+		)
 		.groupBy(sql`EXTRACT(HOUR FROM ${transactions.entryTime})`)
 		.orderBy(sql`COUNT(*) DESC`)
 		.limit(1);
@@ -365,10 +378,11 @@ export const getAnalyticsStats = async () => {
  * ANALYTICS: Revenue by day (last N days)
  */
 export const getRevenueByDay = async (days = 7) => {
-	await requireRole(["admin", "owner"]);
+	await requireAuth();
 
+	const safeDays = Math.max(1, Math.min(days, 365));
 	const since = new Date();
-	since.setDate(since.getDate() - days);
+	since.setDate(since.getDate() - safeDays);
 	since.setHours(0, 0, 0, 0);
 
 	const result = await db
@@ -400,7 +414,7 @@ export const getRevenueByDay = async (days = 7) => {
  * ANALYTICS: Occupancy by area
  */
 export const getOccupancyByArea = async () => {
-	await requireRole(["admin", "owner"]);
+	await requireAuth();
 
 	const areas = await db.query.parkingAreas.findMany({
 		where: isNull(parkingAreas.deletedAt),
@@ -430,4 +444,79 @@ export const getRecentCompletedTransactions = async (limit = 20) => {
 		orderBy: [desc(transactions.exitTime)],
 		limit,
 	});
+};
+
+/**
+ * ANALYTICS: Hourly Load Data (Heatmap)
+ */
+export const getHourlyLoadData = async () => {
+	await requireAuth();
+
+	const result = await db
+		.select({
+			hour: sql<number>`EXTRACT(HOUR FROM ${transactions.entryTime})::int`,
+			count: sql<number>`COUNT(*)::int`,
+		})
+		.from(transactions)
+		.where(sql`${transactions.entryTime} >= CURRENT_DATE - INTERVAL '7 days'`)
+		.groupBy(sql`EXTRACT(HOUR FROM ${transactions.entryTime})`)
+		.orderBy(sql`EXTRACT(HOUR FROM ${transactions.entryTime})`);
+
+	return result;
+};
+
+/**
+ * ANALYTICS: Zone Performance
+ */
+export const getZonePerformance = async () => {
+	await requireAuth();
+
+	const result = await db
+		.select({
+			name: parkingAreas.areaName,
+			revenue: sql<string>`COALESCE(SUM(${transactions.totalCost}), 0)`,
+			transactionCount: sql<number>`COUNT(*)::int`,
+		})
+		.from(parkingAreas)
+		.leftJoin(transactions, eq(transactions.areaId, parkingAreas.id))
+		.where(
+			and(
+				isNull(parkingAreas.deletedAt),
+				sql`${transactions.exitTime} >= CURRENT_DATE - INTERVAL '30 days'`,
+			),
+		)
+		.groupBy(parkingAreas.areaName)
+		.orderBy(desc(sql`SUM(${transactions.totalCost})`));
+
+	return result.map((r) => ({
+		...r,
+		revenue: parseFloat(r.revenue),
+	}));
+};
+
+/**
+ * ANALYTICS: Revenue Velocity (Last 6 Hours)
+ */
+export const getRevenueVelocity = async () => {
+	await requireAuth();
+
+	const result = await db
+		.select({
+			hour: sql<string>`TO_CHAR(${transactions.exitTime}, 'HH24:00')`,
+			revenue: sql<string>`COALESCE(SUM(${transactions.totalCost}), 0)`,
+		})
+		.from(transactions)
+		.where(
+			and(
+				eq(transactions.status, "exited"),
+				sql`${transactions.exitTime} >= now() - INTERVAL '6 hours'`,
+			),
+		)
+		.groupBy(sql`TO_CHAR(${transactions.exitTime}, 'HH24:00')`)
+		.orderBy(sql`MIN(${transactions.exitTime})`);
+
+	return result.map((r) => ({
+		name: r.hour,
+		revenue: parseFloat(r.revenue),
+	}));
 };

@@ -25,7 +25,8 @@ export async function getActivityLogs({
 } = {}) {
 	await requireRole(["admin", "owner"]);
 
-	const baseWhere = search ? or(ilike(activityLogs.activity, `%${search}%`)) : undefined;
+	const escaped = search ? search.replace(/[%_]/g, "\\$&") : "";
+	const baseWhere = search ? or(ilike(activityLogs.activity, `%${escaped}%`)) : undefined;
 
 	const [rows, totalResult] = await Promise.all([
 		db.query.activityLogs.findMany({

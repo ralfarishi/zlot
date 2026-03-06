@@ -15,7 +15,8 @@ const COOKIE_NAME = "zlot-theme";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 const setThemeCookie = (theme: Theme) => {
-	document.cookie = `${COOKIE_NAME}=${theme};path=/;max-age=${COOKIE_MAX_AGE};SameSite=Lax`;
+	const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+	document.cookie = `${COOKIE_NAME}=${theme};path=/;max-age=${COOKIE_MAX_AGE};SameSite=Lax${isSecure ? ";Secure" : ""}`;
 };
 
 export const ThemeProvider = ({

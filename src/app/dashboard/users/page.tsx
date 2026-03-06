@@ -41,6 +41,7 @@ const UsersPage = async ({
 	const serialized = sorted.map((p) => ({
 		id: p.id,
 		fullName: p.fullName,
+		email: p.email ?? "N/A",
 		role: p.role as "admin" | "employee" | "owner",
 		isActive: p.isActive,
 		createdAt: p.createdAt,

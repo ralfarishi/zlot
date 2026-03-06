@@ -31,6 +31,19 @@ export const createColumns = (currentUser?: { id: string; role: string }) => [
 			</div>
 		),
 	}),
+	columnHelper.accessor("email", {
+		header: () => (
+			<div className="flex items-center gap-2">
+				<span className="text-[10px] font-black tracking-widest uppercase opacity-40">@</span>
+				Email
+			</div>
+		),
+		cell: (info) => (
+			<span className="text-xs font-medium text-text-secondary/80 lowercase italic tracking-tight underline decoration-border/50">
+				{info.getValue()}
+			</span>
+		),
+	}),
 	columnHelper.accessor("role", {
 		header: () => (
 			<div className="flex items-center gap-2">

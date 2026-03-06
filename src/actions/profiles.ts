@@ -18,9 +18,28 @@ import { revalidatePath } from "next/cache";
 
 export const getProfiles = async () => {
 	await requireRole(["admin", "owner"]);
-	return await db.query.profiles.findMany({
+
+	const profileList = await db.query.profiles.findMany({
 		where: isNull(profiles.deletedAt),
 	});
+
+	try {
+		const admin = createAdminClient();
+		const {
+			data: { users },
+			error,
+		} = await admin.auth.admin.listUsers();
+
+		if (error) throw error;
+
+		return profileList.map((p) => ({
+			...p,
+			email: users.find((u) => u.id === p.id)?.email ?? "N/A",
+		}));
+	} catch (err) {
+		console.error("Failed to fetch auth emails:", err);
+		return profileList.map((p) => ({ ...p, email: "N/A" }));
+	}
 };
 
 export const getProfileById = async (id: string) => {
@@ -54,6 +73,16 @@ export const createUserWithProfile = async (data: CreateUserData) => {
 
 	const { email, password, fullName, role } = data;
 	const admin = createAdminClient();
+
+	if (password.length < 8) {
+		throw new Error("Password must be at least 8 characters.");
+	}
+	if (!/[A-Z]/.test(password)) {
+		throw new Error("Password must contain at least one uppercase letter.");
+	}
+	if (!/[0-9]/.test(password)) {
+		throw new Error("Password must contain at least one number.");
+	}
 
 	// 1. Create Auth User with auto-confirm enabled
 	const { data: authData, error: authError } = await admin.auth.admin.createUser({
@@ -176,8 +205,14 @@ export const updatePassword = async (targetUserId: string, newPassword: string) 
 		throw new Error("Unauthorized security escalation attempt detected.");
 	}
 
-	if (newPassword.length < 6) {
-		throw new Error("Password must be at least 6 characters.");
+	if (newPassword.length < 8) {
+		throw new Error("Password must be at least 8 characters.");
+	}
+	if (!/[A-Z]/.test(newPassword)) {
+		throw new Error("Password must contain at least one uppercase letter.");
+	}
+	if (!/[0-9]/.test(newPassword)) {
+		throw new Error("Password must contain at least one number.");
 	}
 
 	if (isAdmin && !isSelf) {

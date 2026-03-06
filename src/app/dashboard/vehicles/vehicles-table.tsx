@@ -109,11 +109,26 @@ const columns = [
 				Aesthetic
 			</div>
 		),
-		cell: (info) => (
-			<span className="text-xs font-bold uppercase tracking-tight text-text-secondary">
-				{info.getValue() ?? "---"}
-			</span>
-		),
+		cell: (info) => {
+			const value = info.getValue();
+			const isHex = value?.startsWith("#");
+
+			if (!isHex) {
+				return (
+					<span className="text-xs font-bold uppercase tracking-tight text-text-secondary">
+						{value ?? "---"}
+					</span>
+				);
+			}
+
+			return (
+				<div
+					className="h-5 w-15 rounded-lg ring-1 ring-inset ring-black/10 shadow-sm border border-white/10"
+					style={{ backgroundColor: value || undefined }}
+					title={value || ""}
+				/>
+			);
+		},
 	}),
 	columnHelper.accessor("ownerName", {
 		header: () => (
@@ -187,7 +202,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 			</button>
 
 			<Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-				<DialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-2xl">
+				<DialogContent className="w-[94vw] sm:max-w-md rounded-2xl">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
 							<div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -222,12 +237,28 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 								<Label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
 									Visual Aesthetic (Color)
 								</Label>
-								<Input
-									value={color}
-									onChange={(e) => setColor(e.target.value)}
-									placeholder="e.g. SCHWARTZ BLACK"
-									className="h-12 rounded-xl border-2 font-bold focus:border-primary transition-all bg-surface-elevated/30"
-								/>
+								<div className="flex gap-3">
+									<div className="relative group/color shrink-0">
+										<div
+											className="size-12 rounded-xl border-2 border-border shadow-sm transition-all group-hover/color:scale-105 ring-1 ring-black/5"
+											style={{
+												backgroundColor: color?.startsWith("#") ? color : "#000000",
+											}}
+										/>
+										<input
+											type="color"
+											value={color?.startsWith("#") ? color : "#000000"}
+											onChange={(e) => setColor(e.target.value.toUpperCase())}
+											className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+										/>
+									</div>
+									<Input
+										value={color}
+										onChange={(e) => setColor(e.target.value.toUpperCase())}
+										placeholder="#000000"
+										className="h-12 flex-1 rounded-xl border-2 font-bold focus:border-primary transition-all bg-surface-elevated/30 font-mono tracking-widest uppercase"
+									/>
+								</div>
 							</div>
 
 							<div className="space-y-2">
@@ -268,7 +299,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 			</Dialog>
 
 			<AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-				<AlertDialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-2xl">
+				<AlertDialogContent className="w-[94vw] sm:max-w-md rounded-2xl">
 					<AlertDialogHeader>
 						<AlertDialogTitle className="text-xl font-black uppercase tracking-tight text-danger flex items-center gap-2">
 							<div className="p-2 rounded-lg bg-danger/10 text-danger">

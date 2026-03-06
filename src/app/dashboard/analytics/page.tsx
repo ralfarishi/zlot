@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { getAnalyticsStats, getRevenueByDay, getOccupancyByArea } from "@/src/actions/transactions";
+import {
+	getAnalyticsStats,
+	getRevenueByDay,
+	getOccupancyByArea,
+	getHourlyLoadData,
+	getZonePerformance,
+	getRevenueVelocity,
+} from "@/src/actions/transactions";
 import { requireRole } from "@/src/lib/auth-guard";
 import { AnalyticsDashboard } from "./analytics-dashboard";
 
@@ -11,11 +18,15 @@ const ZONE_COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#06
 
 const AnalyticsPage = async () => {
 	await requireRole(["admin", "owner"]);
-	const [stats, revenueData, occupancyData] = await Promise.all([
-		getAnalyticsStats(),
-		getRevenueByDay(7),
-		getOccupancyByArea(),
-	]);
+	const [stats, revenueData, occupancyData, heatmapData, zonePerformance, revenueVelocity] =
+		await Promise.all([
+			getAnalyticsStats(),
+			getRevenueByDay(7),
+			getOccupancyByArea(),
+			getHourlyLoadData(),
+			getZonePerformance(),
+			getRevenueVelocity(),
+		]);
 
 	const occupancyChartData = occupancyData.map((a, i) => ({
 		...a,
@@ -27,6 +38,9 @@ const AnalyticsPage = async () => {
 			stats={stats}
 			revenueData={revenueData}
 			occupancyChartData={occupancyChartData}
+			heatmapData={heatmapData}
+			zonePerformance={zonePerformance}
+			revenueVelocity={revenueVelocity}
 		/>
 	);
 };

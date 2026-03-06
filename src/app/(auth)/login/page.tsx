@@ -23,7 +23,7 @@ const LoginPage = () => {
 		const errs: FormErrors = {};
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
 			errs.email = "Please enter a valid email address";
-		if (password.length < 6) errs.password = "Password must be at least 6 characters";
+		if (password.length < 8) errs.password = "Password must be at least 8 characters";
 		return errs;
 	};
 
@@ -46,7 +46,7 @@ const LoginPage = () => {
 			setIsLoading(true);
 
 			const supabase = createClient();
-			const { error } = await supabase.auth.signInWithPassword({
+			const { data, error } = await supabase.auth.signInWithPassword({
 				email,
 				password,
 			});
@@ -57,7 +57,27 @@ const LoginPage = () => {
 				return;
 			}
 
-			router.push("/dashboard");
+			if (data.user) {
+				const { data: profile } = await supabase
+					.from("profiles")
+					.select("role, is_active")
+					.eq("id", data.user.id)
+					.single();
+
+				if (!profile || !profile.is_active) {
+					await supabase.auth.signOut();
+					setErrors({ form: "Access denied. This unit has been deactivated." });
+					setIsLoading(false);
+					return;
+				}
+
+				if (profile.role === "employee") {
+					router.push("/dashboard/parking");
+				} else {
+					router.push("/dashboard");
+				}
+			}
+
 			router.refresh();
 		},
 		[isLoading, router],
@@ -119,6 +139,7 @@ const LoginPage = () => {
 								id="email"
 								name="email"
 								type="email"
+								autoComplete="email"
 								placeholder="you@company.com"
 								className="w-full rounded-2xl border-2 border-border bg-surface px-6 py-4 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
 							/>
@@ -137,6 +158,7 @@ const LoginPage = () => {
 									id="password"
 									name="password"
 									type={showPassword ? "text" : "password"}
+									autoComplete="current-password"
 									placeholder="••••••••"
 									className="w-full rounded-2xl border-2 border-border bg-surface px-6 py-4 pr-14 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
 								/>

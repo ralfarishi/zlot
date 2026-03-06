@@ -27,6 +27,16 @@ const OccupancyDistribution = dynamic(
 	},
 );
 
+const OperationalHeatmap = dynamic(() => import("./charts").then((mod) => mod.OperationalHeatmap), {
+	ssr: false,
+	loading: () => <div className="h-full w-full animate-pulse rounded-xl bg-surface-elevated/50" />,
+});
+
+const RevenueVelocity = dynamic(() => import("./charts").then((mod) => mod.RevenueVelocity), {
+	ssr: false,
+	loading: () => <div className="h-full w-full animate-pulse opacity-50" />,
+});
+
 interface Stats {
 	dailyRevenue: number;
 	revenueChange: number;
@@ -51,14 +61,31 @@ interface AnalyticsDashboardProps {
 	stats: Stats;
 	revenueData: RevenueDataPoint[];
 	occupancyChartData: OccupancyDataPoint[];
+	heatmapData: { hour: number; count: number }[];
+	zonePerformance: { name: string; revenue: number; transactionCount: number }[];
+	revenueVelocity: { name: string; revenue: number }[];
 }
 
 export const AnalyticsDashboard = ({
 	stats,
 	revenueData,
 	occupancyChartData,
+	heatmapData,
+	zonePerformance,
+	revenueVelocity,
 }: AnalyticsDashboardProps) => {
-	const statCards = [
+	interface StatCard {
+		label: string;
+		value: string;
+		change: string;
+		trend: "up" | "down";
+		icon: React.ElementType;
+		color: string;
+		bg: string;
+		sparkline?: React.ReactNode;
+	}
+
+	const statCards: StatCard[] = [
 		{
 			label: "Daily Revenue",
 			value: formatIDR(stats.dailyRevenue),
@@ -67,12 +94,13 @@ export const AnalyticsDashboard = ({
 			icon: CurrencyDollar,
 			color: "text-success",
 			bg: "bg-success/10",
+			sparkline: <RevenueVelocity data={revenueVelocity} />,
 		},
 		{
 			label: "Active Vehicles",
 			value: stats.activeVehicles.toString(),
 			change: "",
-			trend: "up" as const,
+			trend: "up",
 			icon: Car,
 			color: "text-secondary",
 			bg: "bg-secondary/10",
@@ -81,7 +109,7 @@ export const AnalyticsDashboard = ({
 			label: "Occupancy Rate",
 			value: `${stats.occupancyRate}%`,
 			change: "",
-			trend: "up" as const,
+			trend: "up",
 			icon: UsersIcon,
 			color: "text-accent-2",
 			bg: "bg-accent-2/10",
@@ -90,7 +118,7 @@ export const AnalyticsDashboard = ({
 			label: "Peak Load Time",
 			value: stats.peakHour !== null ? `${String(stats.peakHour).padStart(2, "0")}:00` : "--:--",
 			change: "",
-			trend: "up" as const,
+			trend: "up",
 			icon: TrendUp,
 			color: "text-accent-1",
 			bg: "bg-accent-1/10",
@@ -141,6 +169,7 @@ export const AnalyticsDashboard = ({
 									<Icon size={24} weight="bold" />
 								</div>
 							</div>
+							{stat.sparkline && <div className="mt-3 h-12 w-full">{stat.sparkline}</div>}
 							{stat.change && (
 								<div className="mt-4 flex items-center gap-2">
 									<div
@@ -179,12 +208,6 @@ export const AnalyticsDashboard = ({
 								7-Day Aggregated Stream
 							</p>
 						</div>
-						<div className="flex gap-2">
-							<div className="flex items-center gap-1.5">
-								<div className="size-2 rounded-full bg-primary" />
-								<span className="text-[9px] font-bold text-text-secondary uppercase">Revenue</span>
-							</div>
-						</div>
 					</div>
 					<div className="flex-1 min-h-0">
 						<RevenueTrends data={revenueData} />
@@ -218,6 +241,72 @@ export const AnalyticsDashboard = ({
 								<span className="text-[9px] font-bold text-text-secondary uppercase tracking-tighter">
 									{item.name}
 								</span>
+							</div>
+						))}
+					</div>
+				</m.div>
+			</div>
+
+			<div className="grid gap-(--space-lg) lg:grid-cols-3">
+				<m.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.4 }}
+					className="lg:col-span-2 rounded-card border border-border bg-surface p-(--space-lg) shadow-card flex flex-col h-[400px]"
+				>
+					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
+						<div>
+							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
+								Load Distribution (24H Average)
+							</h3>
+							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
+								Hourly Peak Intensity Mapping
+							</p>
+						</div>
+						<TrendUp size={16} className="text-text-secondary opacity-40" />
+					</div>
+					<div className="flex-1 min-h-0">
+						<OperationalHeatmap data={heatmapData} />
+					</div>
+				</m.div>
+
+				<m.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.5 }}
+					className="rounded-card border border-border bg-surface p-(--space-lg) shadow-card flex flex-col h-[400px]"
+				>
+					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
+						<div>
+							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
+								Zone Performance Index
+							</h3>
+							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
+								30-Day Revenue efficiency
+							</p>
+						</div>
+					</div>
+					<div className="flex-1 overflow-y-auto pr-2 space-y-4 pt-2 custom-scrollbar">
+						{zonePerformance.map((zone, i) => (
+							<div key={zone.name} className="flex flex-col gap-1">
+								<div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+									<span className="text-text-primary">{zone.name}</span>
+									<span className="text-success">{formatIDR(zone.revenue)}</span>
+								</div>
+								<div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
+									<m.div
+										initial={{ width: 0 }}
+										animate={{
+											width: `${(zone.revenue / Math.max(...zonePerformance.map((z) => z.revenue))) * 100}%`,
+										}}
+										transition={{ delay: 0.6 + i * 0.1 }}
+										className="h-full bg-primary"
+									/>
+								</div>
+								<div className="flex justify-between text-[8px] font-bold text-text-secondary uppercase opacity-40">
+									<span>{zone.transactionCount} Shifts</span>
+									<span>Avg: {formatIDR(zone.revenue / (zone.transactionCount || 1))}</span>
+								</div>
 							</div>
 						))}
 					</div>

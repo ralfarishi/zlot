@@ -125,7 +125,9 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									type="text"
 									required
 									value={plateNumber}
-									onChange={(e) => setPlateNumber(e.target.value.replace(/\s/g, "").toUpperCase())}
+									onChange={(e) =>
+										setPlateNumber(e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase())
+									}
 									disabled={isPending}
 									maxLength={PLATE_MAX_LENGTH}
 									placeholder="ABC1234"

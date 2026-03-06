@@ -44,7 +44,7 @@ export const createVehicle = async (data: InsertVehicle) => {
 };
 
 export const updateVehicle = async (id: string, data: UpdateVehicle) => {
-	await requireAuth();
+	await requireRole(["admin", "owner"]);
 	const validated = updateVehicleSchema.parse({
 		...data,
 		plateNumber: data.plateNumber?.toUpperCase(),

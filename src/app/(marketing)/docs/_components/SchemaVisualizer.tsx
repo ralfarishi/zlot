@@ -13,9 +13,9 @@ interface ColumnProps {
 }
 
 const Column = ({ name, type, isPk, isFk, isUnique, references }: ColumnProps) => (
-	<div className="flex items-center justify-between px-4 py-3 hover:bg-white/2 border-b border-border/40 last:border-0 transition-colors group/row">
+	<div className="flex items-center justify-between px-5 py-3 hover:bg-white/2 border-b border-border/40 last:border-0 transition-colors group/row">
 		<div className="flex items-center gap-3 min-w-0">
-			<div className="flex items-center justify-center w-4 shrink-0">
+			<div className="flex items-center justify-center w-6 shrink-0">
 				{isPk ? (
 					<Key size={12} weight="fill" className="text-primary" />
 				) : isUnique ? (
@@ -57,19 +57,21 @@ interface ERDTableProps {
 const ERDTable = ({ title, columns, description }: ERDTableProps) => (
 	<div className="flex flex-col rounded-xl bg-surface/50 border border-border/60 overflow-hidden shadow-2xl hover:border-primary/20 transition-all group min-w-[320px] max-w-sm h-fit">
 		<div className="px-5 py-4 bg-white/3 border-b border-border/60">
-			<div className="flex items-center gap-3 mb-1">
-				<div className="size-6 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+			<div className="flex items-start gap-3">
+				<div className="size-6 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
 					<TableIcon size={14} className="text-primary" weight="bold" />
 				</div>
-				<h3 className="font-display font-black text-sm tracking-widest text-text-primary uppercase leading-tight">
-					{title}
-				</h3>
+				<div className="flex flex-col min-w-0">
+					<h3 className="m-0 p-0 font-display font-black text-sm tracking-widest text-text-primary uppercase leading-6 truncate">
+						{title}
+					</h3>
+					{description && (
+						<p className="m-0 p-0 mt-1 text-[9px] text-text-secondary/40 font-black uppercase tracking-widest leading-none">
+							{description}
+						</p>
+					)}
+				</div>
 			</div>
-			{description && (
-				<p className="text-[9px] text-text-secondary/40 font-black uppercase tracking-[0.15em] pl-9">
-					{description}
-				</p>
-			)}
 		</div>
 		<div className="flex flex-col">
 			{columns.map((col, idx) => (

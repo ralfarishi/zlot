@@ -28,7 +28,7 @@ const DashboardOverview = async () => {
 		db
 			.select({ sum: sql<string>`coalesce(sum(total_cost), '0')` })
 			.from(transactions)
-			.where(sql`created_at >= now() - interval '24 hours'`)
+			.where(sql`exit_time >= CURRENT_DATE`)
 			.then((res) => res[0].sum),
 	]);
 

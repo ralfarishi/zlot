@@ -46,15 +46,3 @@ export const requireRole = async (allowedRoles: UserRole[]) => {
 
 	return { user, profile: { id: profile.id, role } };
 };
-
-/**
- * Validates Origin/Referer for CSRF protection in Server Actions.
- */
-export const validateCSRF = (headers: Headers) => {
-	const origin = headers.get("origin");
-	const host = headers.get("host");
-
-	if (origin && host && !origin.includes(host)) {
-		throw new Error("CSRF detected: Invalid origin");
-	}
-};
