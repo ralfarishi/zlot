@@ -15,43 +15,43 @@ const HistoryPage = async () => {
 
 	interface TransactionRecord {
 		id: bigint;
-		transactionNumber: string | null;
-		entryTime: Date;
-		exitTime: Date | null;
-		status: "entered" | "exited";
-		totalCost: string | null;
-		durationHours: string | null;
-		paymentMethod: "QRIS" | "CASH" | null;
-		cashReceived: string | null;
-		cashChange: string | null;
-		vehicle: { plateNumber: string; vehicleType: string };
-		area: { areaName: string };
-		rate: { hourlyRate: string };
-		employee: { fullName: string | null };
+		noTransaksi: string | null;
+		waktuMasuk: Date;
+		waktuKeluar: Date | null;
+		status: "masuk" | "keluar";
+		totalBiaya: string | null;
+		durasiJam: string | null;
+		metodePembayaran: "QRIS" | "TUNAI" | null;
+		uangDiterima: string | null;
+		kembalian: string | null;
+		kendaraan: { platNomor: string; jenisKendaraan: string };
+		area: { namaArea: string };
+		tarif: { tarifPerJam: string };
+		petugas: { namaLengkap: string | null };
 	}
 
 	const serializedData = (transactions as unknown as TransactionRecord[]).map((tx) => ({
 		id: tx.id.toString(),
-		transactionNumber: tx.transactionNumber,
-		entryTime: tx.entryTime,
-		exitTime: tx.exitTime,
+		nomorTransaksi: tx.noTransaksi,
+		waktuMasuk: tx.waktuMasuk,
+		waktuKeluar: tx.waktuKeluar,
 		status: tx.status,
-		totalCost: tx.totalCost,
-		durationHours: tx.durationHours,
-		vehicle: {
-			plateNumber: tx.vehicle.plateNumber,
-			vehicleType: tx.vehicle.vehicleType,
+		totalBiaya: tx.totalBiaya,
+		durasiJam: tx.durasiJam,
+		kendaraan: {
+			platNomor: tx.kendaraan.platNomor,
+			jenisKendaraan: tx.kendaraan.jenisKendaraan,
 		},
 		area: {
-			areaName: tx.area.areaName,
+			namaArea: tx.area.namaArea,
 		},
-		rate: {
-			hourlyRate: tx.rate.hourlyRate,
+		tarif: {
+			tarifPerJam: tx.tarif.tarifPerJam,
 		},
-		staffName: tx.employee.fullName,
-		paymentMethod: tx.paymentMethod,
-		cashReceived: tx.cashReceived || null,
-		cashChange: tx.cashChange || null,
+		namaPetugas: tx.petugas.namaLengkap,
+		metodePembayaran: tx.metodePembayaran,
+		tunaiDiterima: tx.uangDiterima || null,
+		kembalian: tx.kembalian || null,
 	}));
 
 	return (

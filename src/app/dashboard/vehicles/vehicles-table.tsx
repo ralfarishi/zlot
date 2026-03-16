@@ -49,29 +49,29 @@ import {
 
 interface Vehicle {
 	id: string;
-	plateNumber: string;
-	vehicleType: string;
-	color: string | null;
-	ownerName: string | null;
+	platNomor: string;
+	jenisKendaraan: string;
+	warna: string | null;
+	namaPemilik: string | null;
 	createdAt: Date;
 }
 
 const VEHICLE_LABELS: Record<string, string> = {
-	motorcycle: "Motorcycle",
-	car: "Car",
-	other: "Other",
+	motor: "Motorcycle",
+	mobil: "Car",
+	lainnya: "Other",
 };
 
 const VEHICLE_COLORS: Record<string, string> = {
-	motorcycle: "bg-blue-500/10 text-blue-500 ring-blue-500/20",
-	car: "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20",
-	other: "bg-amber-500/10 text-amber-500 ring-amber-500/20",
+	motor: "bg-blue-500/10 text-blue-500 ring-blue-500/20",
+	mobil: "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20",
+	lainnya: "bg-amber-500/10 text-amber-500 ring-amber-500/20",
 };
 
 const columnHelper = createColumnHelper<Vehicle>();
 
 const columns = [
-	columnHelper.accessor("plateNumber", {
+	columnHelper.accessor("platNomor", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<IdentificationCard size={14} weight="bold" />
@@ -84,7 +84,7 @@ const columns = [
 			</span>
 		),
 	}),
-	columnHelper.accessor("vehicleType", {
+	columnHelper.accessor("jenisKendaraan", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Car size={14} weight="bold" />
@@ -102,7 +102,7 @@ const columns = [
 			</span>
 		),
 	}),
-	columnHelper.accessor("color", {
+	columnHelper.accessor("warna", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Palette size={14} weight="bold" />
@@ -130,7 +130,7 @@ const columns = [
 			);
 		},
 	}),
-	columnHelper.accessor("ownerName", {
+	columnHelper.accessor("namaPemilik", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<UserCircle size={14} weight="bold" />
@@ -158,13 +158,13 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 	const [isEditOpen, setIsEditOpen] = useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 	const [isPending, startTransition] = useTransition();
-	const [color, setColor] = useState(vehicle.color || "");
-	const [ownerName, setOwnerName] = useState(vehicle.ownerName || "");
+	const [color, setColor] = useState(vehicle.warna || "");
+	const [ownerName, setOwnerName] = useState(vehicle.namaPemilik || "");
 
 	const handleUpdate = () => {
 		startTransition(async () => {
 			try {
-				await updateVehicle(vehicle.id, { color, ownerName });
+				await updateVehicle(vehicle.id, { warna: color, namaPemilik: ownerName });
 				setIsEditOpen(false);
 			} catch (err) {
 				console.error("Update failed", err);
@@ -219,11 +219,11 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 							</Label>
 							<div className="rounded-2xl bg-surface-elevated p-5 border border-border shadow-inner ring-1 ring-border/50">
 								<p className="font-mono text-3xl font-black text-text-primary tracking-[0.2em]">
-									{vehicle.plateNumber.toUpperCase()}
+									{vehicle.platNomor.toUpperCase()}
 								</p>
 								<div className="flex items-center gap-2 mt-2">
 									<span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-primary ring-1 ring-primary/20">
-										{vehicle.vehicleType}
+										{vehicle.jenisKendaraan}
 									</span>
 									<span className="text-[10px] font-bold text-text-secondary/40 uppercase tracking-tighter">
 										DATABASE_ENTRY_{vehicle.id.toString().slice(-4)}
@@ -310,7 +310,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 						<AlertDialogDescription className="text-sm font-bold text-text-secondary leading-relaxed pt-2">
 							WARNING: You are about to purge vehicle{" "}
 							<span className="font-mono font-black text-text-primary underline decoration-danger/30">
-								{vehicle.plateNumber}
+								{vehicle.platNomor}
 							</span>{" "}
 							from the active directory. This will archive all associated telemetry.
 						</AlertDialogDescription>
@@ -344,7 +344,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 	);
 	const [sort, setSort] = useQueryState(
 		"sort",
-		parseAsString.withDefault("plateNumber").withOptions({ shallow: false }),
+		parseAsString.withDefault("platNomor").withOptions({ shallow: false }),
 	);
 	const [order, setOrder] = useQueryState(
 		"order",
@@ -399,7 +399,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 						/>
 					</div>
 					<div className="flex items-center justify-between rounded-button border border-border bg-surface p-1">
-						{["all", "car", "motorcycle", "other"].map((t) => (
+						{["all", "mobil", "motor", "lainnya"].map((t) => (
 							<button
 								key={t}
 								onClick={() => setType(t)}

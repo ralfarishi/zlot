@@ -1,7 +1,7 @@
 import { createClient } from "./supabase/server";
 import { redirect } from "next/navigation";
 
-export type UserRole = "admin" | "employee" | "owner";
+export type UserRole = "admin" | "petugas" | "owner";
 
 /**
  * Ensures user is authenticated. Returns user object.
@@ -29,7 +29,7 @@ export const requireRole = async (allowedRoles: UserRole[]) => {
 
 	const supabase = await createClient();
 	const { data: profile, error } = await supabase
-		.from("profiles")
+		.from("profil")
 		.select("id, role")
 		.eq("id", user.id)
 		.single();

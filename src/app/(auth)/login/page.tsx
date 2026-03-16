@@ -59,7 +59,7 @@ const LoginPage = () => {
 
 			if (data.user) {
 				const { data: profile } = await supabase
-					.from("profiles")
+					.from("profil")
 					.select("role, is_active")
 					.eq("id", data.user.id)
 					.single();
@@ -71,7 +71,7 @@ const LoginPage = () => {
 					return;
 				}
 
-				if (profile.role === "employee") {
+				if (profile.role === "petugas") {
 					router.push("/dashboard/parking");
 				} else {
 					router.push("/dashboard");

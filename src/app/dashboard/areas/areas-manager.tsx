@@ -39,9 +39,9 @@ import {
 
 interface Area {
 	id: string;
-	areaName: string;
-	capacity: number;
-	occupied: number;
+	namaArea: string;
+	kapasitas: number;
+	terisi: number;
 }
 
 const columnHelper = createColumnHelper<Area>();
@@ -50,7 +50,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	const router = useRouter();
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [isAdding, setIsAdding] = useState(false);
-	const [editData, setEditData] = useState({ areaName: "", capacity: "" });
+	const [editData, setEditData] = useState({ namaArea: "", kapasitas: "" });
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
 
@@ -61,7 +61,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	);
 	const [sort, setSort] = useQueryState(
 		"sort",
-		parseAsString.withDefault("areaName").withOptions({ shallow: false }),
+		parseAsString.withDefault("namaArea").withOptions({ shallow: false }),
 	);
 	const [order, setOrder] = useQueryState(
 		"order",
@@ -78,19 +78,19 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	};
 
 	const handleEdit = useCallback((area: Area) => {
-		setEditData({ areaName: area.areaName, capacity: area.capacity.toString() });
+		setEditData({ namaArea: area.namaArea, kapasitas: area.kapasitas.toString() });
 		setEditingId(area.id);
 	}, []);
 
 	const handleSave = useCallback(
 		async (id: string) => {
-			const capacityNum = parseInt(editData.capacity);
-			if (!editData.areaName || isNaN(capacityNum)) return;
+			const capacityNum = parseInt(editData.kapasitas);
+			if (!editData.namaArea || isNaN(capacityNum)) return;
 
 			startTransition(async () => {
 				await updateArea(id, {
-					areaName: editData.areaName,
-					capacity: capacityNum,
+					namaArea: editData.namaArea,
+					kapasitas: capacityNum,
 				});
 				setEditingId(null);
 				router.refresh();
@@ -111,24 +111,24 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	);
 
 	const handleAdd = useCallback(async () => {
-		const capacityNum = parseInt(editData.capacity);
-		if (!editData.areaName || isNaN(capacityNum)) return;
+		const capacityNum = parseInt(editData.kapasitas);
+		if (!editData.namaArea || isNaN(capacityNum)) return;
 
 		startTransition(async () => {
 			await createArea({
-				areaName: editData.areaName,
-				capacity: capacityNum,
-				occupied: 0,
+				namaArea: editData.namaArea,
+				kapasitas: capacityNum,
+				terisi: 0,
 			});
 			setIsAdding(false);
-			setEditData({ areaName: "", capacity: "" });
+			setEditData({ namaArea: "", kapasitas: "" });
 			router.refresh();
 		});
 	}, [editData, router]);
 
 	const columns = useMemo(
 		() => [
-			columnHelper.accessor("areaName", {
+			columnHelper.accessor("namaArea", {
 				header: "Area Name",
 				cell: (info) => {
 					const area = info.row.original;
@@ -138,8 +138,8 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 						return (
 							<input
 								type="text"
-								value={editData.areaName}
-								onChange={(e) => setEditData((d) => ({ ...d, areaName: e.target.value }))}
+								value={editData.namaArea}
+								onChange={(e) => setEditData((d) => ({ ...d, namaArea: e.target.value }))}
 								className="w-full rounded-button border border-primary bg-surface-elevated px-2 py-1 text-sm outline-none shadow-sm shadow-primary/10"
 							/>
 						);
@@ -155,7 +155,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 					);
 				},
 			}),
-			columnHelper.accessor("capacity", {
+			columnHelper.accessor("kapasitas", {
 				header: "Capacity",
 				cell: (info) => {
 					const area = info.row.original;
@@ -165,8 +165,8 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 						return (
 							<input
 								type="number"
-								value={editData.capacity}
-								onChange={(e) => setEditData((d) => ({ ...d, capacity: e.target.value }))}
+								value={editData.kapasitas}
+								onChange={(e) => setEditData((d) => ({ ...d, kapasitas: e.target.value }))}
 								className="w-20 rounded-button border border-primary bg-surface-elevated px-2 py-1 text-sm outline-none shadow-sm shadow-primary/10 font-bold"
 							/>
 						);
@@ -175,11 +175,11 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 					return <span className="font-mono font-bold text-text-secondary">{info.getValue()}</span>;
 				},
 			}),
-			columnHelper.accessor("occupied", {
+			columnHelper.accessor("terisi", {
 				header: "Occupancy",
 				cell: (info) => {
 					const occupied = info.getValue();
-					const total = info.row.original.capacity;
+					const total = info.row.original.kapasitas;
 					const percentage = total > 0 ? (occupied / total) * 100 : 0;
 
 					return (
@@ -330,8 +330,8 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								<input
 									id="new-area-name"
 									type="text"
-									value={editData.areaName}
-									onChange={(e) => setEditData((d) => ({ ...d, areaName: e.target.value }))}
+									value={editData.namaArea}
+									onChange={(e) => setEditData((d) => ({ ...d, namaArea: e.target.value }))}
 									placeholder="e.g. Lot A"
 									className="w-full rounded-button border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
 								/>
@@ -346,8 +346,8 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 								<input
 									id="new-area-capacity"
 									type="number"
-									value={editData.capacity}
-									onChange={(e) => setEditData((d) => ({ ...d, capacity: e.target.value }))}
+									value={editData.kapasitas}
+									onChange={(e) => setEditData((d) => ({ ...d, kapasitas: e.target.value }))}
 									placeholder="spots"
 									className="w-full rounded-button border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
 								/>

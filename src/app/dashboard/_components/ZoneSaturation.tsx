@@ -3,9 +3,9 @@ import { cn } from "@/src/lib/utils";
 
 interface Area {
 	id: bigint;
-	areaName: string;
-	capacity: number;
-	occupied: number;
+	namaArea: string;
+	kapasitas: number;
+	terisi: number;
 }
 
 export const ZoneSaturation = ({ areas }: { areas: Area[] }) => {
@@ -30,7 +30,7 @@ export const ZoneSaturation = ({ areas }: { areas: Area[] }) => {
 
 			<div className="grid gap-(--space-md) sm:grid-cols-2">
 				{areas.map((area) => {
-					const percent = area.capacity > 0 ? (area.occupied / area.capacity) * 100 : 0;
+					const percent = area.kapasitas > 0 ? (area.terisi / area.kapasitas) * 100 : 0;
 					return (
 						<div
 							key={area.id.toString()}
@@ -38,10 +38,10 @@ export const ZoneSaturation = ({ areas }: { areas: Area[] }) => {
 						>
 							<div className="flex items-center justify-between mb-3">
 								<p className="text-xs font-black uppercase tracking-tight text-text-primary">
-									{area.areaName}
+									{area.namaArea}
 								</p>
 								<span className="text-[10px] font-bold text-text-secondary">
-									{area.occupied}/{area.capacity}
+									{area.terisi}/{area.kapasitas}
 								</span>
 							</div>
 							<div className="h-2 w-full bg-border/40 rounded-full overflow-hidden">

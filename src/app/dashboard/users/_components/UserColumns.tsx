@@ -10,12 +10,12 @@ const columnHelper = createColumnHelper<Profile>();
 
 const ROLE_COLORS: Record<string, string> = {
 	admin: "bg-danger/10 text-danger ring-danger/20",
-	employee: "bg-primary/10 text-primary ring-primary/20",
+	petugas: "bg-primary/10 text-primary ring-primary/20",
 	owner: "bg-secondary/10 text-secondary ring-secondary/20",
 };
 
 export const createColumns = (currentUser?: { id: string; role: string }) => [
-	columnHelper.accessor("fullName", {
+	columnHelper.accessor("namaLengkap", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<User size={14} weight="bold" />

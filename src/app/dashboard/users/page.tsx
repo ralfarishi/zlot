@@ -14,7 +14,7 @@ const UsersPage = async ({
 }) => {
 	const params = await searchParams;
 	const q = params.q?.toLowerCase() || "";
-	const sort = params.sort || "fullName";
+	const sort = params.sort || "namaLengkap";
 	const order = params.order || "asc";
 
 	const profiles = await getProfiles();
@@ -26,12 +26,12 @@ const UsersPage = async ({
 	const currentUser = profiles.find((p) => p.id === user?.id);
 
 	const filtered = profiles.filter(
-		(p) => p.fullName.toLowerCase().includes(q) || p.role.toLowerCase().includes(q),
+		(p) => p.namaLengkap.toLowerCase().includes(q) || p.role.toLowerCase().includes(q),
 	);
 
 	const sorted = [...filtered].sort((a, b) => {
 		let comparison = 0;
-		if (sort === "fullName") comparison = a.fullName.localeCompare(b.fullName);
+		if (sort === "namaLengkap") comparison = a.namaLengkap.localeCompare(b.namaLengkap);
 		if (sort === "role") comparison = a.role.localeCompare(b.role);
 		if (sort === "isActive") comparison = (a.isActive ? 1 : 0) - (b.isActive ? 1 : 0);
 		if (sort === "createdAt") comparison = a.createdAt.getTime() - b.createdAt.getTime();
@@ -40,9 +40,9 @@ const UsersPage = async ({
 
 	const serialized = sorted.map((p) => ({
 		id: p.id,
-		fullName: p.fullName,
+		namaLengkap: p.namaLengkap,
 		email: p.email ?? "N/A",
-		role: p.role as "admin" | "employee" | "owner",
+		role: p.role as "admin" | "petugas" | "owner",
 		isActive: p.isActive,
 		createdAt: p.createdAt,
 	}));

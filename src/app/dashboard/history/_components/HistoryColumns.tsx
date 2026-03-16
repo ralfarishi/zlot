@@ -17,7 +17,7 @@ import { HistoryActions } from "./HistoryActions";
 const columnHelper = createColumnHelper<HistoryTransaction>();
 
 export const columns = [
-	columnHelper.accessor("transactionNumber", {
+	columnHelper.accessor("nomorTransaksi", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<IdentificationCard size={14} weight="bold" />
@@ -30,12 +30,12 @@ export const columns = [
 					{info.getValue() || `TX-${info.row.original.id}`}
 				</span>
 				<span className="font-mono text-xs font-black tracking-[0.2em] text-text-primary uppercase">
-					{info.row.original.vehicle.plateNumber.replaceAll(" ", "")}
+					{info.row.original.kendaraan.platNomor.replaceAll(" ", "")}
 				</span>
 			</div>
 		),
 	}),
-	columnHelper.accessor("area.areaName", {
+	columnHelper.accessor("area.namaArea", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<MapPin size={14} weight="bold" />
@@ -46,7 +46,7 @@ export const columns = [
 			<span className="text-xs font-bold uppercase text-text-secondary">{info.getValue()}</span>
 		),
 	}),
-	columnHelper.accessor("entryTime", {
+	columnHelper.accessor("waktuMasuk", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Calendar size={14} weight="bold" />
@@ -55,7 +55,7 @@ export const columns = [
 		),
 		cell: (info) => {
 			const entry = info.getValue();
-			const exit = info.row.original.exitTime;
+			const exit = info.row.original.waktuKeluar;
 			return (
 				<div className="flex flex-col gap-0.5">
 					<div className="flex items-center gap-1.5 text-xs font-bold text-text-primary">
@@ -76,7 +76,7 @@ export const columns = [
 			);
 		},
 	}),
-	columnHelper.accessor("durationHours", {
+	columnHelper.accessor("durasiJam", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Clock size={14} weight="bold" />
@@ -85,11 +85,11 @@ export const columns = [
 		),
 		cell: (info) => (
 			<span className="text-xs font-bold text-text-primary whitespace-nowrap">
-				{formatLongDuration(info.row.original.entryTime, info.row.original.exitTime)}
+				{formatLongDuration(info.row.original.waktuMasuk, info.row.original.waktuKeluar)}
 			</span>
 		),
 	}),
-	columnHelper.accessor("totalCost", {
+	columnHelper.accessor("totalBiaya", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<CurrencyDollar size={14} weight="bold" />
@@ -113,7 +113,7 @@ export const columns = [
 			<span
 				className={cn(
 					"inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ring-1 ring-inset",
-					info.getValue() === "exited"
+					info.getValue() === "keluar"
 						? "bg-secondary/10 text-secondary ring-secondary/20"
 						: "bg-success/10 text-success ring-success/20",
 				)}

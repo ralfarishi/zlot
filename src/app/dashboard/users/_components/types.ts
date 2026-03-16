@@ -1,8 +1,8 @@
 export interface Profile {
 	id: string;
-	fullName: string;
+	namaLengkap: string;
 	email: string;
-	role: "admin" | "employee" | "owner";
+	role: "admin" | "petugas" | "owner";
 	isActive: boolean;
 	createdAt: Date;
 }

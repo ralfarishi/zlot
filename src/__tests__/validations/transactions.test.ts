@@ -1,35 +1,36 @@
 import { describe, it, expect } from "vitest";
-import { createEntrySchema, createExitSchema } from "@/src/db/validations/transactions";
+import { createMasukSchema, createKeluarSchema } from "@/src/db/validations/transactions";
 
 describe("transactions validation", () => {
 	it("accepts valid entry", () => {
 		const data = {
-			vehicleId: "1",
-			entryTime: new Date("2024-01-01T10:00:00Z"),
-			rateId: "1",
-			profileId: "550e8400-e29b-41d4-a716-446655440000",
-			areaId: "1",
+			idKendaraan: "1",
+			waktuMasuk: new Date("2024-01-01T10:00:00Z"),
+			idTarif: "1",
+			idPetugas: "550e8400-e29b-41d4-a716-446655440000",
+			idArea: "1",
 		};
-		expect(createEntrySchema.parse(data)).toEqual(data);
+		expect(createMasukSchema.parse(data)).toEqual(data);
 	});
 
 	it("fails for future entry time", () => {
 		const futureDate = new Date();
 		futureDate.setHours(futureDate.getHours() + 1);
 		const data = {
-			vehicleId: "1",
-			entryTime: futureDate,
-			rateId: "1",
-			profileId: "550e8400-e29b-41d4-a716-446655440000",
-			areaId: "1",
+			idKendaraan: "1",
+			waktuMasuk: futureDate,
+			idTarif: "1",
+			idPetugas: "550e8400-e29b-41d4-a716-446655440000",
+			idArea: "1",
 		};
-		expect(() => createEntrySchema.parse(data)).toThrow("Entry time cannot be in the future");
+		expect(() => createMasukSchema.parse(data)).toThrow("Entry time cannot be in the future");
 	});
 
 	it("accepts valid exit", () => {
 		const data = {
-			exitTime: new Date(),
+			waktuKeluar: new Date(),
+			metodePembayaran: "TUNAI",
 		};
-		expect(createExitSchema.parse(data)).toEqual(data);
+		expect(createKeluarSchema.parse(data)).toEqual(data);
 	});
 });

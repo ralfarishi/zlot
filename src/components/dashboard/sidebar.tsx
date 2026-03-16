@@ -43,7 +43,7 @@ const NAV_ITEMS: NavItem[] = [
 		href: "/dashboard/parking",
 		label: "Console",
 		icon: Garage,
-		roles: ["admin", "employee"],
+		roles: ["admin", "petugas"],
 		group: "Operations",
 	},
 	{
@@ -109,7 +109,7 @@ const NAV_ITEMS: NavItem[] = [
 		href: "/dashboard/profile",
 		label: "Identity",
 		icon: User,
-		roles: ["admin", "owner", "employee"],
+		roles: ["admin", "owner", "petugas"],
 		group: "System",
 	},
 ];

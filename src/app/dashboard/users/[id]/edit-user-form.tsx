@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils";
 
 interface Profile {
 	id: string;
-	fullName: string;
-	role: "admin" | "employee" | "owner";
+	namaLengkap: string;
+	role: "admin" | "petugas" | "owner";
 	isActive: boolean;
 }
 
@@ -30,12 +30,12 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 		(e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			const formData = new FormData(e.currentTarget);
-			const fullName = formData.get("fullName")?.toString().trim() ?? "";
+			const namaLengkap = formData.get("namaLengkap")?.toString().trim() ?? "";
 			const role = formData.get("role")?.toString() ?? "";
 
 			const newErrors: Record<string, string> = {};
-			if (fullName.length < 2) newErrors.fullName = "Name must be at least 2 characters";
-			if (!["admin", "employee", "owner"].includes(role)) newErrors.role = "Select a valid role";
+			if (namaLengkap.length < 2) newErrors.namaLengkap = "Name must be at least 2 characters";
+			if (!["admin", "petugas", "owner"].includes(role)) newErrors.role = "Select a valid role";
 
 			if (Object.keys(newErrors).length > 0) {
 				setErrors(newErrors);
@@ -46,8 +46,8 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 			startTransition(async () => {
 				try {
 					await updateProfile(profile.id, {
-						fullName,
-						role: role as "admin" | "employee" | "owner",
+						namaLengkap,
+						role: role as "admin" | "petugas" | "owner",
 					});
 
 					const password = formData.get("password")?.toString();
@@ -107,29 +107,29 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 						{/* Full Name Field */}
 						<div className="space-y-2">
 							<label
-								htmlFor="full-name"
+								htmlFor="nama-lengkap"
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								Full Name
 							</label>
 							<div className="relative">
 								<input
-									id="full-name"
-									name="fullName"
+									id="nama-lengkap"
+									name="namaLengkap"
 									type="text"
-									defaultValue={profile.fullName}
+									defaultValue={profile.namaLengkap}
 									placeholder="e.g. John Doe"
 									className={cn(
 										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm",
-										errors.fullName
+										errors.namaLengkap
 											? "border-danger ring-4 ring-danger/5"
 											: "border-border focus:border-primary/50 focus:ring-4 focus:ring-primary/5",
 									)}
 								/>
 							</div>
-							{errors.fullName && (
+							{errors.namaLengkap && (
 								<p className="text-[10px] font-bold uppercase tracking-tight text-danger pl-1">
-									{errors.fullName}
+									{errors.namaLengkap}
 								</p>
 							)}
 						</div>
@@ -154,9 +154,9 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 											: "border-border focus:border-primary/50 focus:ring-4 focus:ring-primary/5",
 									)}
 								>
-									<option value="admin">Admin</option>
-									<option value="employee">Employee</option>
-									<option value="owner">Owner</option>
+									<option value="admin">System Admin</option>
+									<option value="petugas">Gate Employee</option>
+									<option value="owner">System Owner</option>
 								</select>
 							</div>
 						</div>

@@ -3,7 +3,7 @@ import { Garage, Users, CurrencyDollar, Pulse } from "@phosphor-icons/react/dist
 import { getAreas } from "@/src/actions/parking-areas";
 import { db } from "@/src/db";
 import { sql } from "drizzle-orm";
-import { transactions, profiles, vehicles } from "@/src/db/schema";
+import { transaksi, profil, kendaraan } from "@/src/db/schema";
 import { formatIDR } from "@/src/lib/utils";
 import { DashboardStats } from "./_components/DashboardStats";
 import { ZoneSaturation } from "./_components/ZoneSaturation";
@@ -19,21 +19,21 @@ const DashboardOverview = async () => {
 		getAreas(),
 		db
 			.select({ count: sql<number>`count(*)` })
-			.from(profiles)
+			.from(profil)
 			.then((res) => res[0].count),
 		db
 			.select({ count: sql<number>`count(*)` })
-			.from(vehicles)
+			.from(kendaraan)
 			.then((res) => res[0].count),
 		db
-			.select({ sum: sql<string>`coalesce(sum(total_cost), '0')` })
-			.from(transactions)
-			.where(sql`exit_time >= CURRENT_DATE`)
+			.select({ sum: sql<string>`coalesce(sum(total_biaya), '0')` })
+			.from(transaksi)
+			.where(sql`waktu_keluar >= CURRENT_DATE`)
 			.then((res) => res[0].sum),
 	]);
 
-	const totalSpots = areas.reduce((acc, a) => acc + a.capacity, 0);
-	const occupiedSpots = areas.reduce((acc, a) => acc + Number(a.occupied), 0);
+	const totalSpots = areas.reduce((acc, a) => acc + a.kapasitas, 0);
+	const occupiedSpots = areas.reduce((acc, a) => acc + Number(a.terisi), 0);
 	const occupancyRate = totalSpots > 0 ? Math.round((occupiedSpots / totalSpots) * 100) : 0;
 
 	const stats = [

@@ -13,9 +13,9 @@ const EntryPage = async () => {
 
 	const serializedAreas = areas.map((a) => ({
 		id: a.id.toString(),
-		areaName: a.areaName,
-		capacity: a.capacity,
-		occupied: a.occupied,
+		namaArea: a.namaArea,
+		kapasitas: a.kapasitas,
+		terisi: a.terisi,
 	}));
 
 	return (

@@ -26,17 +26,17 @@ const NewUserPage = () => {
 		(e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			const formData = new FormData(e.currentTarget);
-			const fullName = formData.get("fullName")?.toString().trim() ?? "";
+			const namaLengkap = formData.get("namaLengkap")?.toString().trim() ?? "";
 			const email = formData.get("email")?.toString().trim() ?? "";
 			const password = formData.get("password")?.toString() ?? "";
 			const role = formData.get("role")?.toString() ?? "";
 
 			const newErrors: Record<string, string> = {};
-			if (fullName.length < 2) newErrors.fullName = "Name must be at least 2 characters";
+			if (namaLengkap.length < 2) newErrors.namaLengkap = "Name must be at least 2 characters";
 			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
 				newErrors.email = "Enter a valid email address";
 			if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
-			if (!["admin", "employee", "owner"].includes(role)) newErrors.role = "Select a valid role";
+			if (!["admin", "petugas", "owner"].includes(role)) newErrors.role = "Select a valid role";
 
 			if (Object.keys(newErrors).length > 0) {
 				setErrors(newErrors);
@@ -47,10 +47,10 @@ const NewUserPage = () => {
 			startTransition(async () => {
 				try {
 					await createUserWithProfile({
-						fullName,
+						namaLengkap,
 						email,
 						password,
-						role: role as "admin" | "employee" | "owner",
+						role: role as "admin" | "petugas" | "owner",
 					});
 					router.push("/dashboard/users");
 				} catch (err) {
@@ -102,7 +102,7 @@ const NewUserPage = () => {
 						{/* Full Name Field */}
 						<div className="space-y-2 md:col-span-2">
 							<label
-								htmlFor="full-name"
+								htmlFor="nama-lengkap"
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								<IdentificationCard size={14} weight="bold" />
@@ -110,21 +110,21 @@ const NewUserPage = () => {
 							</label>
 							<div className="relative">
 								<input
-									id="full-name"
-									name="fullName"
+									id="nama-lengkap"
+									name="namaLengkap"
 									type="text"
 									placeholder="Unit Designation (e.g. John Doe)"
 									className={cn(
 										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm",
-										errors.fullName
+										errors.namaLengkap
 											? "border-danger ring-4 ring-danger/5"
 											: "border-border focus:border-primary/50 focus:ring-4 focus:ring-primary/5",
 									)}
 								/>
 							</div>
-							{errors.fullName && (
+							{errors.namaLengkap && (
 								<p className="text-[10px] font-bold uppercase tracking-tight text-danger pl-1">
-									{errors.fullName}
+									{errors.namaLengkap}
 								</p>
 							)}
 						</div>
@@ -184,7 +184,7 @@ const NewUserPage = () => {
 										Select privilege level
 									</option>
 									<option value="admin">System Admin</option>
-									<option value="employee">Gate Employee</option>
+									<option value="petugas">Gate Employee</option>
 									<option value="owner">System Owner</option>
 								</select>
 							</div>

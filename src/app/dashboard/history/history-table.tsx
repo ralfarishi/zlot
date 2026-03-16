@@ -188,19 +188,19 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 							<ParkingReceipt
 								data={{
 									id: selectedTransaction.id.toString(),
-									transactionNumber: selectedTransaction.transactionNumber,
-									plateNumber: selectedTransaction.vehicle.plateNumber,
-									vehicleType: selectedTransaction.vehicle.vehicleType,
-									areaName: selectedTransaction.area.areaName,
-									entryTime: selectedTransaction.entryTime,
-									exitTime: selectedTransaction.exitTime,
-									durationHours: selectedTransaction.durationHours,
-									totalCost: selectedTransaction.totalCost,
-									hourlyRate: selectedTransaction.rate.hourlyRate,
-									staffName: selectedTransaction.staffName,
-									paymentMethod: selectedTransaction.paymentMethod,
-									cashReceived: selectedTransaction.cashReceived,
-									cashChange: selectedTransaction.cashChange,
+									nomorTransaksi: selectedTransaction.nomorTransaksi,
+									platNomor: selectedTransaction.kendaraan.platNomor,
+									jenisKendaraan: selectedTransaction.kendaraan.jenisKendaraan,
+									namaArea: selectedTransaction.area.namaArea,
+									waktuMasuk: selectedTransaction.waktuMasuk,
+									waktuKeluar: selectedTransaction.waktuKeluar,
+									durasiJam: selectedTransaction.durasiJam,
+									totalBiaya: selectedTransaction.totalBiaya,
+									tarifPerJam: selectedTransaction.tarif.tarifPerJam,
+									namaPetugas: selectedTransaction.namaPetugas,
+									metodePembayaran: selectedTransaction.metodePembayaran,
+									tunaiDiterima: selectedTransaction.tunaiDiterima,
+									kembalian: selectedTransaction.kembalian,
 								}}
 								onClose={() => setIsReceiptOpen(false)}
 							/>

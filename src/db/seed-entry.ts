@@ -1,25 +1,25 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { transactions } from "./schema/transactions";
-import { vehicles } from "./schema/vehicles";
-import { parkingAreas } from "./schema/parking-areas";
-import { rates } from "./schema/rates";
+import { transaksi } from "./schema/transactions";
+import { kendaraan } from "./schema/vehicles";
+import { areaParkir } from "./schema/parking-areas";
+
 import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 const DATABASE_URL = process.env.DATABASE_URL!;
 
 const PROFILE_IDS = [
-	"c7f760a7-a037-4a28-9e09-e0e9bb4098a1",
-	"d9171eff-72a1-48f3-b244-ad75526201ed",
+	"78a0a7b9-4914-4baf-a66b-7c54386031f5",
+	"f95918c8-378a-4339-9d90-e036967d20c1",
 ];
 
 const AREA_IDS = [1, 2, 3];
 const RATE_IDS = [1, 2, 3];
 
 const generatePlateNumber = () => {
-	const prefixes = ["B", "D", "F", "H", "L", "N", "S", "W"];
+	const prefixes = ["B", "D", "F", "H", "L", "N", "S", "DD"];
 	const suffixes = ["ABC", "XYZ", "KJS", "PLO", "QWE", "RTY", "UIO", "PAS", "DFG", "HJK"];
 	const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
 	const number = Math.floor(Math.random() * 8999) + 1000;
@@ -52,54 +52,54 @@ const seedEntries = async () => {
 		console.log(`Generating ${count} entries for Area ID ${areaId}...`);
 
 		for (let i = 0; i < count; i++) {
-			const plateNumber = generatePlateNumber();
+			const platNomor = generatePlateNumber();
 			const profileId = getRandomItem(PROFILE_IDS);
 			const rateId = getRandomItem(RATE_IDS);
 
 			// We need to pick a vehicle type consistent with the rate if we were being strict,
 			// but here the user said rate id 1-3.
 			// I'll just pick a random type for the vehicle.
-			const vehicleTypes = ["car", "motorcycle", "other"] as const;
-			const vehicleType = getRandomItem([...vehicleTypes]);
+			const vehicleTypes = ["mobil", "motor", "lainnya"] as const;
+			const jenisKendaraan = getRandomItem([...vehicleTypes]);
 
 			await db.transaction(async (tx) => {
 				// 1. Create/Ensure Vehicle
-				let [vehicle] = await tx
-					.insert(vehicles)
+				const [vehicle] = await tx
+					.insert(kendaraan)
 					.values({
-						plateNumber,
-						vehicleType,
-						profileId,
+						platNomor,
+						jenisKendaraan,
+						idPetugas: profileId,
 					})
 					.onConflictDoUpdate({
-						target: vehicles.plateNumber,
+						target: kendaraan.platNomor,
 						set: { updatedAt: new Date() },
 					})
 					.returning();
 
 				// 2. Create Transaction
-				const entryTime = generateRandomPastTime();
-				const datePrefix = entryTime.toISOString().slice(0, 10).replace(/-/g, "");
-				const transactionNumber = `ZLT-${datePrefix}-${nanoid(6).toUpperCase()}`;
+				const waktuMasuk = generateRandomPastTime();
+				const datePrefix = waktuMasuk.toISOString().slice(0, 10).replace(/-/g, "");
+				const noTransaksi = `ZLT-${datePrefix}-${nanoid(6).toUpperCase()}`;
 
-				await tx.insert(transactions).values({
-					vehicleId: vehicle.id,
-					transactionNumber,
-					areaId: BigInt(areaId),
-					rateId: BigInt(rateId),
-					profileId,
-					entryTime,
-					status: "entered",
+				await tx.insert(transaksi).values({
+					idKendaraan: vehicle.id,
+					noTransaksi,
+					idArea: BigInt(areaId),
+					idTarif: BigInt(rateId),
+					idPetugas: profileId,
+					waktuMasuk,
+					status: "masuk",
 				});
 
 				// 3. Increment Occupancy
 				await tx
-					.update(parkingAreas)
+					.update(areaParkir)
 					.set({
-						occupied: sql`${parkingAreas.occupied} + 1`,
+						terisi: sql`${areaParkir.terisi} + 1`,
 						updatedAt: new Date(),
 					})
-					.where(eq(parkingAreas.id, BigInt(areaId)));
+					.where(eq(areaParkir.id, BigInt(areaId)));
 			});
 		}
 	}

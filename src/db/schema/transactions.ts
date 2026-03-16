@@ -9,45 +9,45 @@ import {
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { transactionStatusEnum, paymentMethodEnum } from "./enums";
-import { vehicles } from "./vehicles";
-import { rates } from "./rates";
-import { profiles } from "./profiles";
-import { parkingAreas } from "./parking-areas";
+import { kendaraan } from "./vehicles";
+import { tarif } from "./rates";
+import { profil } from "./profiles";
+import { areaParkir } from "./parking-areas";
 
-export const transactions = pgTable(
-	"transactions",
+export const transaksi = pgTable(
+	"transaksi",
 	{
 		id: bigint("id", { mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
-		vehicleId: bigint("vehicle_id", { mode: "bigint" })
-			.references(() => vehicles.id)
+		idKendaraan: bigint("id_kendaraan", { mode: "bigint" })
+			.references(() => kendaraan.id)
 			.notNull(),
-		transactionNumber: varchar("transaction_number", { length: 50 }),
-		entryTime: timestamp("entry_time", { withTimezone: true }).notNull(),
-		exitTime: timestamp("exit_time", { withTimezone: true }),
-		rateId: bigint("rate_id", { mode: "bigint" })
-			.references(() => rates.id)
+		noTransaksi: varchar("no_transaksi", { length: 50 }),
+		waktuMasuk: timestamp("waktu_masuk", { withTimezone: true }).notNull(),
+		waktuKeluar: timestamp("waktu_keluar", { withTimezone: true }),
+		idTarif: bigint("id_tarif", { mode: "bigint" })
+			.references(() => tarif.id)
 			.notNull(),
-		durationHours: numeric("duration_hours", { precision: 10, scale: 2 }),
-		totalCost: numeric("total_cost", { precision: 12, scale: 2 }),
-		paymentMethod: paymentMethodEnum("payment_method"),
-		cashReceived: numeric("cash_received", { precision: 12, scale: 2 }),
-		cashChange: numeric("cash_change", { precision: 12, scale: 2 }),
-		status: transactionStatusEnum("status").default("entered").notNull(),
-		profileId: uuid("profile_id")
-			.references(() => profiles.id)
-			.notNull(), // Employee on duty
-		areaId: bigint("area_id", { mode: "bigint" })
-			.references(() => parkingAreas.id)
+		durasiJam: numeric("durasi_jam", { precision: 10, scale: 2 }),
+		totalBiaya: numeric("total_biaya", { precision: 12, scale: 2 }),
+		metodePembayaran: paymentMethodEnum("metode_pembayaran"),
+		uangDiterima: numeric("uang_diterima", { precision: 12, scale: 2 }),
+		kembalian: numeric("kembalian", { precision: 12, scale: 2 }),
+		status: transactionStatusEnum("status").default("masuk").notNull(),
+		idPetugas: uuid("id_petugas")
+			.references(() => profil.id)
+			.notNull(),
+		idArea: bigint("id_area", { mode: "bigint" })
+			.references(() => areaParkir.id)
 			.notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 	},
 	(table) => [
 		index("transaction_status_idx").on(table.status),
-		index("transaction_entry_time_idx").on(table.entryTime),
-		index("transaction_vehicle_id_idx").on(table.vehicleId),
-		index("transaction_profile_id_idx").on(table.profileId),
-		index("transaction_area_id_idx").on(table.areaId),
-		uniqueIndex("transaction_number_idx").on(table.transactionNumber),
+		index("transaction_entry_time_idx").on(table.waktuMasuk),
+		index("transaction_vehicle_id_idx").on(table.idKendaraan),
+		index("transaction_profile_id_idx").on(table.idPetugas),
+		index("transaction_area_id_idx").on(table.idArea),
+		uniqueIndex("transaction_number_idx").on(table.noTransaksi),
 	],
 );

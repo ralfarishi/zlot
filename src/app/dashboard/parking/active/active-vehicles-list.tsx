@@ -8,17 +8,17 @@ import { formatLongDuration } from "@/lib/utils";
 
 interface ActiveTransaction {
 	id: string | bigint;
-	entryTime: Date;
-	vehicle: {
-		plateNumber: string;
-		vehicleType: string;
-		color: string | null;
+	waktuMasuk: Date;
+	kendaraan: {
+		platNomor: string;
+		jenisKendaraan: string;
+		warna: string | null;
 	};
 	area: {
-		areaName: string;
+		namaArea: string;
 	};
-	rate: {
-		hourlyRate: string;
+	tarif: {
+		tarifPerJam: string;
 	};
 }
 
@@ -27,8 +27,8 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 
 	const filtered = initialData.filter(
 		(tx) =>
-			tx.vehicle.plateNumber.toLowerCase().includes((search ?? "").toLowerCase()) ||
-			tx.area.areaName.toLowerCase().includes((search ?? "").toLowerCase()),
+			tx.kendaraan.platNomor.toLowerCase().includes((search ?? "").toLowerCase()) ||
+			tx.area.namaArea.toLowerCase().includes((search ?? "").toLowerCase()),
 	);
 
 	return (
@@ -73,28 +73,28 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 								<div className="space-y-2">
 									<div className="flex flex-col">
 										<p className="text-xl font-black tracking-tighter text-text-primary leading-none">
-											{tx.vehicle.plateNumber}
+											{tx.kendaraan.platNomor}
 										</p>
 										<div className="mt-2 flex items-center gap-1.5 shrink-0">
 											<span className="rounded-md bg-surface-elevated px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-text-secondary ring-1 ring-border shadow-inner">
-												{tx.vehicle.vehicleType}
+												{tx.kendaraan.jenisKendaraan}
 											</span>
-											{tx.vehicle.color && (
+											{tx.kendaraan.warna && (
 												<span className="text-[9px] font-bold text-text-secondary uppercase opacity-40 italic">
-													{tx.vehicle.color}
+													{tx.kendaraan.warna}
 												</span>
 											)}
 										</div>
 									</div>
 									<div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary/60">
 										<MapPin size={14} weight="bold" className="text-primary/40" />
-										{tx.area.areaName}
+										{tx.area.namaArea}
 									</div>
 								</div>
 								<div className="text-right">
 									<div className="flex items-center justify-end gap-1.5 font-black text-xs text-text-primary tracking-tighter">
 										<Timer size={16} weight="bold" className="text-secondary" />
-										{formatLongDuration(tx.entryTime, null)}
+										{formatLongDuration(tx.waktuMasuk, null)}
 									</div>
 									<span className="text-[9px] font-black uppercase tracking-widest text-text-secondary/30 mt-1 block">
 										Live Duration
@@ -104,7 +104,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 
 							<div className="mt-6 flex items-center gap-2">
 								<Link
-									href={`/dashboard/parking/exit?plate=${tx.vehicle.plateNumber}`}
+									href={`/dashboard/parking/exit?plate=${tx.kendaraan.platNomor}`}
 									className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-surface-elevated/50 border border-border px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-text-primary transition-all hover:bg-danger/10 hover:text-danger hover:border-danger/20 active:scale-95"
 								>
 									<SteeringWheel size={14} weight="bold" />

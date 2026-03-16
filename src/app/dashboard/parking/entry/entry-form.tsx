@@ -8,12 +8,12 @@ import { m, AnimatePresence } from "framer-motion";
 
 interface Area {
 	id: string;
-	areaName: string;
-	capacity: number;
-	occupied: number;
+	namaArea: string;
+	kapasitas: number;
+	terisi: number;
 }
 
-type VehicleType = "motorcycle" | "car" | "other";
+type VehicleType = "motor" | "mobil" | "lainnya";
 
 const PLATE_MAX_LENGTH = 8;
 
@@ -57,9 +57,9 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 		startTransition(async () => {
 			try {
 				await logEntry({
-					plateNumber,
-					vehicleType,
-					areaId: parseInt(selectedArea),
+					platNomor: plateNumber,
+					jenisKendaraan: vehicleType,
+					idArea: parseInt(selectedArea),
 				});
 				setSuccess(true);
 				setTimeout(resetForm, 3000);
@@ -150,9 +150,9 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									disabled={isPending}
 									className="w-full h-[52px] rounded-button border-2 border-border bg-surface-elevated/50 px-4 py-3 text-sm font-black text-text-primary outline-none focus:border-primary transition-all uppercase appearance-none cursor-pointer"
 								>
-									<option value="car">Four-Wheel Artifact (Car)</option>
-									<option value="motorcycle">Two-Wheel Artifact (Cycle)</option>
-									<option value="other">General Transit (Other)</option>
+									<option value="mobil">Four-Wheel Artifact (Car)</option>
+									<option value="motor">Two-Wheel Artifact (Cycle)</option>
+									<option value="lainnya">General Transit (Other)</option>
 								</select>
 							</div>
 						</div>
@@ -170,7 +170,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								className="grid grid-cols-2 gap-3 sm:grid-cols-4"
 							>
 								{areas.map((area) => {
-									const isFull = area.occupied >= area.capacity;
+									const isFull = area.terisi >= area.kapasitas;
 									const isSelected = selectedArea === area.id;
 
 									return (
@@ -197,10 +197,10 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 													isSelected ? "text-primary" : "text-text-primary",
 												)}
 											>
-												{area.areaName}
+												{area.namaArea}
 											</p>
 											<p className="mt-1 text-[9px] font-bold text-text-secondary uppercase opacity-60">
-												{area.capacity - area.occupied} Avail
+												{area.kapasitas - area.terisi} Avail
 											</p>
 										</button>
 									);

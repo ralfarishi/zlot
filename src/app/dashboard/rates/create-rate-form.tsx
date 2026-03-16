@@ -15,17 +15,17 @@ export const CreateRateForm = () => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
-		const vehicleType = formData.get("vehicleType")?.toString() as "motorcycle" | "car" | "other";
-		const hourlyRate = formData.get("hourlyRate")?.toString() ?? "";
+		const jenisKendaraan = formData.get("vehicleType")?.toString() as "motor" | "mobil" | "lainnya";
+		const tarifPerJam = formData.get("hourlyRate")?.toString() ?? "";
 
-		if (!vehicleType || !hourlyRate) {
+		if (!jenisKendaraan || !tarifPerJam) {
 			setError("All fields are required");
 			return;
 		}
 
 		startTransition(async () => {
 			try {
-				await createRate({ vehicleType, hourlyRate });
+				await createRate({ jenisKendaraan, tarifPerJam });
 				setIsOpen(false);
 				setError(null);
 				router.refresh();
@@ -98,9 +98,9 @@ export const CreateRateForm = () => {
 										<option value="" disabled>
 											Select Type...
 										</option>
-										<option value="car">Car (Standard)</option>
-										<option value="motorcycle">Motorcycle / Trike</option>
-										<option value="other">Specialized / Other</option>
+										<option value="mobil">Car (Standard)</option>
+										<option value="motor">Motorcycle / Trike</option>
+										<option value="lainnya">Specialized / Other</option>
 									</select>
 								</div>
 							</div>

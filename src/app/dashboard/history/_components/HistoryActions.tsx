@@ -38,7 +38,7 @@ export const HistoryActions = ({ transaction, onViewReceipt }: HistoryActionsPro
 
 	return (
 		<div className="flex justify-end gap-2">
-			{transaction.status === "exited" && (
+			{transaction.status === "keluar" && (
 				<button
 					onClick={() => onViewReceipt(transaction)}
 					className={cn(
@@ -68,7 +68,7 @@ export const HistoryActions = ({ transaction, onViewReceipt }: HistoryActionsPro
 						<AlertDialogDescription>
 							You are about to purge transaction{" "}
 							<span className="font-mono font-bold text-text-primary">
-								{transaction.transactionNumber}
+								{transaction.nomorTransaksi}
 							</span>{" "}
 							from the registry. This action is terminal and cannot be undone.
 						</AlertDialogDescription>

@@ -8,7 +8,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select role from public.profiles where id = auth.uid()
+  select role from public.profil where id = auth.uid()
 $$;
 
 
@@ -22,11 +22,11 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, full_name, role, is_active, created_at, updated_at)
+  insert into public.profil (id, nama_lengkap, role, is_active, created_at, updated_at)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', 'New User'),
-    'employee',
+    'petugas',
     true,
     now(),
     now()

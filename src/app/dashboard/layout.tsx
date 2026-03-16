@@ -8,13 +8,13 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
 	const supabase = await createClient();
 
 	const { data: profile } = await supabase
-		.from("profiles")
-		.select("full_name, role")
+		.from("profil")
+		.select("nama_lengkap, role")
 		.eq("id", user.id)
 		.single();
 
-	const userName = profile?.full_name ?? user.email ?? "User";
-	const userRole = (profile?.role ?? "employee") as UserRole;
+	const userName = profile?.nama_lengkap ?? user.email ?? "User";
+	const userRole = (profile?.role ?? "petugas") as UserRole;
 
 	return (
 		<DashboardShell userName={userName} userRole={userRole}>

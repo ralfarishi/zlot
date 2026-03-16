@@ -1,186 +1,186 @@
 -- ─── Enable RLS on all tables ─────────────────
-alter table profiles       enable row level security;
-alter table vehicles       enable row level security;
-alter table rates          enable row level security;
-alter table parking_areas  enable row level security;
-alter table transactions   enable row level security;
-alter table activity_logs  enable row level security;
+alter table profil       enable row level security;
+alter table kendaraan     enable row level security;
+alter table tarif         enable row level security;
+alter table area_parkir   enable row level security;
+alter table transaksi     enable row level security;
+alter table log_aktifitas  enable row level security;
 
 
 -- ═══════════════════════════════════════════════
--- PROFILES
+-- PROFIL
 -- ═══════════════════════════════════════════════
 
 -- Any authenticated user can read profiles
-create policy "profiles_select_authenticated"
-  on profiles for select
+create policy "profil_select_authenticated"
+  on profil for select
   to authenticated
   using (true);
 
 -- Users can update their own profile (name only, not role)
-create policy "profiles_update_own"
-  on profiles for update
+create policy "profil_update_own"
+  on profil for update
   to authenticated
   using (id = auth.uid())
   with check (id = auth.uid());
 
 -- Admins can insert new profiles
-create policy "profiles_insert_admin"
-  on profiles for insert
+create policy "profil_insert_admin"
+  on profil for insert
   to authenticated
   with check (public.get_my_role() = 'admin');
 
 -- Admins can update any profile (including role changes)
-create policy "profiles_update_admin"
-  on profiles for update
+create policy "profil_update_admin"
+  on profil for update
   to authenticated
   using (public.get_my_role() = 'admin');
 
 -- Admins can delete (soft-delete) profiles
-create policy "profiles_delete_admin"
-  on profiles for delete
+create policy "profil_delete_admin"
+  on profil for delete
   to authenticated
   using (public.get_my_role() = 'admin');
 
 
 -- ═══════════════════════════════════════════════
--- VEHICLES
+-- KENDARAAN
 -- ═══════════════════════════════════════════════
 
 -- All authenticated users can view vehicles
-create policy "vehicles_select_authenticated"
-  on vehicles for select
+create policy "kendaraan_select_authenticated"
+  on kendaraan for select
   to authenticated
   using (true);
 
 -- Employees and admins can register vehicles
-create policy "vehicles_insert_staff"
-  on vehicles for insert
+create policy "kendaraan_insert_staff"
+  on kendaraan for insert
   to authenticated
-  with check (public.get_my_role() in ('employee', 'admin'));
+  with check (public.get_my_role() in ('petugas', 'admin'));
 
 -- Employees and admins can update vehicles
-create policy "vehicles_update_staff"
-  on vehicles for update
+create policy "kendaraan_update_staff"
+  on kendaraan for update
   to authenticated
-  using (public.get_my_role() in ('employee', 'admin'));
+  using (public.get_my_role() in ('petugas', 'admin'));
 
 
 -- ═══════════════════════════════════════════════
--- RATES
+-- TARIF
 -- ═══════════════════════════════════════════════
 
 -- Everyone authenticated can read rates
-create policy "rates_select_authenticated"
-  on rates for select
+create policy "tarif_select_authenticated"
+  on tarif for select
   to authenticated
   using (true);
 
 -- Only admins can manage rates
-create policy "rates_insert_admin"
-  on rates for insert
+create policy "tarif_insert_admin"
+  on tarif for insert
   to authenticated
   with check (public.get_my_role() = 'admin');
 
-create policy "rates_update_admin"
-  on rates for update
+create policy "tarif_update_admin"
+  on tarif for update
   to authenticated
   using (public.get_my_role() = 'admin');
 
-create policy "rates_delete_admin"
-  on rates for delete
+create policy "tarif_delete_admin"
+  on tarif for delete
   to authenticated
   using (public.get_my_role() = 'admin');
 
 
 -- ═══════════════════════════════════════════════
--- PARKING AREAS
+-- AREA PARKIR
 -- ═══════════════════════════════════════════════
 
 -- Everyone authenticated can view areas (needed for occupancy display)
-create policy "areas_select_authenticated"
-  on parking_areas for select
+create policy "area_parkir_select_authenticated"
+  on area_parkir for select
   to authenticated
   using (true);
 
 -- Only admins can create/edit areas
-create policy "areas_insert_admin"
-  on parking_areas for insert
+create policy "area_parkir_insert_admin"
+  on area_parkir for insert
   to authenticated
   with check (public.get_my_role() = 'admin');
 
-create policy "areas_update_admin"
-  on parking_areas for update
+create policy "area_parkir_update_admin"
+  on area_parkir for update
   to authenticated
   using (public.get_my_role() = 'admin');
 
 -- Employees can update occupancy (check-in/check-out increments)
-create policy "areas_update_occupancy_employee"
-  on parking_areas for update
+create policy "area_parkir_update_occupancy_staff"
+  on area_parkir for update
   to authenticated
-  using (public.get_my_role() = 'employee');
+  using (public.get_my_role() = 'petugas');
 
 
 -- ═══════════════════════════════════════════════
--- TRANSACTIONS
+-- TRANSAKSI
 -- ═══════════════════════════════════════════════
 
 -- Employees see only their own transactions
-create policy "transactions_select_own_employee"
-  on transactions for select
+create policy "transaksi_select_own_staff"
+  on transaksi for select
   to authenticated
   using (
-    profile_id = auth.uid()
-    and public.get_my_role() = 'employee'
+    id_petugas = auth.uid()
+    and public.get_my_role() = 'petugas'
   );
 
 -- Admins and owners see all transactions
-create policy "transactions_select_admin_owner"
-  on transactions for select
+create policy "transaksi_select_admin_owner"
+  on transaksi for select
   to authenticated
   using (public.get_my_role() in ('admin', 'owner'));
 
 -- Employees and admins can create transactions (check-in)
-create policy "transactions_insert_staff"
-  on transactions for insert
+create policy "transaksi_insert_staff"
+  on transaksi for insert
   to authenticated
   with check (
-    profile_id = auth.uid()
-    and public.get_my_role() in ('employee', 'admin')
+    id_petugas = auth.uid()
+    and public.get_my_role() in ('petugas', 'admin')
   );
 
 -- Employees and admins can update transactions (check-out)
-create policy "transactions_update_staff"
-  on transactions for update
+create policy "transaksi_update_staff"
+  on transaksi for update
   to authenticated
   using (
-    profile_id = auth.uid()
-    and public.get_my_role() in ('employee', 'admin')
+    id_petugas = auth.uid()
+    and public.get_my_role() in ('petugas', 'admin')
   );
 
 
 -- ═══════════════════════════════════════════════
--- ACTIVITY LOGS
+-- LOG AKTIFITAS
 -- ═══════════════════════════════════════════════
 
 -- Users can only insert their own logs
-create policy "logs_insert_own"
-  on activity_logs for insert
+create policy "log_aktifitas_insert_own"
+  on log_aktifitas for insert
   to authenticated
-  with check (profile_id = auth.uid());
+  with check (id_petugas = auth.uid());
 
 -- Employees see only their own logs
-create policy "logs_select_own_employee"
-  on activity_logs for select
+create policy "log_aktifitas_select_own_staff"
+  on log_aktifitas for select
   to authenticated
   using (
-    profile_id = auth.uid()
-    and public.get_my_role() = 'employee'
+    id_petugas = auth.uid()
+    and public.get_my_role() = 'petugas'
   );
 
 -- Admins and owners see all logs
-create policy "logs_select_admin_owner"
-  on activity_logs for select
+create policy "log_aktifitas_select_admin_owner"
+  on log_aktifitas for select
   to authenticated
   using (public.get_my_role() in ('admin', 'owner'));
 

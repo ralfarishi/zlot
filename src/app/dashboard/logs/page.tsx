@@ -26,8 +26,8 @@ const LogsPage = async ({
 
 	const serialized = logs.map((l) => ({
 		id: l.id.toString(),
-		activity: l.activity,
-		profileName: l.profile?.fullName ?? "System",
+		activity: l.aktifitas,
+		profileName: l.petugas?.namaLengkap ?? "System",
 		createdAt: l.createdAt,
 	}));
 

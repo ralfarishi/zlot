@@ -23,13 +23,22 @@ const ProfilePage = async () => {
 	const user = await requireAuth();
 	const supabase = await createClient();
 
-	const { data: profile } = await supabase
-		.from("profiles")
-		.select("full_name, role, is_active, created_at")
+	const { data: rawProfile } = await supabase
+		.from("profil")
+		.select("nama_lengkap, role, is_active, created_at")
 		.eq("id", user.id)
 		.single();
 
-	const initials = (profile?.full_name ?? user.email ?? "?")
+	const profile = rawProfile
+		? {
+				namaLengkap: rawProfile.nama_lengkap,
+				role: rawProfile.role,
+				isActive: rawProfile.is_active,
+				createdAt: rawProfile.created_at,
+			}
+		: null;
+
+	const initials = (profile?.namaLengkap ?? user.email ?? "?")
 		.split(" ")
 		.map((n: string) => n[0])
 		.join("")
@@ -52,17 +61,17 @@ const ProfilePage = async () => {
 					<div className="flex-1 text-center sm:text-left">
 						<div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
 							<h1 className="text-3xl font-black tracking-tighter text-text-primary">
-								{profile?.full_name ?? "Zlot Member"}
+								{profile?.namaLengkap ?? "Zlot Member"}
 							</h1>
 							<span
 								className={cn(
 									"rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ring-1",
-									profile?.is_active
+									profile?.isActive
 										? "bg-success/10 text-success ring-success/20"
 										: "bg-danger/10 text-danger ring-danger/20",
 								)}
 							>
-								{profile?.is_active ? "Verified Ops" : "Suspended"}
+								{profile?.isActive ? "Verified Ops" : "Suspended"}
 							</span>
 						</div>
 						<p className="mt-1 flex items-center justify-center gap-2 text-sm font-medium text-text-secondary sm:justify-start">
@@ -99,7 +108,7 @@ const ProfilePage = async () => {
 							<dt className="text-[10px] font-black uppercase tracking-tight text-text-secondary/40">
 								Legal Designation
 							</dt>
-							<dd className="text-sm font-bold text-text-primary">{profile?.full_name ?? "—"}</dd>
+							<dd className="text-sm font-bold text-text-primary">{profile?.namaLengkap ?? "—"}</dd>
 						</div>
 
 						<div className="flex flex-col gap-1 border-b border-border pb-(--space-sm) last:border-0 last:pb-0">
@@ -115,8 +124,8 @@ const ProfilePage = async () => {
 							</dt>
 							<dd className="flex items-center gap-2 text-sm font-bold text-text-primary">
 								<Calendar size={16} weight="duotone" className="text-primary" />
-								{profile?.created_at
-									? new Date(profile.created_at).toLocaleDateString("en-US", {
+								{profile?.createdAt
+									? new Date(profile.createdAt).toLocaleDateString("en-US", {
 											year: "numeric",
 											month: "long",
 											day: "numeric",
@@ -140,7 +149,7 @@ const ProfilePage = async () => {
 								<div
 									className={cn(
 										"flex size-10 items-center justify-center rounded-lg",
-										profile?.is_active ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
+										profile?.isActive ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
 									)}
 								>
 									<User size={20} weight="bold" />
@@ -153,10 +162,10 @@ const ProfilePage = async () => {
 							<span
 								className={cn(
 									"text-xs font-black uppercase",
-									profile?.is_active ? "text-success" : "text-danger",
+									profile?.isActive ? "text-success" : "text-danger",
 								)}
 							>
-								{profile?.is_active ? "LIVE" : "OFFLINE"}
+								{profile?.isActive ? "LIVE" : "OFFLINE"}
 							</span>
 						</div>
 

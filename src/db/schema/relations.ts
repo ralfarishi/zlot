@@ -1,37 +1,37 @@
 import { relations } from "drizzle-orm";
-import { profiles } from "./profiles";
-import { vehicles } from "./vehicles";
-import { rates } from "./rates";
-import { parkingAreas } from "./parking-areas";
-import { transactions } from "./transactions";
-import { activityLogs } from "./activity-logs";
+import { profil } from "./profiles";
+import { kendaraan } from "./vehicles";
+import { tarif } from "./rates";
+import { areaParkir } from "./parking-areas";
+import { transaksi } from "./transactions";
+import { logAktifitas } from "./activity-logs";
 
-export const profilesRelations = relations(profiles, ({ many }) => ({
-	vehicles: many(vehicles),
-	transactions: many(transactions),
-	logs: many(activityLogs),
+export const profilRelations = relations(profil, ({ many }) => ({
+	kendaraan: many(kendaraan),
+	transaksi: many(transaksi),
+	logs: many(logAktifitas),
 }));
 
-export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
-	owner: one(profiles, { fields: [vehicles.profileId], references: [profiles.id] }),
-	transactions: many(transactions),
+export const kendaraanRelations = relations(kendaraan, ({ one, many }) => ({
+	owner: one(profil, { fields: [kendaraan.idPetugas], references: [profil.id] }),
+	transaksi: many(transaksi),
 }));
 
-export const ratesRelations = relations(rates, ({ many }) => ({
-	transactions: many(transactions),
+export const tarifRelations = relations(tarif, ({ many }) => ({
+	transaksi: many(transaksi),
 }));
 
-export const parkingAreasRelations = relations(parkingAreas, ({ many }) => ({
-	transactions: many(transactions),
+export const areaParkirRelations = relations(areaParkir, ({ many }) => ({
+	transaksi: many(transaksi),
 }));
 
-export const transactionsRelations = relations(transactions, ({ one }) => ({
-	vehicle: one(vehicles, { fields: [transactions.vehicleId], references: [vehicles.id] }),
-	rate: one(rates, { fields: [transactions.rateId], references: [rates.id] }),
-	employee: one(profiles, { fields: [transactions.profileId], references: [profiles.id] }),
-	area: one(parkingAreas, { fields: [transactions.areaId], references: [parkingAreas.id] }),
+export const transaksiRelations = relations(transaksi, ({ one }) => ({
+	kendaraan: one(kendaraan, { fields: [transaksi.idKendaraan], references: [kendaraan.id] }),
+	tarif: one(tarif, { fields: [transaksi.idTarif], references: [tarif.id] }),
+	petugas: one(profil, { fields: [transaksi.idPetugas], references: [profil.id] }),
+	area: one(areaParkir, { fields: [transaksi.idArea], references: [areaParkir.id] }),
 }));
 
-export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
-	profile: one(profiles, { fields: [activityLogs.profileId], references: [profiles.id] }),
+export const logAktifitasRelations = relations(logAktifitas, ({ one }) => ({
+	petugas: one(profil, { fields: [logAktifitas.idPetugas], references: [profil.id] }),
 }));

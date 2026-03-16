@@ -1,23 +1,23 @@
 export interface HistoryTransaction {
 	id: string;
-	transactionNumber: string | null;
-	entryTime: Date;
-	exitTime: Date | null;
+	nomorTransaksi: string | null;
+	waktuMasuk: Date;
+	waktuKeluar: Date | null;
 	status: string;
-	totalCost: string | null;
-	durationHours: string | null;
-	vehicle: {
-		plateNumber: string;
-		vehicleType: string;
+	totalBiaya: string | null;
+	durasiJam: string | null;
+	kendaraan: {
+		platNomor: string;
+		jenisKendaraan: string;
 	};
 	area: {
-		areaName: string;
+		namaArea: string;
 	};
-	rate: {
-		hourlyRate: string;
+	tarif: {
+		tarifPerJam: string;
 	};
-	staffName: string | null;
-	paymentMethod: string | null;
-	cashReceived: string | null;
-	cashChange: string | null;
+	namaPetugas: string | null;
+	metodePembayaran: string | null;
+	tunaiDiterima: string | null;
+	kembalian: string | null;
 }

@@ -9,19 +9,19 @@ import { format } from "date-fns";
 
 export interface ReceiptData {
 	id: string;
-	transactionNumber?: string | null;
-	plateNumber: string;
-	vehicleType: string;
-	areaName: string;
-	entryTime: Date;
-	exitTime: Date | null;
-	durationHours: string | null;
-	totalCost: string | null;
-	hourlyRate?: string | null;
-	paymentMethod?: string | null;
-	cashReceived?: string | null;
-	cashChange?: string | null;
-	staffName?: string | null;
+	nomorTransaksi?: string | null;
+	platNomor: string;
+	jenisKendaraan: string;
+	namaArea: string;
+	waktuMasuk: Date;
+	waktuKeluar: Date | null;
+	durasiJam: string | null;
+	totalBiaya: string | null;
+	tarifPerJam?: string | null;
+	metodePembayaran?: string | null;
+	tunaiDiterima?: string | null;
+	kembalian?: string | null;
+	namaPetugas?: string | null;
 }
 
 interface ParkingReceiptProps {
@@ -37,13 +37,13 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 		documentTitle: `Zlot-Receipt-TX${data.id}`,
 	});
 
-	const entryFormatted = format(new Date(data.entryTime), "dd MMM yyyy, HH:mm");
-	const exitFormatted = data.exitTime
-		? format(new Date(data.exitTime), "dd MMM yyyy, HH:mm")
+	const entryFormatted = format(new Date(data.waktuMasuk), "dd MMM yyyy, HH:mm");
+	const exitFormatted = data.waktuKeluar
+		? format(new Date(data.waktuKeluar), "dd MMM yyyy, HH:mm")
 		: null;
-	const total = data.totalCost ? formatIDR(data.totalCost) : formatIDR(0);
-	const rate = data.hourlyRate ? `${formatIDR(data.hourlyRate)}/hr` : null;
-	const duration = formatLongDuration(data.entryTime, data.exitTime);
+	const total = data.totalBiaya ? formatIDR(data.totalBiaya) : formatIDR(0);
+	const rate = data.tarifPerJam ? `${formatIDR(data.tarifPerJam)}/hr` : null;
+	const duration = formatLongDuration(data.waktuMasuk, data.waktuKeluar);
 
 	return (
 		<m.div
@@ -61,7 +61,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 								Transaction Ref
 							</p>
 							<p className="font-mono text-base font-black text-primary leading-none">
-								{data.transactionNumber || `TX-${data.id}`}
+								{data.nomorTransaksi || `TX-${data.id}`}
 							</p>
 						</div>
 					</div>
@@ -91,10 +91,10 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 							Vehicle
 						</p>
 						<p className="font-black text-text-primary uppercase tracking-tight text-base leading-none">
-							{data.plateNumber}
+							{data.platNomor}
 						</p>
 						<p className="text-[10px] font-bold text-text-secondary/40 uppercase">
-							{data.vehicleType}
+							{data.jenisKendaraan}
 						</p>
 					</div>
 					<div className="space-y-1">
@@ -102,7 +102,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 							Zone
 						</p>
 						<p className="font-black text-text-primary uppercase tracking-tight text-base leading-none">
-							{data.areaName}
+							{data.namaArea}
 						</p>
 					</div>
 					<div className="space-y-1">
@@ -135,39 +135,39 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 							<p className="font-bold text-text-primary font-mono">{duration}</p>
 						</div>
 					)}
-					{data.paymentMethod && (
+					{data.metodePembayaran && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
 								Paid Via
 							</p>
 							<p className="font-black text-text-primary uppercase tracking-tight">
-								{data.paymentMethod}
+								{data.metodePembayaran}
 							</p>
 						</div>
 					)}
-					{data.staffName && (
+					{data.namaPetugas && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
 								Duty Staff
 							</p>
 							<p className="font-bold text-text-primary uppercase tracking-tight">
-								{data.staffName}
+								{data.namaPetugas}
 							</p>
 						</div>
 					)}
-					{data.paymentMethod === "CASH" && data.cashReceived && (
+					{data.metodePembayaran === "TUNAI" && data.tunaiDiterima && (
 						<>
 							<div className="space-y-1">
 								<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
 									Received
 								</p>
-								<p className="font-bold text-text-primary">{formatIDR(data.cashReceived)}</p>
+								<p className="font-bold text-text-primary">{formatIDR(data.tunaiDiterima)}</p>
 							</div>
 							<div className="space-y-1">
 								<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
 									Change
 								</p>
-								<p className="font-bold text-success">{formatIDR(data.cashChange || 0)}</p>
+								<p className="font-bold text-success">{formatIDR(data.kembalian || 0)}</p>
 							</div>
 						</>
 					)}
@@ -222,29 +222,29 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					<p
 						style={{ textAlign: "center", fontSize: "11px", margin: "10px 0", fontWeight: "bold" }}
 					>
-						{data.transactionNumber || `TX-${data.id}`}
+						{data.nomorTransaksi || `TX-${data.id}`}
 					</p>
 
 					<div style={{ borderTop: "1px dashed black", margin: "10px 0" }}></div>
 
 					<div style={{ fontSize: "12px" }}>
-						{data.staffName && (
+						{data.namaPetugas && (
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 								<span>STAFF:</span>
-								<span style={{ fontWeight: "bold" }}>{data.staffName}</span>
+								<span style={{ fontWeight: "bold" }}>{data.namaPetugas}</span>
 							</div>
 						)}
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 							<span>PLATE:</span>
-							<span style={{ fontWeight: "bold" }}>{data.plateNumber}</span>
+							<span style={{ fontWeight: "bold" }}>{data.platNomor}</span>
 						</div>
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 							<span>TYPE:</span>
-							<span style={{ fontWeight: "bold" }}>{data.vehicleType}</span>
+							<span style={{ fontWeight: "bold" }}>{data.jenisKendaraan}</span>
 						</div>
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 							<span>ZONE:</span>
-							<span style={{ fontWeight: "bold" }}>{data.areaName}</span>
+							<span style={{ fontWeight: "bold" }}>{data.namaArea}</span>
 						</div>
 					</div>
 
@@ -271,25 +271,25 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 								<span>{rate}</span>
 							</div>
 						)}
-						{data.paymentMethod && (
+						{data.metodePembayaran && (
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 								<span>METHOD:</span>
-								<span style={{ fontWeight: "bold" }}>{data.paymentMethod}</span>
+								<span style={{ fontWeight: "bold" }}>{data.metodePembayaran}</span>
 							</div>
 						)}
 					</div>
 
 					<div style={{ borderTop: "1px dashed black", margin: "10px 0" }}></div>
 
-					{data.paymentMethod === "CASH" && data.cashReceived && (
+					{data.metodePembayaran === "TUNAI" && data.tunaiDiterima && (
 						<div style={{ fontSize: "12px", marginBottom: "10px" }}>
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 								<span>RECEIVED:</span>
-								<span>{formatIDR(data.cashReceived)}</span>
+								<span>{formatIDR(data.tunaiDiterima)}</span>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
 								<span>CHANGE:</span>
-								<span style={{ fontWeight: "bold" }}>{formatIDR(data.cashChange || 0)}</span>
+								<span style={{ fontWeight: "bold" }}>{formatIDR(data.kembalian || 0)}</span>
 							</div>
 							<div style={{ borderTop: "1px dashed black", margin: "10px 0" }}></div>
 						</div>

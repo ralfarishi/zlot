@@ -19,20 +19,20 @@ const RatesPage = async ({
 
 	const rates = await getRates();
 
-	const filtered = rates.filter((r) => r.vehicleType.toLowerCase().includes(q));
+	const filtered = rates.filter((r) => r.jenisKendaraan.toLowerCase().includes(q));
 
 	const sorted = [...filtered].sort((a, b) => {
 		let comparison = 0;
-		if (sort === "vehicleType") comparison = a.vehicleType.localeCompare(b.vehicleType);
-		if (sort === "hourlyRate") comparison = parseFloat(a.hourlyRate) - parseFloat(b.hourlyRate);
+		if (sort === "jenisKendaraan") comparison = a.jenisKendaraan.localeCompare(b.jenisKendaraan);
+		if (sort === "tarifPerJam") comparison = parseFloat(a.tarifPerJam) - parseFloat(b.tarifPerJam);
 		if (sort === "updatedAt") comparison = a.updatedAt.getTime() - b.updatedAt.getTime();
 		return order === "asc" ? comparison : -comparison;
 	});
 
 	const serialized = sorted.map((r) => ({
 		id: r.id.toString(),
-		vehicleType: r.vehicleType,
-		hourlyRate: r.hourlyRate,
+		jenisKendaraan: r.jenisKendaraan,
+		tarifPerJam: r.tarifPerJam,
 		updatedAt: r.updatedAt,
 	}));
 

@@ -29,7 +29,7 @@ export const UsersTable = ({
 	);
 	const [sort, setSort] = useQueryState(
 		"sort",
-		parseAsString.withDefault("fullName").withOptions({ shallow: false }),
+		parseAsString.withDefault("namaLengkap").withOptions({ shallow: false }),
 	);
 	const [order, setOrder] = useQueryState(
 		"order",

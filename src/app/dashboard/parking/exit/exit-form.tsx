@@ -20,32 +20,32 @@ import { m, AnimatePresence } from "framer-motion";
 import { ParkingReceipt } from "@/app/dashboard/history/parking-receipt";
 
 interface Vehicle {
-	plateNumber: string;
-	color: string | null;
-	vehicleType: string;
+	platNomor: string;
+	warna: string | null;
+	jenisKendaraan: string;
 }
 
 interface Rate {
-	hourlyRate: string;
+	tarifPerJam: string;
 }
 
 interface Area {
-	areaName: string;
+	namaArea: string;
 }
 
 interface Transaction {
 	id: string | bigint;
-	transactionNumber?: string | null;
-	entryTime: Date;
-	vehicle: Vehicle;
-	rate: Rate;
+	nomorTransaksi?: string | null;
+	waktuMasuk: Date;
+	kendaraan: Vehicle;
+	tarif: Rate;
 	area: Area;
-	employee: { fullName: string | null };
+	petugas: { namaLengkap: string | null };
 }
 
 type State = {
 	plate: string;
-	paymentMethod: "QRIS" | "CASH";
+	paymentMethod: "QRIS" | "TUNAI";
 	received: string;
 	tx: Transaction | null;
 	error: string | null;
@@ -54,7 +54,7 @@ type State = {
 
 type Action =
 	| { type: "SET_PLATE"; payload: string }
-	| { type: "SET_PAYMENT_METHOD"; payload: "QRIS" | "CASH" }
+	| { type: "SET_PAYMENT_METHOD"; payload: "QRIS" | "TUNAI" }
 	| { type: "SET_RECEIVED"; payload: string }
 	| { type: "SET_TRANSACTION"; payload: Transaction | null }
 	| { type: "SET_ERROR"; payload: string | null }
@@ -63,7 +63,7 @@ type Action =
 
 const initialState: State = {
 	plate: "",
-	paymentMethod: "CASH",
+	paymentMethod: "TUNAI",
 	received: "",
 	tx: null,
 	error: null,
@@ -127,7 +127,7 @@ export const ExitForm = () => {
 
 	// Auto-search from URL params
 	useEffect(() => {
-		if (plateParam && (!tx || tx.vehicle.plateNumber !== plateParam)) {
+		if (plateParam && (!tx || tx.kendaraan.platNomor !== plateParam)) {
 			const timer = setTimeout(() => handleSearch(plateParam), 0);
 			return () => clearTimeout(timer);
 		}
@@ -135,29 +135,29 @@ export const ExitForm = () => {
 
 	const estimatedFee = useMemo(() => {
 		if (!tx) return 0;
-		const start = new Date(tx.entryTime).getTime();
+		const start = new Date(tx.waktuMasuk).getTime();
 		const now = new Date().getTime();
 		const diffHrs = Math.max(1, Math.ceil((now - start) / (1000 * 60 * 60)));
-		return diffHrs * Number(tx.rate.hourlyRate);
+		return diffHrs * Number(tx.tarif.tarifPerJam);
 	}, [tx]);
 
 	const handleProcessExit = async () => {
 		if (!tx) return;
-		if (paymentMethod === "CASH" && Number(received) < estimatedFee) {
+		if (paymentMethod === "TUNAI" && Number(received) < estimatedFee) {
 			dispatch({ type: "SET_ERROR", payload: "Insufficient cash received to settle fee." });
 			return;
 		}
 
 		const changeAmount =
-			paymentMethod === "CASH" ? Math.max(0, Number(received) - estimatedFee) : 0;
+			paymentMethod === "TUNAI" ? Math.max(0, Number(received) - estimatedFee) : 0;
 
 		startTransition(async () => {
 			try {
 				await logExit(
 					tx.id.toString(),
 					paymentMethod,
-					paymentMethod === "CASH" ? received : undefined,
-					paymentMethod === "CASH" ? String(changeAmount) : undefined,
+					paymentMethod === "TUNAI" ? received : undefined,
+					paymentMethod === "TUNAI" ? String(changeAmount) : undefined,
 				);
 				dispatch({ type: "SET_SUCCESS", payload: true });
 			} catch (err) {
@@ -189,20 +189,20 @@ export const ExitForm = () => {
 						<ParkingReceipt
 							data={{
 								id: tx.id.toString(),
-								transactionNumber: tx.transactionNumber,
-								plateNumber: tx.vehicle.plateNumber,
-								vehicleType: tx.vehicle.vehicleType,
-								areaName: tx.area.areaName,
-								entryTime: tx.entryTime,
-								exitTime: new Date(),
-								durationHours: formatLongDuration(tx.entryTime, new Date()),
-								totalCost: String(estimatedFee),
-								hourlyRate: tx.rate.hourlyRate,
-								staffName: tx.employee.fullName,
-								paymentMethod: paymentMethod,
-								cashReceived: paymentMethod === "CASH" ? received : null,
-								cashChange:
-									paymentMethod === "CASH"
+								nomorTransaksi: tx.nomorTransaksi,
+								platNomor: tx.kendaraan.platNomor,
+								jenisKendaraan: tx.kendaraan.jenisKendaraan,
+								namaArea: tx.area.namaArea,
+								waktuMasuk: tx.waktuMasuk,
+								waktuKeluar: new Date(),
+								durasiJam: formatLongDuration(tx.waktuMasuk, new Date()),
+								totalBiaya: String(estimatedFee),
+								tarifPerJam: tx.tarif.tarifPerJam,
+								namaPetugas: tx.petugas.namaLengkap,
+								metodePembayaran: paymentMethod,
+								tunaiDiterima: paymentMethod === "TUNAI" ? received : null,
+								kembalian:
+									paymentMethod === "TUNAI"
 										? String(Math.max(0, Number(received) - estimatedFee))
 										: null,
 							}}
@@ -292,7 +292,7 @@ export const ExitForm = () => {
 											Telemetry Decrypted
 										</h3>
 										<span className="rounded-full bg-danger/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-danger ring-1 ring-danger/20">
-											ACTIVE {tx.transactionNumber || `TX-${tx.id.toString()}`}
+											ACTIVE {tx.nomorTransaksi || `TX-${tx.id.toString()}`}
 										</span>
 									</div>
 									<div className="grid grid-cols-2 gap-y-6 gap-x-4">
@@ -305,10 +305,10 @@ export const ExitForm = () => {
 													Vehicle
 												</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-													{tx.vehicle.plateNumber}
+													{tx.kendaraan.platNomor}
 												</p>
 												<p className="text-[9px] font-bold text-text-secondary uppercase">
-													{tx.vehicle.color || "None"} • {tx.vehicle.vehicleType}
+													{tx.kendaraan.warna || "None"} • {tx.kendaraan.jenisKendaraan}
 												</p>
 											</div>
 										</div>
@@ -321,11 +321,11 @@ export const ExitForm = () => {
 													Duration
 												</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-													{formatLongDuration(tx.entryTime, null)}
+													{formatLongDuration(tx.waktuMasuk, null)}
 												</p>
 												<p className="text-[9px] font-bold text-text-secondary uppercase">
 													Entered{" "}
-													{new Date(tx.entryTime).toLocaleTimeString([], {
+													{new Date(tx.waktuMasuk).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",
 													})}
@@ -341,7 +341,7 @@ export const ExitForm = () => {
 													Location
 												</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-													{tx.area.areaName}
+													{tx.area.namaArea}
 												</p>
 											</div>
 										</div>
@@ -354,7 +354,7 @@ export const ExitForm = () => {
 													Rate Applied
 												</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-													{formatIDR(tx.rate.hourlyRate)}/HR
+													{formatIDR(tx.tarif.tarifPerJam)}/HR
 												</p>
 											</div>
 										</div>
@@ -404,15 +404,15 @@ export const ExitForm = () => {
 						<div id="payment-method" className="grid grid-cols-2 gap-2">
 							<button
 								type="button"
-								onClick={() => dispatch({ type: "SET_PAYMENT_METHOD", payload: "CASH" })}
+								onClick={() => dispatch({ type: "SET_PAYMENT_METHOD", payload: "TUNAI" })}
 								className={cn(
 									"flex items-center justify-center gap-2 rounded-xl border-2 py-3 px-4 transition-all",
-									paymentMethod === "CASH"
+									paymentMethod === "TUNAI"
 										? "border-secondary bg-secondary/10 text-secondary"
 										: "border-border bg-surface text-text-secondary hover:border-text-secondary/30",
 								)}
 							>
-								<CurrencyDollar size={20} weight={paymentMethod === "CASH" ? "fill" : "bold"} />
+								<CurrencyDollar size={20} weight={paymentMethod === "TUNAI" ? "fill" : "bold"} />
 								<span className="text-[10px] font-black uppercase tracking-widest">CASH</span>
 							</button>
 							<button
@@ -431,7 +431,7 @@ export const ExitForm = () => {
 						</div>
 					</div>
 
-					{paymentMethod === "CASH" && (
+					{paymentMethod === "TUNAI" && (
 						<m.div
 							initial={{ opacity: 0, height: 0 }}
 							animate={{ opacity: 1, height: "auto" }}

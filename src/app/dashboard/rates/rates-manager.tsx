@@ -32,21 +32,21 @@ import { Warning } from "@phosphor-icons/react";
 
 interface Rate {
 	id: string;
-	vehicleType: string;
-	hourlyRate: string;
+	jenisKendaraan: string;
+	tarifPerJam: string;
 	updatedAt: Date;
 }
 
 const VEHICLE_LABELS: Record<string, string> = {
-	motorcycle: "Motorcycle",
-	car: "Car",
-	other: "Other",
+	motor: "Motorcycle",
+	mobil: "Car",
+	lainnya: "Other",
 };
 
 const VEHICLE_COLORS: Record<string, string> = {
-	motorcycle: "bg-blue-500/10 text-blue-500",
-	car: "bg-emerald-500/10 text-emerald-500",
-	other: "bg-amber-500/10 text-amber-500",
+	motor: "bg-blue-500/10 text-blue-500",
+	mobil: "bg-emerald-500/10 text-emerald-500",
+	lainnya: "bg-amber-500/10 text-amber-500",
 };
 
 export const RatesManager = ({ data }: { data: Rate[] }) => {
@@ -63,7 +63,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 	);
 	const [sort, setSort] = useQueryState(
 		"sort",
-		parseAsString.withDefault("vehicleType").withOptions({ shallow: false }),
+		parseAsString.withDefault("jenisKendaraan").withOptions({ shallow: false }),
 	);
 	const [order, setOrder] = useQueryState(
 		"order",
@@ -81,7 +81,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 
 	const startEdit = useCallback((rate: Rate) => {
 		setEditingId(rate.id);
-		setEditValue(rate.hourlyRate);
+		setEditValue(rate.tarifPerJam);
 	}, []);
 
 	const cancelEdit = useCallback(() => {
@@ -95,7 +95,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 			if (isNaN(val) || val < 0) return;
 
 			startTransition(async () => {
-				await updateRate(id, { hourlyRate: editValue });
+				await updateRate(id, { tarifPerJam: editValue });
 				setEditingId(null);
 				router.refresh();
 			});
@@ -167,23 +167,23 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 							<tr className="border-b border-border bg-surface-elevated/50">
 								<th
 									className="px-(--space-md) py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60 cursor-pointer hover:text-primary transition-colors"
-									onClick={() => toggleSort("vehicleType")}
+									onClick={() => toggleSort("jenisKendaraan")}
 								>
 									<div className="flex items-center gap-2">
 										<Timer size={14} weight="bold" />
 										Vehicle Category
-										{sort === "vehicleType" &&
+										{sort === "jenisKendaraan" &&
 											(order === "asc" ? <CaretUp size={10} /> : <CaretDown size={10} />)}
 									</div>
 								</th>
 								<th
 									className="px-(--space-md) py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60 cursor-pointer hover:text-primary transition-colors"
-									onClick={() => toggleSort("hourlyRate")}
+									onClick={() => toggleSort("tarifPerJam")}
 								>
 									<div className="flex items-center gap-2">
 										<Coin size={14} weight="bold" />
 										Hourly Rate
-										{sort === "hourlyRate" &&
+										{sort === "tarifPerJam" &&
 											(order === "asc" ? <CaretUp size={10} /> : <CaretDown size={10} />)}
 									</div>
 								</th>
@@ -234,10 +234,10 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 											<span
 												className={cn(
 													"inline-flex items-center rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider shadow-sm ring-1 ring-inset ring-current/20",
-													VEHICLE_COLORS[rate.vehicleType] || "bg-secondary/10 text-secondary",
+													VEHICLE_COLORS[rate.jenisKendaraan] || "bg-secondary/10 text-secondary",
 												)}
 											>
-												{VEHICLE_LABELS[rate.vehicleType] ?? rate.vehicleType}
+												{VEHICLE_LABELS[rate.jenisKendaraan] ?? rate.jenisKendaraan}
 											</span>
 										</td>
 										<td className="px-(--space-md) py-4">
@@ -260,7 +260,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 												</div>
 											) : (
 												<span className="font-mono text-lg font-black tracking-tighter text-text-primary">
-													{formatIDR(rate.hourlyRate)}
+													{formatIDR(rate.tarifPerJam)}
 												</span>
 											)}
 										</td>
@@ -322,7 +322,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																type="button"
 																onClick={() => startEdit(rate)}
 																className="flex size-8 items-center justify-center rounded-lg text-text-secondary transition-all hover:bg-primary/10 hover:text-primary active:scale-90"
-																aria-label={`Edit ${rate.vehicleType} rate`}
+																aria-label={`Edit ${rate.jenisKendaraan} rate`}
 															>
 																<PencilSimple size={18} weight="duotone" />
 															</button>
@@ -331,7 +331,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																onClick={() => handleDelete(rate.id)}
 																disabled={isPending}
 																className="flex size-8 items-center justify-center rounded-lg text-text-secondary transition-all hover:bg-danger/10 hover:text-danger active:scale-90 disabled:opacity-50"
-																aria-label={`Delete ${rate.vehicleType} rate`}
+																aria-label={`Delete ${rate.jenisKendaraan} rate`}
 															>
 																<Trash size={18} weight="duotone" />
 															</button>

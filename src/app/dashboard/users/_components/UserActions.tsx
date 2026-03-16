@@ -61,7 +61,7 @@ export const UserActions = ({ profile, currentUser }: UserActionsProps) => {
 				<Link
 					href={`/dashboard/users/${profile.id}`}
 					className="flex size-9 items-center justify-center rounded-lg text-text-secondary transition-all hover:bg-primary/10 hover:text-primary active:scale-90"
-					aria-label={`Edit ${profile.fullName}`}
+					aria-label={`Edit ${profile.namaLengkap}`}
 				>
 					<PencilSimple size={18} weight="duotone" />
 				</Link>
@@ -75,7 +75,7 @@ export const UserActions = ({ profile, currentUser }: UserActionsProps) => {
 					(isPending || !canManage) && "opacity-30 cursor-not-allowed",
 				)}
 				title={isSelf ? "Self-deactivation restricted" : !isAdmin ? "Admin access required" : ""}
-				aria-label={`${profile.isActive ? "Deactivate" : "Activate"} ${profile.fullName}`}
+				aria-label={`${profile.isActive ? "Deactivate" : "Activate"} ${profile.namaLengkap}`}
 			>
 				{profile.isActive ? (
 					<ToggleRight size={24} weight="fill" className="text-success" />
@@ -92,7 +92,7 @@ export const UserActions = ({ profile, currentUser }: UserActionsProps) => {
 					(isPending || !canManage) && "opacity-30 cursor-not-allowed",
 				)}
 				title={isSelf ? "Self-deletion restricted" : !isAdmin ? "Admin access required" : ""}
-				aria-label={`Delete ${profile.fullName}`}
+				aria-label={`Delete ${profile.namaLengkap}`}
 			>
 				<Trash size={18} weight="duotone" />
 			</button>
@@ -106,7 +106,7 @@ export const UserActions = ({ profile, currentUser }: UserActionsProps) => {
 						<AlertDialogDescription className="text-sm font-medium leading-relaxed">
 							You are about to terminate all system access for{" "}
 							<span className="font-black text-text-primary uppercase tracking-tighter">
-								{profile.fullName}
+								{profile.namaLengkap}
 							</span>
 							. This action will immediately void their credentials and is terminal.
 						</AlertDialogDescription>

@@ -77,11 +77,11 @@ const ReportsPage = async () => {
 									</div>
 									<div>
 										<p className="text-sm font-bold text-text-primary leading-none">
-											{tx.vehicle.plateNumber} - {tx.area.areaName}
+											{tx.kendaraan.platNomor} - {tx.area.namaArea}
 										</p>
 										<p className="mt-1 text-xs text-text-secondary">
-											{tx.exitTime
-												? new Date(tx.exitTime).toLocaleDateString("id-ID", {
+											{tx.waktuKeluar
+												? new Date(tx.waktuKeluar).toLocaleDateString("id-ID", {
 														day: "numeric",
 														month: "short",
 														year: "numeric",
@@ -89,14 +89,14 @@ const ReportsPage = async () => {
 														minute: "2-digit",
 													})
 												: "In progress"}{" "}
-											| {formatLongDuration(tx.entryTime, tx.exitTime)} |{" "}
-											{formatIDR(tx.totalCost ?? 0)}
+											| {formatLongDuration(tx.waktuMasuk, tx.waktuKeluar)} |{" "}
+											{formatIDR(tx.totalBiaya ?? 0)}
 										</p>
 									</div>
 								</div>
 								<div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
 									<span className="text-sm font-black text-text-primary">
-										{formatIDR(tx.totalCost ?? 0)}
+										{formatIDR(tx.totalBiaya ?? 0)}
 									</span>
 								</div>
 							</div>

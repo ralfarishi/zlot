@@ -2,9 +2,8 @@ import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { profiles } from "./schema/profiles";
+import { profil } from "./schema/profiles";
 import { eq } from "drizzle-orm";
-import { db } from "./index";
 
 // ─── Admin Seed Credentials ───────────────────────────────
 const ADMIN_EMAIL = "admin@zlot.com";
@@ -46,12 +45,12 @@ const seed = async () => {
 	console.log("Seeding admin user...\n");
 
 	// 3. Idempotency check
-	const existing = await db.select().from(profiles).where(eq(profiles.role, "admin")).limit(1);
+	const existing = await db.select().from(profil).where(eq(profil.role, "admin")).limit(1);
 
 	if (existing.length > 0) {
 		console.log("Admin profile already exists:");
 		console.log(`  ID:    ${existing[0].id}`);
-		console.log(`  Name:  ${existing[0].fullName}`);
+		console.log(`  Name:  ${existing[0].namaLengkap}`);
 		console.log(`  Role:  ${existing[0].role}`);
 		console.log("\nSkipping seed. Delete the existing admin to re-seed.");
 		await client.end();
@@ -81,14 +80,14 @@ const seed = async () => {
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
 	const [profile] = await db
-		.update(profiles)
+		.update(profil)
 		.set({
-			fullName: ADMIN_NAME,
+			namaLengkap: ADMIN_NAME,
 			role: "admin",
 			isActive: true,
 			updatedAt: new Date(),
 		})
-		.where(eq(profiles.id, userId))
+		.where(eq(profil.id, userId))
 		.returning();
 
 	if (!profile) {

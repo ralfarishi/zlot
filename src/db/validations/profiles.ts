@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { userRoleEnum } from "../schema/enums";
 
-export const insertProfileSchema = z.object({
+export const insertProfilSchema = z.object({
 	id: z.string().uuid(),
-	fullName: z.string().min(2).max(100),
+	namaLengkap: z.string().min(2).max(100),
 	role: z.enum(userRoleEnum.enumValues),
 	isActive: z.boolean().default(true),
 });
 
-export const updateProfileSchema = insertProfileSchema.partial().omit({ id: true });
+export const updateProfilSchema = insertProfilSchema.partial().omit({ id: true });
 
-export type InsertProfile = z.infer<typeof insertProfileSchema>;
-export type UpdateProfile = z.infer<typeof updateProfileSchema>;
+export type InsertProfil = z.infer<typeof insertProfilSchema>;
+export type UpdateProfil = z.infer<typeof updateProfilSchema>;

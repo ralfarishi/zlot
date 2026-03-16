@@ -110,7 +110,7 @@ const ParkingConsolePage = async () => {
 						</div>
 					) : (
 						areas.map((area) => {
-							const percentage = (area.occupied / area.capacity) * 100;
+							const percentage = (area.terisi / area.kapasitas) * 100;
 							const status = percentage > 90 ? "full" : percentage > 70 ? "active" : "stable";
 
 							return (
@@ -120,7 +120,7 @@ const ParkingConsolePage = async () => {
 								>
 									<div className="flex items-center justify-between">
 										<p className="text-xs font-black text-text-primary uppercase tracking-tight">
-											{area.areaName}
+											{area.namaArea}
 										</p>
 										{status === "full" ? (
 											<Warning size={14} className="text-danger" weight="bold" />
@@ -136,7 +136,7 @@ const ParkingConsolePage = async () => {
 									</div>
 									<div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-text-secondary opacity-60">
 										<span>
-											{area.occupied} / {area.capacity} Spots
+											{area.terisi} / {area.kapasitas} Slot
 										</span>
 										<span>{Math.round(percentage)}%</span>
 									</div>
