@@ -5,6 +5,7 @@ import { Timer, MapPin, MagnifyingGlass, Car, SteeringWheel } from "@phosphor-ic
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { formatLongDuration } from "@/lib/utils";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface ActiveTransaction {
 	id: string | bigint;
@@ -24,6 +25,7 @@ interface ActiveTransaction {
 
 export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransaction[] }) => {
 	const [search, setSearch] = useQueryState("search", parseAsString.withDefault(""));
+	const { t } = useLocale();
 
 	const filtered = initialData.filter(
 		(tx) =>
@@ -36,10 +38,10 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 			<div className="flex flex-col justify-between gap-(--space-md) sm:flex-row sm:items-end px-1">
 				<div className="space-y-1">
 					<h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
-						Live Operational Telemetry
+						{t("active.liveTelemetry")}
 					</h2>
 					<p className="text-sm font-bold text-text-primary uppercase tracking-tighter">
-						{filtered.length} Active Sessions Detected
+						{filtered.length} {t("active.sessionsDetected")}
 					</p>
 				</div>
 				<div className="relative w-full max-w-sm">
@@ -52,7 +54,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 						type="text"
 						value={search ?? ""}
 						onChange={(e) => setSearch(e.target.value)}
-						placeholder="Search registry / plates..."
+						placeholder={t("active.searchPlaceholder")}
 						className="w-full rounded-button border border-border bg-surface pl-10 pr-4 py-2.5 text-xs font-bold uppercase tracking-widest shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all placeholder:opacity-30"
 					/>
 				</div>
@@ -97,7 +99,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 										{formatLongDuration(tx.waktuMasuk, null)}
 									</div>
 									<span className="text-[9px] font-black uppercase tracking-widest text-text-secondary/30 mt-1 block">
-										Live Duration
+										{t("active.liveDuration")}
 									</span>
 								</div>
 							</div>
@@ -108,7 +110,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 									className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-surface-elevated/50 border border-border px-3 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-text-primary transition-all hover:bg-danger/10 hover:text-danger hover:border-danger/20 active:scale-95"
 								>
 									<SteeringWheel size={14} weight="bold" />
-									Initiate Exit
+									{t("active.initiateExit")}
 								</Link>
 							</div>
 
@@ -128,7 +130,7 @@ export const ActiveVehiclesList = ({ initialData }: { initialData: ActiveTransac
 				>
 					<Car size={64} className="text-text-secondary/10 mb-4" weight="duotone" />
 					<p className="text-xs font-black uppercase tracking-widest text-text-secondary/40 italic">
-						No active telemetry signals found
+						{t("active.noSignals")}
 					</p>
 				</m.div>
 			)}

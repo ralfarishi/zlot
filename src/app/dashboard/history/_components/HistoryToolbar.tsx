@@ -1,6 +1,7 @@
 "use client";
 
 import { MagnifyingGlass } from "@phosphor-icons/react";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface HistoryToolbarProps {
 	globalFilter: string;
@@ -13,6 +14,8 @@ export const HistoryToolbar = ({
 	onGlobalFilterChange,
 	rowCount,
 }: HistoryToolbarProps) => {
+	const { t } = useLocale();
+
 	return (
 		<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-1">
 			<div className="flex flex-1 items-stretch sm:items-center gap-3">
@@ -24,7 +27,7 @@ export const HistoryToolbar = ({
 					/>
 					<input
 						type="text"
-						placeholder="Search archives for plates, zones, or status..."
+						placeholder={t("history.toolbar.search")}
 						value={globalFilter ?? ""}
 						onChange={(e) => onGlobalFilterChange(e.target.value)}
 						className="w-full rounded-button border border-border bg-surface pl-10 pr-4 py-2.5 text-sm font-medium outline-none transition-all focus:border-primary/50 focus:ring-4 focus:ring-primary/5 shadow-sm"
@@ -34,7 +37,7 @@ export const HistoryToolbar = ({
 			<div className="flex items-center justify-between sm:justify-end gap-6 border-t border-border pt-4 lg:border-0 lg:pt-0">
 				<div className="flex flex-col items-start lg:items-end">
 					<span className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-						Archived Sessions
+						{t("history.toolbar.archivedSessions")}
 					</span>
 					<span className="text-lg font-black tracking-tighter text-text-primary">{rowCount}</span>
 				</div>

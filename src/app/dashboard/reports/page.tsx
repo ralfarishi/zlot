@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getRecentCompletedTransactions } from "@/src/actions/transactions";
 import { formatIDR, formatLongDuration } from "@/lib/utils";
 import { requireRole } from "@/src/lib/auth-guard";
+import { getTranslator, getLocale } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = {
 	title: "Reports | Zlot",
@@ -11,26 +12,29 @@ export const metadata: Metadata = {
 const ReportsPage = async () => {
 	await requireRole(["admin", "owner"]);
 	const transactions = await getRecentCompletedTransactions(20);
+	const t = await getTranslator();
+	const locale = await getLocale();
+	const dateLocale = locale === "id" ? "id-ID" : "en-US";
 
 	return (
 		<div className="space-y-(--space-lg)">
 			<div className="flex flex-col justify-between gap-(--space-md) sm:flex-row sm:items-center">
 				<div>
 					<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-						Financial Ledger
+						{t("reports.title")}
 					</h1>
 					<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-						Reconciliation records and transaction artifacts
+						{t("reports.subtitle")}
 					</p>
 				</div>
-				<div className="flex gap-2">
+			<div className="flex gap-2">
 					<button className="flex items-center gap-2 rounded-button border border-border bg-surface px-6 py-2 text-xs font-black uppercase tracking-widest text-text-secondary transition-all hover:bg-surface-elevated active:scale-95">
 						<DownloadSimple size={16} weight="bold" />
-						Export Data
+						{t("reports.export")}
 					</button>
 					<button className="flex items-center gap-2 rounded-button bg-primary px-8 py-2 text-xs font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95">
 						<Printer size={16} weight="bold" />
-						Generate PDF
+						{t("reports.generatePdf")}
 					</button>
 				</div>
 			</div>
@@ -45,7 +49,7 @@ const ReportsPage = async () => {
 							/>
 							<input
 								type="text"
-								placeholder="Search transactions..."
+								placeholder={t("reports.searchPlaceholder")}
 								className="w-full rounded-button border border-border bg-surface pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
 							/>
 						</div>
@@ -54,16 +58,16 @@ const ReportsPage = async () => {
 						</button>
 					</div>
 					<div className="mt-4 flex items-center gap-4 text-xs font-medium text-text-secondary sm:mt-0">
-						<span>Recent Transactions</span>
+						<span>{t("reports.recent")}</span>
 						<div className="h-4 w-px bg-border" />
-						<span className="text-text-primary">{transactions.length} records</span>
+						<span className="text-text-primary">{transactions.length} {t("shared.records")}</span>
 					</div>
 				</div>
 
 				<div className="divide-y divide-border">
 					{transactions.length === 0 ? (
 						<div className="p-(--space-lg) text-center text-sm text-text-secondary italic">
-							No completed transactions found
+							{t("reports.noData")}
 						</div>
 					) : (
 						transactions.map((tx) => (
@@ -81,14 +85,14 @@ const ReportsPage = async () => {
 										</p>
 										<p className="mt-1 text-xs text-text-secondary">
 											{tx.waktuKeluar
-												? new Date(tx.waktuKeluar).toLocaleDateString("id-ID", {
+												? new Date(tx.waktuKeluar).toLocaleDateString(dateLocale, {
 														day: "numeric",
 														month: "short",
 														year: "numeric",
 														hour: "2-digit",
 														minute: "2-digit",
 													})
-												: "In progress"}{" "}
+												: t("reports.inProgress")}{" "}
 											| {formatLongDuration(tx.waktuMasuk, tx.waktuKeluar)} |{" "}
 											{formatIDR(tx.totalBiaya ?? 0)}
 										</p>
@@ -107,7 +111,7 @@ const ReportsPage = async () => {
 				{transactions.length > 0 && (
 					<div className="bg-surface-elevated/30 p-(--space-md) text-center">
 						<span className="text-sm font-bold text-text-secondary/50">
-							Showing {transactions.length} most recent completed transactions
+							{t("reports.showing")} {transactions.length} {t("reports.recentCompleted")}
 						</span>
 					</div>
 				)}

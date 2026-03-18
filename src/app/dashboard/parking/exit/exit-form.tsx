@@ -18,6 +18,7 @@ import {
 import { cn, formatIDR, formatLongDuration } from "@/lib/utils";
 import { m, AnimatePresence } from "framer-motion";
 import { ParkingReceipt } from "@/app/dashboard/history/parking-receipt";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface Vehicle {
 	platNomor: string;
@@ -97,6 +98,7 @@ export const ExitForm = () => {
 	const [isSearching, startSearch] = useTransition();
 	const searchParams = useSearchParams();
 	const plateParam = searchParams.get("plate");
+	const { t } = useLocale();
 
 	const { plate, paymentMethod, received, tx, error, success } = state;
 
@@ -104,7 +106,7 @@ export const ExitForm = () => {
 		const trimmed = plateToSearch.replaceAll(" ", "");
 		if (!trimmed) return;
 		if (trimmed.length > 8) {
-			dispatch({ type: "SET_ERROR", payload: "Plate number must be 8 characters or less." });
+			dispatch({ type: "SET_ERROR", payload: t("exit.error.plateLength") });
 			return;
 		}
 		startSearch(async () => {
@@ -113,17 +115,17 @@ export const ExitForm = () => {
 					plateToSearch,
 				)) as unknown as Transaction | null;
 				if (!result) {
-					dispatch({ type: "SET_ERROR", payload: "No active registry found for this plate." });
+					dispatch({ type: "SET_ERROR", payload: t("exit.error.noActiveRegistry") });
 					dispatch({ type: "SET_TRANSACTION", payload: null });
 				} else {
 					dispatch({ type: "SET_TRANSACTION", payload: result });
 				}
 			} catch (err) {
-				const message = err instanceof Error ? err.message : "Search failed.";
+				const message = err instanceof Error ? err.message : t("exit.error.searchFailed");
 				dispatch({ type: "SET_ERROR", payload: message });
 			}
 		});
-	}, []);
+	}, [t]);
 
 	// Auto-search from URL params
 	useEffect(() => {
@@ -144,7 +146,7 @@ export const ExitForm = () => {
 	const handleProcessExit = async () => {
 		if (!tx) return;
 		if (paymentMethod === "TUNAI" && Number(received) < estimatedFee) {
-			dispatch({ type: "SET_ERROR", payload: "Insufficient cash received to settle fee." });
+			dispatch({ type: "SET_ERROR", payload: t("exit.error.insufficientCash") });
 			return;
 		}
 
@@ -161,7 +163,7 @@ export const ExitForm = () => {
 				);
 				dispatch({ type: "SET_SUCCESS", payload: true });
 			} catch (err) {
-				const message = err instanceof Error ? err.message : "Exit protocol failed.";
+				const message = err instanceof Error ? err.message : t("exit.error.exitProtocolFailed");
 				dispatch({ type: "SET_ERROR", payload: message });
 			}
 		});
@@ -178,10 +180,10 @@ export const ExitForm = () => {
 					<CheckCircle size={56} weight="fill" />
 				</div>
 				<h2 className="text-3xl font-black text-text-primary uppercase tracking-tighter">
-					Exit Authorized
+					{t("exit.authorized")}
 				</h2>
 				<p className="mt-2 text-sm font-bold text-text-secondary uppercase tracking-[0.2em] opacity-60 max-w-xs">
-					Payment processed successfully. Vehicle cleared for departure.
+					{t("exit.paymentSuccess")}
 				</p>
 
 				{tx && (
@@ -189,21 +191,21 @@ export const ExitForm = () => {
 						<ParkingReceipt
 							data={{
 								id: tx.id.toString(),
-								nomorTransaksi: tx.nomorTransaksi,
+								nomorTransaksi: tx.nomorTransaksi ?? `TX-${tx.id}`,
 								platNomor: tx.kendaraan.platNomor,
 								jenisKendaraan: tx.kendaraan.jenisKendaraan,
 								namaArea: tx.area.namaArea,
 								waktuMasuk: tx.waktuMasuk,
 								waktuKeluar: new Date(),
-								durasiJam: formatLongDuration(tx.waktuMasuk, new Date()),
-								totalBiaya: String(estimatedFee),
-								tarifPerJam: tx.tarif.tarifPerJam,
+								durasiJam: null, // formatLongDuration returns string, ReceiptData expects number for internal calc if any, but we use string in component?
+								totalBiaya: estimatedFee,
+								tarifPerJam: Number(tx.tarif.tarifPerJam),
 								namaPetugas: tx.petugas.namaLengkap,
 								metodePembayaran: paymentMethod,
-								tunaiDiterima: paymentMethod === "TUNAI" ? received : null,
+								tunaiDiterima: paymentMethod === "TUNAI" ? Number(received) : null,
 								kembalian:
 									paymentMethod === "TUNAI"
-										? String(Math.max(0, Number(received) - estimatedFee))
+										? Math.max(0, Number(received) - estimatedFee)
 										: null,
 							}}
 						/>
@@ -224,10 +226,10 @@ export const ExitForm = () => {
 							</div>
 							<div>
 								<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-									Vehicle Exit
+									{t("exit.title")}
 								</h1>
 								<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-50 mt-0.5">
-									Departure verification & fee processing
+									{t("exit.subtitle")}
 								</p>
 							</div>
 						</div>
@@ -238,9 +240,9 @@ export const ExitForm = () => {
 							<label
 								htmlFor="plate-search"
 								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
-							>
-								Identify Target (Plate / ID)
-							</label>
+					>
+						{t("exit.identifyTarget")}
+					</label>
 							<div className="flex gap-2">
 								<div className="relative flex-1">
 									<MagnifyingGlass
@@ -255,7 +257,7 @@ export const ExitForm = () => {
 										maxLength={8}
 										onChange={(e) => dispatch({ type: "SET_PLATE", payload: e.target.value })}
 										onKeyDown={(e) => e.key === "Enter" && handleSearch(plate)}
-										placeholder="SCAN OR ENTER PLATE"
+										placeholder={t("exit.searchPlaceholder")}
 										className="w-full rounded-button border-2 border-border bg-surface-elevated/50 px-10 py-3.5 text-xl font-black tracking-widest text-text-primary outline-none focus:border-danger focus:ring-4 focus:ring-danger/5 transition-all uppercase placeholder:opacity-20"
 									/>
 								</div>
@@ -289,10 +291,10 @@ export const ExitForm = () => {
 								>
 									<div className="mb-4 flex items-center justify-between border-b border-border border-dashed pb-3">
 										<h3 className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60">
-											Telemetry Decrypted
-										</h3>
+									{t("exit.telemetryDecrypted")}
+								</h3>
 										<span className="rounded-full bg-danger/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-danger ring-1 ring-danger/20">
-											ACTIVE {tx.nomorTransaksi || `TX-${tx.id.toString()}`}
+											{t("exit.activeBadge")} {tx.nomorTransaksi || `TX-${tx.id.toString()}`}
 										</span>
 									</div>
 									<div className="grid grid-cols-2 gap-y-6 gap-x-4">
@@ -302,8 +304,8 @@ export const ExitForm = () => {
 											</div>
 											<div>
 												<p className="text-[10px] font-bold text-text-secondary uppercase opacity-60">
-													Vehicle
-												</p>
+												{t("exit.vehicle")}
+											</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
 													{tx.kendaraan.platNomor}
 												</p>
@@ -318,13 +320,13 @@ export const ExitForm = () => {
 											</div>
 											<div>
 												<p className="text-[10px] font-bold text-text-secondary uppercase opacity-60">
-													Duration
-												</p>
+												{t("exit.duration")}
+											</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
 													{formatLongDuration(tx.waktuMasuk, null)}
 												</p>
 												<p className="text-[9px] font-bold text-text-secondary uppercase">
-													Entered{" "}
+												{t("exit.entered")}{" "}
 													{new Date(tx.waktuMasuk).toLocaleTimeString([], {
 														hour: "2-digit",
 														minute: "2-digit",
@@ -338,8 +340,8 @@ export const ExitForm = () => {
 											</div>
 											<div>
 												<p className="text-[10px] font-bold text-text-secondary uppercase opacity-60">
-													Location
-												</p>
+												{t("exit.location")}
+											</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
 													{tx.area.namaArea}
 												</p>
@@ -351,8 +353,8 @@ export const ExitForm = () => {
 											</div>
 											<div>
 												<p className="text-[10px] font-bold text-text-secondary uppercase opacity-60">
-													Rate Applied
-												</p>
+												{t("exit.rateApplied")}
+											</p>
 												<p className="text-xs font-black text-text-primary uppercase tracking-tight">
 													{formatIDR(tx.tarif.tarifPerJam)}/HR
 												</p>
@@ -364,8 +366,8 @@ export const ExitForm = () => {
 								<div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border p-12 text-center opacity-40">
 									<MagnifyingGlass size={48} className="mb-4 text-text-secondary" weight="thin" />
 									<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
-										Awaiting Identification
-									</p>
+									{t("exit.awaitingId")}
+								</p>
 								</div>
 							)}
 						</AnimatePresence>
@@ -387,7 +389,7 @@ export const ExitForm = () => {
 					</div>
 
 					<p className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em]">
-						Total Outstanding
+						{t("exit.totalOutstanding")}
 					</p>
 					<h2 className="text-5xl font-black text-text-primary mt-2 tracking-tighter">
 						{formatIDR(estimatedFee)}
@@ -398,9 +400,9 @@ export const ExitForm = () => {
 						<label
 							htmlFor="payment-method"
 							className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
-						>
-							Settlement Method
-						</label>
+					>
+						{t("exit.settlementMethod")}
+					</label>
 						<div id="payment-method" className="grid grid-cols-2 gap-2">
 							<button
 								type="button"
@@ -413,7 +415,7 @@ export const ExitForm = () => {
 								)}
 							>
 								<CurrencyDollar size={20} weight={paymentMethod === "TUNAI" ? "fill" : "bold"} />
-								<span className="text-[10px] font-black uppercase tracking-widest">CASH</span>
+								<span className="text-[10px] font-black uppercase tracking-widest">{t("exit.cash")}</span>
 							</button>
 							<button
 								type="button"
@@ -426,7 +428,7 @@ export const ExitForm = () => {
 								)}
 							>
 								<QrCode size={20} weight={paymentMethod === "QRIS" ? "fill" : "bold"} />
-								<span className="text-[10px] font-black uppercase tracking-widest">QRIS</span>
+								<span className="text-[10px] font-black uppercase tracking-widest">{t("exit.qris")}</span>
 							</button>
 						</div>
 					</div>
@@ -441,14 +443,14 @@ export const ExitForm = () => {
 								htmlFor="cash-received"
 								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
 							>
-								Cash Handling
+								{t("exit.cashHandling")}
 							</label>
 							<div className="grid grid-cols-2 gap-2">
 								<div className="relative">
 									<input
 										id="cash-received"
 										type="text"
-										placeholder="RECEIVED"
+										placeholder={t("exit.receivedPlaceholder")}
 										value={received}
 										onChange={(e) => {
 											const val = e.target.value.replace(/\D/g, "");
@@ -457,12 +459,12 @@ export const ExitForm = () => {
 										className="w-full rounded-xl border-2 border-border bg-surface px-3 py-3 text-sm font-black text-text-primary outline-none focus:border-secondary transition-all"
 									/>
 									<span className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black text-text-secondary/30 uppercase">
-										IDR
+										{t("exit.idr")}
 									</span>
 								</div>
 								<div className="flex flex-col justify-center rounded-xl bg-surface-elevated/50 px-4 py-2 ring-1 ring-border">
 									<span className="text-[9px] font-bold uppercase text-text-secondary/40 leading-none">
-										Change Due
+										{t("exit.changeDue")}
 									</span>
 									<span
 										className={cn(
@@ -488,10 +490,10 @@ export const ExitForm = () => {
 							) : (
 								<CreditCard size={20} weight="bold" />
 							)}
-							Process Departure
+							{t("exit.processDeparture")}
 						</button>
 						<p className="text-center text-[9px] font-bold text-text-secondary uppercase opacity-40">
-							Final total calculated upon processing
+							{t("exit.finalTotal")}
 						</p>
 					</div>
 				</m.div>
@@ -501,8 +503,7 @@ export const ExitForm = () => {
 						<Receipt size={20} weight="duotone" />
 					</div>
 					<p className="text-[9px] font-bold leading-relaxed text-text-secondary uppercase opacity-60">
-						Automated thermal receipt artifacts will be generated following authorized payment
-						confirmation.
+						{t("exit.receiptNote")}
 					</p>
 				</div>
 			</div>

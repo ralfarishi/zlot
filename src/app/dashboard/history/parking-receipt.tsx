@@ -3,25 +3,26 @@
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Printer, X } from "@phosphor-icons/react";
-import { formatIDR, formatLongDuration } from "@/lib/utils";
+import { formatIDR, formatLongDuration } from "@/src/lib/utils";
 import { m } from "framer-motion";
 import { format } from "date-fns";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 export interface ReceiptData {
 	id: string;
-	nomorTransaksi?: string | null;
+	nomorTransaksi: string;
 	platNomor: string;
 	jenisKendaraan: string;
 	namaArea: string;
-	waktuMasuk: Date;
-	waktuKeluar: Date | null;
-	durasiJam: string | null;
-	totalBiaya: string | null;
-	tarifPerJam?: string | null;
-	metodePembayaran?: string | null;
-	tunaiDiterima?: string | null;
-	kembalian?: string | null;
-	namaPetugas?: string | null;
+	waktuMasuk: Date | string;
+	waktuKeluar: Date | string | null;
+	durasiJam: string | number | null;
+	totalBiaya: number | null;
+	tarifPerJam: number;
+	namaPetugas: string | null;
+	metodePembayaran: string | null;
+	tunaiDiterima: number | null;
+	kembalian: number | null;
 }
 
 interface ParkingReceiptProps {
@@ -30,35 +31,35 @@ interface ParkingReceiptProps {
 }
 
 export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
-	const printRef = useRef<HTMLDivElement>(null);
+	const componentRef = useRef<HTMLDivElement>(null);
+	const { t } = useLocale();
 
 	const handlePrint = useReactToPrint({
-		contentRef: printRef,
+		contentRef: componentRef,
 		documentTitle: `Zlot-Receipt-TX${data.id}`,
 	});
 
-	const entryFormatted = format(new Date(data.waktuMasuk), "dd MMM yyyy, HH:mm");
+	const entryFormatted = format(new Date(data.waktuMasuk), "MMM dd, HH:mm:ss");
 	const exitFormatted = data.waktuKeluar
-		? format(new Date(data.waktuKeluar), "dd MMM yyyy, HH:mm")
+		? format(new Date(data.waktuKeluar), "MMM dd, HH:mm:ss")
 		: null;
-	const total = data.totalBiaya ? formatIDR(data.totalBiaya) : formatIDR(0);
-	const rate = data.tarifPerJam ? `${formatIDR(data.tarifPerJam)}/hr` : null;
+
 	const duration = formatLongDuration(data.waktuMasuk, data.waktuKeluar);
+	const total = formatIDR(data.totalBiaya ?? 0);
+	const rate = formatIDR(data.tarifPerJam);
 
 	return (
 		<m.div
-			initial={{ opacity: 0, height: 0 }}
-			animate={{ opacity: 1, height: "auto" }}
-			exit={{ opacity: 0, height: 0 }}
-			className="overflow-hidden"
+			initial={{ opacity: 0, scale: 0.95 }}
+			animate={{ opacity: 1, scale: 1 }}
+			className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-surface p-6 shadow-2xl"
 		>
-			<div className="mx-(--space-md) mb-(--space-md) mt-(--space-md) rounded-xl border border-border bg-surface-elevated p-(--space-lg) shadow-sm">
-				{/* Header with actions */}
-				<div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+			<div className="flex flex-col gap-6">
+				<div className="flex items-center justify-between border-b border-border border-dashed pb-4">
 					<div className="flex items-center gap-3">
 						<div className="flex flex-col">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40 leading-none mb-1">
-								Transaction Ref
+								{t("history.receipt.ref")}
 							</p>
 							<p className="font-mono text-base font-black text-primary leading-none">
 								{data.nomorTransaksi || `TX-${data.id}`}
@@ -71,35 +72,34 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 							className="flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-[10px] font-black uppercase tracking-widest text-text-secondary transition-all hover:bg-surface-elevated hover:text-text-primary active:scale-95 shadow-sm"
 						>
 							<Printer size={14} weight="bold" />
-							Print
+							{t("history.receipt.print")}
 						</button>
 						{onClose && (
 							<button
 								onClick={onClose}
-								className="flex size-10 items-center justify-center rounded-xl border border-border bg-surface text-text-secondary transition-all hover:bg-danger/10 hover:text-danger active:scale-95 shadow-sm"
+								className="flex size-9 items-center justify-center rounded-xl bg-surface-elevated text-text-secondary hover:text-text-primary transition-all active:scale-95"
 							>
-								<X size={16} weight="bold" />
+								<X size={18} weight="bold" />
 							</button>
 						)}
 					</div>
 				</div>
 
-				{/* Inline preview (visible on screen) */}
 				<div className="grid grid-cols-2 gap-x-8 gap-y-5 text-sm">
 					<div className="space-y-1">
 						<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-							Vehicle
+							{t("history.receipt.vehicle")}
 						</p>
 						<p className="font-black text-text-primary uppercase tracking-tight text-base leading-none">
 							{data.platNomor}
 						</p>
-						<p className="text-[10px] font-bold text-text-secondary/40 uppercase">
+						<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
 							{data.jenisKendaraan}
 						</p>
 					</div>
 					<div className="space-y-1">
 						<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-							Zone
+							{t("history.receipt.zone")}
 						</p>
 						<p className="font-black text-text-primary uppercase tracking-tight text-base leading-none">
 							{data.namaArea}
@@ -107,22 +107,24 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					</div>
 					<div className="space-y-1">
 						<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-							Entry
+							{t("history.receipt.entry")}
 						</p>
 						<p className="font-bold text-text-primary">{entryFormatted}</p>
 					</div>
 					<div className="space-y-1">
 						<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-							Exit
+							{t("history.receipt.exit")}
 						</p>
 						<p className="font-bold text-text-primary">
-							{exitFormatted ?? <span className="text-success animate-pulse">Active</span>}
+							{exitFormatted ?? (
+								<span className="text-success animate-pulse">{t("history.receipt.active")}</span>
+							)}
 						</p>
 					</div>
 					{rate && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-								Rate
+								{t("history.receipt.rate")}
 							</p>
 							<p className="font-bold text-text-primary">{rate}</p>
 						</div>
@@ -130,7 +132,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					{duration && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-								Duration
+								{t("history.receipt.duration")}
 							</p>
 							<p className="font-bold text-text-primary font-mono">{duration}</p>
 						</div>
@@ -138,7 +140,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					{data.metodePembayaran && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-								Paid Via
+								{t("history.receipt.paidVia")}
 							</p>
 							<p className="font-black text-text-primary uppercase tracking-tight">
 								{data.metodePembayaran}
@@ -148,7 +150,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					{data.namaPetugas && (
 						<div className="space-y-1">
 							<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-								Duty Staff
+								{t("history.receipt.dutyStaff")}
 							</p>
 							<p className="font-bold text-text-primary uppercase tracking-tight">
 								{data.namaPetugas}
@@ -159,13 +161,13 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 						<>
 							<div className="space-y-1">
 								<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-									Received
+									{t("history.receipt.received")}
 								</p>
 								<p className="font-bold text-text-primary">{formatIDR(data.tunaiDiterima)}</p>
 							</div>
 							<div className="space-y-1">
 								<p className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-									Change
+									{t("history.receipt.change")}
 								</p>
 								<p className="font-bold text-success">{formatIDR(data.kembalian || 0)}</p>
 							</div>
@@ -175,7 +177,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 
 				<div className="mt-8 flex items-center justify-between rounded-xl bg-surface p-4 ring-1 ring-border shadow-inner">
 					<span className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60">
-						Total Bill
+						{t("history.receipt.totalBill")}
 					</span>
 					<span className="text-2xl font-black tracking-tighter text-text-primary">{total}</span>
 				</div>
@@ -184,7 +186,7 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 			{/* Printable receipt (Optimized for 80mm Thermal Paper) */}
 			<div className="hidden">
 				<div
-					ref={printRef}
+					ref={componentRef}
 					style={{
 						width: "80mm",
 						padding: "8mm 4mm",
@@ -203,8 +205,9 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 						}
 					`}</style>
 
+					{/* Receipt Header */}
 					<div style={{ textAlign: "center", marginBottom: "15px" }}>
-						<h2
+						<p
 							style={{
 								fontSize: "24px",
 								fontWeight: "900",
@@ -213,9 +216,9 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 							}}
 						>
 							ZLOT
-						</h2>
+						</p>
 						<p style={{ fontSize: "10px", margin: "0", letterSpacing: "1px", fontWeight: "bold" }}>
-							OFFICIAL PARKING RECEIPT
+							{t("history.receipt.thermalHeader")}
 						</p>
 					</div>
 
@@ -230,20 +233,16 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					<div style={{ fontSize: "12px" }}>
 						{data.namaPetugas && (
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-								<span>STAFF:</span>
+								<span>{t("history.receipt.dutyStaff").toUpperCase()}:</span>
 								<span style={{ fontWeight: "bold" }}>{data.namaPetugas}</span>
 							</div>
 						)}
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-							<span>PLATE:</span>
+							<span>{t("history.receipt.vehicle").toUpperCase()}:</span>
 							<span style={{ fontWeight: "bold" }}>{data.platNomor}</span>
 						</div>
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-							<span>TYPE:</span>
-							<span style={{ fontWeight: "bold" }}>{data.jenisKendaraan}</span>
-						</div>
-						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-							<span>ZONE:</span>
+							<span>{t("history.receipt.zone").toUpperCase()}:</span>
 							<span style={{ fontWeight: "bold" }}>{data.namaArea}</span>
 						</div>
 					</div>
@@ -252,22 +251,22 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 
 					<div style={{ fontSize: "12px" }}>
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-							<span>ENTRY:</span>
+							<span>{t("history.receipt.entry").toUpperCase()}:</span>
 							<span>{entryFormatted}</span>
 						</div>
 						<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-							<span>EXIT:</span>
+							<span>{t("history.receipt.exit").toUpperCase()}:</span>
 							<span>{exitFormatted ?? "-"}</span>
 						</div>
 						{duration && (
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-								<span>DURATION:</span>
+								<span>{t("history.receipt.duration").toUpperCase()}:</span>
 								<span style={{ fontWeight: "bold" }}>{duration}</span>
 							</div>
 						)}
 						{rate && (
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-								<span>RATE:</span>
+								<span>{t("history.receipt.rate").toUpperCase()}:</span>
 								<span>{rate}</span>
 							</div>
 						)}
@@ -284,11 +283,11 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					{data.metodePembayaran === "TUNAI" && data.tunaiDiterima && (
 						<div style={{ fontSize: "12px", marginBottom: "10px" }}>
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-								<span>RECEIVED:</span>
+								<span>{t("history.receipt.received").toUpperCase()}:</span>
 								<span>{formatIDR(data.tunaiDiterima)}</span>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", margin: "4px 0" }}>
-								<span>CHANGE:</span>
+								<span>{t("history.receipt.change").toUpperCase()}:</span>
 								<span style={{ fontWeight: "bold" }}>{formatIDR(data.kembalian || 0)}</span>
 							</div>
 							<div style={{ borderTop: "1px dashed black", margin: "10px 0" }}></div>
@@ -296,7 +295,9 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 					)}
 
 					<div style={{ textAlign: "center", margin: "10px 0" }}>
-						<p style={{ margin: "0", fontSize: "12px", fontWeight: "bold" }}>TOTAL AMOUNT</p>
+						<p style={{ margin: "0", fontSize: "12px", fontWeight: "bold" }}>
+							{t("history.receipt.totalBill").toUpperCase()}
+						</p>
 						<p style={{ margin: "5px 0", fontSize: "28px", fontWeight: "900" }}>{total}</p>
 					</div>
 
@@ -310,14 +311,14 @@ export const ParkingReceipt = ({ data, onClose }: ParkingReceiptProps) => {
 						}}
 					>
 						<p style={{ margin: "0", fontSize: "10px", fontWeight: "bold" }}>
-							PLEASE KEEP THIS RECEIPT
+							{t("history.receipt.keepReceipt").toUpperCase()}
 						</p>
 					</div>
 
 					<div style={{ textAlign: "center", marginTop: "15px" }}>
-						<p style={{ fontSize: "10px", margin: "0" }}>Thank you for using Zlot</p>
+						<p style={{ fontSize: "10px", margin: "0" }}>{t("history.receipt.thankYou")}</p>
 						<p style={{ fontSize: "9px", margin: "5px 0 0 0", fontStyle: "italic" }}>
-							{new Date().toLocaleString("id-ID")}
+							{new Date().toLocaleString(t("locale.language") === "en" ? "en-US" : "id-ID")}
 						</p>
 					</div>
 				</div>

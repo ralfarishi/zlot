@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { Plus, X, Coin, ArrowsClockwise } from "@phosphor-icons/react";
 import { createRate } from "@/src/actions/rates";
 import { m, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 export const CreateRateForm = () => {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | null>(null);
+	const { t } = useLocale();
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -49,7 +51,7 @@ export const CreateRateForm = () => {
 						className="flex items-center gap-2 rounded-button bg-primary px-4 py-2 text-xs font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95"
 					>
 						<Plus size={16} weight="bold" />
-						Provision Rate
+						{t("rates.provisionRate")}
 					</m.button>
 				) : (
 					<m.div
@@ -63,8 +65,8 @@ export const CreateRateForm = () => {
 							<div className="flex items-center gap-2">
 								<Coin size={18} weight="bold" className="text-primary" />
 								<h3 className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-									Initialize New Rate Artifact
-								</h3>
+								{t("rates.initializeRate")}
+							</h3>
 							</div>
 							<button
 								onClick={() => setIsOpen(false)}
@@ -86,7 +88,7 @@ export const CreateRateForm = () => {
 									htmlFor="vehicle-type-rate"
 									className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60"
 								>
-									Vehicle Category
+									{t("rates.vehicleCategory2")}
 								</label>
 								<div className="relative">
 									<select
@@ -96,11 +98,11 @@ export const CreateRateForm = () => {
 										defaultValue=""
 									>
 										<option value="" disabled>
-											Select Type...
-										</option>
-										<option value="mobil">Car (Standard)</option>
-										<option value="motor">Motorcycle / Trike</option>
-										<option value="lainnya">Specialized / Other</option>
+										{t("rates.selectType")}
+									</option>
+									<option value="mobil">{t("rates.carStandard")}</option>
+									<option value="motor">{t("rates.motorcycleTrike")}</option>
+									<option value="lainnya">{t("rates.specializedOther")}</option>
 									</select>
 								</div>
 							</div>
@@ -110,7 +112,7 @@ export const CreateRateForm = () => {
 									htmlFor="hourly-rate"
 									className="text-[10px] font-black uppercase tracking-widest text-text-secondary/60"
 								>
-									Hourly Tariff (IDR)
+									{t("rates.hourlyTariff")}
 								</label>
 								<input
 									id="hourly-rate"
@@ -131,8 +133,8 @@ export const CreateRateForm = () => {
 								{isPending ? (
 									<ArrowsClockwise size={16} weight="bold" className="animate-spin" />
 								) : (
-									"Commit Rate"
-								)}
+								t("rates.commitRate")
+							)}
 							</button>
 						</form>
 					</m.div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getAllTransactions } from "@/src/actions/transactions";
 import { HistoryTable } from "./history-table";
 import { requireRole } from "@/src/lib/auth-guard";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = {
 	title: "Transaction History | Zlot",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 const HistoryPage = async () => {
 	await requireRole(["admin", "owner"]);
 	const transactions = await getAllTransactions();
+	const t = await getTranslator();
 
 	interface TransactionRecord {
 		id: bigint;
@@ -67,15 +69,15 @@ const HistoryPage = async () => {
 							weight="bold"
 							className="transition-transform group-hover:-translate-x-1"
 						/>
-						Back to Console
+						{t("history.backToConsole")}
 					</Link>
 					<div className="flex items-center gap-4">
 						<div>
 							<h1 className="text-3xl font-black tracking-tighter text-text-primary uppercase">
-								Archives
+								{t("history.title")}
 							</h1>
 							<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-50 mt-1">
-								Chronological transaction ledger and auditing
+								{t("history.subtitle")}
 							</p>
 						</div>
 					</div>

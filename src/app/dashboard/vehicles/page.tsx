@@ -2,6 +2,7 @@ import { requireRole } from "@/src/lib/auth-guard";
 import type { Metadata } from "next";
 import { getVehicles } from "@/src/actions/vehicles";
 import { VehiclesTable } from "./vehicles-table";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Vehicles" };
 
@@ -12,6 +13,7 @@ const VehiclesPage = async ({
 }) => {
 	await requireRole(["admin", "owner"]);
 	const params = await searchParams;
+	const t = await getTranslator();
 	const q = params.q?.toLowerCase() || "";
 	const type = params.type || "all";
 	const sort = params.sort || "platNomor";
@@ -48,10 +50,10 @@ const VehiclesPage = async ({
 		<div className="space-y-(--space-lg)">
 			<div>
 				<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-					Vehicle Registry
+					{t("vehicles.title")}
 				</h1>
 				<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-					Monitor all registered vehicle artifacts in the system
+					{t("vehicles.subtitle")}
 				</p>
 			</div>
 

@@ -2,13 +2,15 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import * as React from "react";
+import { getTranslator } from "@/src/lib/i18n/server";
 import { ExitForm } from "./exit-form";
 
 export const metadata: Metadata = {
 	title: "Vehicle Exit | Zlot",
 };
 
-const ExitPage = () => {
+const ExitPage = async () => {
+	const t = await getTranslator();
 	return (
 		<div className="mx-auto max-w-5xl space-y-(--space-lg)">
 			<Link
@@ -20,7 +22,7 @@ const ExitPage = () => {
 					weight="bold"
 					className="transition-transform group-hover:-translate-x-1"
 				/>
-				Back to Console
+				{t("exit.backToConsole")}
 			</Link>
 
 			<React.Suspense

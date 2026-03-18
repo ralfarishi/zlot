@@ -13,78 +13,42 @@ import {
 	Globe,
 	Quotes,
 } from "@phosphor-icons/react";
+import { useLocale } from "@/components/providers/locale-provider";
 import { m, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const FEATURES = [
-	{
-		icon: ShieldCheck,
-		title: "Unmatched Control",
-		description:
-			"The ultimate command center for parking lot owners. Manage staff, dynamically set rates, and define high-precision zones with zero friction.",
-		color: "text-primary bg-primary/5",
-		delay: 0.1,
-	},
-	{
-		icon: ChartLineUp,
-		title: "Real-Time Intelligence",
-		description:
-			"Stop guessing and start optimizing. Get instant insights into revenue trends and occupancy benchmarks through a high-performance analytics engine.",
-		color: "text-secondary bg-secondary/5",
-		delay: 0.2,
-	},
-	{
-		icon: Lightning,
-		title: "Lightning Operations",
-		description:
-			"Speed is everything on the front line. Our pro console allows your team to scan, park, and print receipts in under 3 seconds.",
-		color: "text-accent-1 bg-accent-1/5",
-		delay: 0.3,
-	},
-] as const;
-
-const TESTIMONIALS = [
-	{
-		name: "Firaun Ngutangkhamun Akehtenan III",
-		company: "Kerajaan Ngibulnesia",
-		testimony:
-			"Zlot's dynamic scaling alone increased our weekend revenue by 22%. It's the smartest investment we've made in years.",
-	},
-	{
-		name: "Tuanku Imam Bohong",
-		company: "Thorne Real Estate",
-		testimony:
-			"Total visibility into our multi-site operations. The audit trails are bulletproof and the print speed is unmatched.",
-	},
-	{
-		name: "Pangeran Nipunegoro",
-		company: "City Central Valet",
-		testimony:
-			"Zero learning curve for our staff. We went from manual logs to high-precision cloud sync in a single afternoon.",
-	},
-	{
-		name: "Sunan Masukparit",
-		company: "Peak Development",
-		testimony:
-			"Finally, a platform that understands occupancy velocity. Zlot transformed our most congested lots into efficient revenue engines.",
-	},
-	{
-		name: "Benjamin Seskowi",
-		company: "Sterling Airports",
-		testimony:
-			"Industrial-grade reliability. The offline buffering in the print engine saved us during a major network outage.",
-	},
-] as const;
-
-const STATS = [
-	{ value: "99.99%", label: "Operational Uptime", icon: Sparkle },
-	{ value: "<3s", label: "Check-in Velocity", icon: Lightning },
-	{ value: "50+", label: "Active Zones", icon: Globe },
-	{ value: "24/7", label: "Global Availability", icon: CheckCircle },
-] as const;
-
 const LandingPage = () => {
+	const { t } = useLocale();
 	const targetRef = useRef<HTMLDivElement>(null);
+
+	const TESTIMONIALS = [
+		{
+			name: "Firaun Ngutangkhamun Akehtenan III",
+			company: "Kerajaan Ngibulnesia",
+			testimony: t("home.testimonials.t1.testimony"),
+		},
+		{
+			name: "Tuanku Imam Bohong",
+			company: "Thorne Real Estate",
+			testimony: t("home.testimonials.t2.testimony"),
+		},
+		{
+			name: "Pangeran Nipunegoro",
+			company: "City Central Valet",
+			testimony: t("home.testimonials.t3.testimony"),
+		},
+		{
+			name: "Sunan Masukparit",
+			company: "Peak Development",
+			testimony: t("home.testimonials.t4.testimony"),
+		},
+		{
+			name: "Benjamin Seskowi",
+			company: "Sterling Airports",
+			testimony: t("home.testimonials.t5.testimony"),
+		},
+	];
+
 	const { scrollYProgress } = useScroll({
 		target: targetRef,
 		offset: ["start start", "end start"],
@@ -92,6 +56,37 @@ const LandingPage = () => {
 
 	const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 	const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+
+	const FEATURES = [
+		{
+			icon: ShieldCheck,
+			title: t("home.features.control.title"),
+			description: t("home.features.control.description"),
+			color: "text-primary bg-primary/5",
+			delay: 0.1,
+		},
+		{
+			icon: ChartLineUp,
+			title: t("home.features.intel.title"),
+			description: t("home.features.intel.description"),
+			color: "text-secondary bg-secondary/5",
+			delay: 0.2,
+		},
+		{
+			icon: Lightning,
+			title: t("home.features.lightning.title"),
+			description: t("home.features.lightning.description"),
+			color: "text-accent-1 bg-accent-1/5",
+			delay: 0.3,
+		},
+	];
+
+	const STATS = [
+		{ value: "99.99%", label: t("home.stats.uptime"), icon: Sparkle },
+		{ value: "<3s", label: t("home.stats.velocity"), icon: Lightning },
+		{ value: "50+", label: t("home.stats.zones"), icon: Globe },
+		{ value: "24/7", label: t("home.stats.availability"), icon: CheckCircle },
+	];
 
 	return (
 		<div className="flex flex-col bg-background selection:bg-primary/10">
@@ -117,7 +112,7 @@ const LandingPage = () => {
 						className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-secondary/20 bg-secondary/5 px-4 py-1.5 text-[10px] font-black tracking-[0.2em] text-secondary uppercase"
 					>
 						<Sparkle weight="fill" className="animate-pulse" />
-						Future-Proof Parking Operations
+						{t("home.badge")}
 					</m.div>
 
 					<m.h1
@@ -126,8 +121,8 @@ const LandingPage = () => {
 						transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
 						className="relative font-display text-6xl font-black leading-[0.95] tracking-tighter sm:text-8xl md:text-[120px] lg:text-[140px] text-text-primary"
 					>
-						Parking, <br />
-						<span className="text-secondary italic">Simplified.</span>
+						{t("home.hero.title")} <br />
+						<span className="text-secondary italic">{t("home.hero.subtitle")}</span>
 					</m.h1>
 
 					<m.p
@@ -136,8 +131,7 @@ const LandingPage = () => {
 						transition={{ delay: 0.2, duration: 0.8 }}
 						className="mt-10 max-w-2xl text-lg font-bold leading-relaxed text-text-secondary md:text-2xl"
 					>
-						Scale your revenue, automate your lot, and outpace the competition. Zlot is the elite
-						command center for modern parking operators.
+						{t("home.hero.description")}
 					</m.p>
 
 					<m.div
@@ -150,7 +144,7 @@ const LandingPage = () => {
 							href="/login"
 							className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-full bg-primary px-10 py-5 text-xl font-black text-text-inverse shadow-2xl transition-all hover:-translate-y-1 active:scale-95"
 						>
-							<span className="relative z-10">Launch Console</span>
+							<span className="relative z-10">{t("home.cta.primary")}</span>
 							<ArrowRight
 								size={22}
 								weight="bold"
@@ -162,7 +156,7 @@ const LandingPage = () => {
 							href="/about"
 							className="flex items-center justify-center gap-2 rounded-full border-2 border-border bg-surface/50 backdrop-blur-sm px-10 py-5 text-xl font-bold text-text-primary transition-all hover:bg-surface-elevated hover:border-primary/20"
 						>
-							See Performance
+							{t("home.cta.secondary")}
 							<ArrowUpRight size={20} weight="bold" className="text-text-secondary" />
 						</Link>
 					</m.div>
@@ -214,11 +208,12 @@ const LandingPage = () => {
 					<div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
 						<div className="max-w-xl">
 							<h2 className="font-display text-5xl font-black tracking-tighter md:text-7xl text-text-primary">
-								Built for the <br /> <span className="text-secondary italic">Modern Fleet.</span>
+								{t("home.features.heading")} <br />{" "}
+								<span className="text-secondary italic">{t("home.features.headingAccent")}</span>
 							</h2>
 						</div>
 						<p className="text-lg font-bold text-text-secondary max-w-xs">
-							Enterprise-grade tools condensed into a lightning-fast dashboard.
+							{t("home.features.subheading")}
 						</p>
 					</div>
 
@@ -253,7 +248,10 @@ const LandingPage = () => {
 			<section className="relative py-32 overflow-hidden bg-surface-elevated/30">
 				<div className="mx-auto max-w-6xl px-(--space-lg) mb-16">
 					<h2 className="font-display text-4xl font-black tracking-tighter md:text-6xl text-text-primary text-center">
-						Trusted by the <br /> <span className="text-secondary italic">Industry Leaders.</span>
+						{t("home.testimonials.heading")} <br />{" "}
+						<span className="text-secondary italic">
+							{t("home.testimonials.headingAccent")}
+						</span>
 					</h2>
 				</div>
 
@@ -269,21 +267,21 @@ const LandingPage = () => {
 						}}
 						className="flex gap-8 whitespace-nowrap py-10"
 					>
-						{[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+						{[...TESTIMONIALS, ...TESTIMONIALS].map((tLocal, i) => (
 							<div
-								key={`${t.name}-${i}`}
+								key={`${tLocal.name}-${i}`}
 								className="flex w-[400px] flex-col rounded-[32px] border border-border bg-surface p-8 shadow-sm transition-all hover:border-primary/20 hover:shadow-xl shrink-0"
 							>
 								<div className="mb-6 flex size-12 items-center justify-center rounded-2xl bg-secondary/5 text-secondary">
 									<Quotes size={24} weight="fill" />
 								</div>
 								<p className="text-lg font-medium leading-relaxed text-text-primary whitespace-normal">
-									&quot;{t.testimony}&quot;
+									&quot;{tLocal.testimony}&quot;
 								</p>
 								<div className="mt-8 pt-6 border-t border-border/50">
-									<p className="font-black text-text-primary uppercase tracking-tight">{t.name}</p>
+									<p className="font-black text-text-primary uppercase tracking-tight">{tLocal.name}</p>
 									<p className="text-xs font-bold text-text-secondary/60 uppercase tracking-widest">
-										{t.company}
+										{tLocal.company}
 									</p>
 								</div>
 							</div>
@@ -305,17 +303,16 @@ const LandingPage = () => {
 							<Target size={40} weight="duotone" />
 						</div>
 						<h2 className="font-display text-4xl font-black tracking-tighter md:text-6xl max-w-4xl">
-							Ready to dominate your market?
+							{t("home.cta2.heading")}
 						</h2>
 						<p className="mx-auto mt-10 max-w-xl text-xl font-bold text-text-inverse/80 leading-relaxed">
-							Join the elite operators running their business on Zlot. Ultimate precision, total
-							security, zero compromises.
+							{t("home.cta2.description")}
 						</p>
 						<Link
 							href="/login"
 							className="mt-10 inline-flex items-center gap-4 rounded-full bg-white px-10 py-5 text-xl font-black text-primary transition-all hover:scale-105 hover:shadow-[0_0_50px_rgba(255,255,255,0.3)] active:scale-95 group"
 						>
-							Get Expert Access
+							{t("home.cta2.button")}
 							<ArrowRight
 								size={22}
 								weight="bold"

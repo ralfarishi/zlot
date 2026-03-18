@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getActivityLogs } from "@/src/actions/activity-logs";
 import { LogsList } from "./logs-list";
 import { requireRole } from "@/src/lib/auth-guard";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Activity Logs" };
 
@@ -17,6 +18,7 @@ const LogsPage = async ({
 	const q = params.q?.toLowerCase() || "";
 	const page = Math.max(1, parseInt(params.page || "1") || 1);
 	const offset = (page - 1) * LOGS_PER_PAGE;
+	const t = await getTranslator();
 
 	const { data: logs, total } = await getActivityLogs({
 		limit: LOGS_PER_PAGE,
@@ -35,10 +37,10 @@ const LogsPage = async ({
 		<div className="space-y-(--space-lg)">
 			<div>
 				<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-					Activity Telemetry
+					{t("logs.title")}
 				</h1>
 				<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-					System activity audit log
+					{t("logs.subtitle")}
 				</p>
 			</div>
 

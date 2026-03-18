@@ -5,6 +5,7 @@ import { User, IdentificationBadge, ChartLineUp, Calendar } from "@phosphor-icon
 import { cn } from "@/src/lib/utils";
 import { Profile } from "./types";
 import { UserActions } from "./UserActions";
+import type { TranslationKey } from "@/src/lib/i18n/en";
 
 const columnHelper = createColumnHelper<Profile>();
 
@@ -14,12 +15,16 @@ const ROLE_COLORS: Record<string, string> = {
 	owner: "bg-secondary/10 text-secondary ring-secondary/20",
 };
 
-export const createColumns = (currentUser?: { id: string; role: string }) => [
+export const createColumns = (
+	currentUser?: { id: string; role: string },
+	t?: (key: TranslationKey) => string,
+	locale?: string,
+) => [
 	columnHelper.accessor("namaLengkap", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<User size={14} weight="bold" />
-				Name
+				{t ? t("users.fullName") : "Name"}
 			</div>
 		),
 		cell: (info) => (
@@ -48,7 +53,7 @@ export const createColumns = (currentUser?: { id: string; role: string }) => [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<IdentificationBadge size={14} weight="bold" />
-				Role
+				{t ? t("users.accessRole") : "Role"}
 			</div>
 		),
 		cell: (info) => (
@@ -66,7 +71,7 @@ export const createColumns = (currentUser?: { id: string; role: string }) => [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<ChartLineUp size={14} weight="bold" />
-				Status
+				{t ? t("profile.systemStatus") : "Status"}
 			</div>
 		),
 		cell: (info) => (
@@ -83,7 +88,7 @@ export const createColumns = (currentUser?: { id: string; role: string }) => [
 						info.getValue() ? "text-success" : "text-text-secondary/60",
 					)}
 				>
-					{info.getValue() ? "Active" : "Offline"}
+					{info.getValue() ? (t ? t("users.active") : "Active") : (t ? t("users.offline") : "Offline")}
 				</span>
 			</div>
 		),
@@ -92,27 +97,27 @@ export const createColumns = (currentUser?: { id: string; role: string }) => [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Calendar size={14} weight="bold" />
-				Joined
+				{t ? t("users.joined") : "Joined"}
 			</div>
 		),
 		cell: (info) => (
 			<div className="flex flex-col">
 				<span className="text-xs font-bold text-text-primary">
-					{new Date(info.getValue()).toLocaleDateString("en-US", {
+					{new Date(info.getValue()).toLocaleDateString(locale === "id" ? "id-ID" : "en-US", {
 						month: "short",
 						day: "numeric",
 						year: "numeric",
 					})}
 				</span>
 				<span className="text-[10px] text-text-secondary/50 font-bold uppercase tracking-tighter">
-					SYSTEM AGENT
+					{t ? t("users.systemAgent") : "SYSTEM AGENT"}
 				</span>
 			</div>
 		),
 	}),
 	columnHelper.display({
 		id: "actions",
-		header: () => <div className="text-right">Actions</div>,
+		header: () => <div className="text-right">{t ? t("users.actions") : "Actions"}</div>,
 		cell: (info) => <UserActions profile={info.row.original} currentUser={currentUser} />,
 	}),
 ];

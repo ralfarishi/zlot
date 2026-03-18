@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 interface Area {
 	id: bigint;
@@ -8,23 +9,24 @@ interface Area {
 	terisi: number;
 }
 
-export const ZoneSaturation = ({ areas }: { areas: Area[] }) => {
+export const ZoneSaturation = async ({ areas }: { areas: Area[] }) => {
+	const t = await getTranslator();
 	return (
 		<div className="lg:col-span-2 rounded-card border border-border bg-surface p-(--space-lg) shadow-card">
 			<div className="flex items-center justify-between mb-6">
 				<div>
 					<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-						Zone Saturation
+						{t("zone.title")}
 					</h3>
 					<p className="text-[10px] font-bold text-text-secondary uppercase opacity-50">
-						Real-time capacity telemetry
+						{t("zone.subtitle")}
 					</p>
 				</div>
 				<Link
 					href="/dashboard/areas"
 					className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
 				>
-					Inspect All Zones
+					{t("zone.inspect")}
 				</Link>
 			</div>
 

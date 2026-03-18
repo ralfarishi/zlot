@@ -2,37 +2,39 @@
 
 import Link from "next/link";
 import { House, TwitterLogo, GithubLogo, DiscordLogo } from "@phosphor-icons/react";
+import { useLocale } from "@/components/providers/locale-provider";
 import { m } from "framer-motion";
 
-const FOOTER_LINKS = [
-	{
-		title: "Product",
-		links: [
-			{ href: "/about", label: "About" },
-			{ href: "/pricing", label: "Pricing" },
-			{ href: "/contact", label: "Contact" },
-		],
-	},
-	{
-		title: "Resources",
-		links: [
-			{ href: "#", label: "Documentation" },
-			{ href: "#", label: "API Status" },
-			{ href: "#", label: "Community" },
-		],
-	},
-	{
-		title: "Company",
-		links: [
-			{ href: "#", label: "Privacy" },
-			{ href: "#", label: "Terms" },
-			{ href: "#", label: "Support" },
-		],
-	},
-] as const;
-
 export const Footer = () => {
+	const { t } = useLocale();
 	const year = new Date().getFullYear();
+
+	const FOOTER_LINKS = [
+		{
+			title: t("footer.product"),
+			links: [
+				{ href: "/about", label: t("nav.about") },
+				{ href: "/pricing", label: t("nav.pricing") },
+				{ href: "/contact", label: t("nav.contact") },
+			],
+		},
+		{
+			title: t("footer.resources"),
+			links: [
+				{ href: "#", label: t("footer.docs") },
+				{ href: "#", label: t("footer.apiStatus") },
+				{ href: "#", label: t("footer.community") },
+			],
+		},
+		{
+			title: t("footer.company"),
+			links: [
+				{ href: "#", label: t("footer.privacy") },
+				{ href: "#", label: t("footer.terms") },
+				{ href: "#", label: t("footer.support") },
+			],
+		},
+	];
 
 	return (
 		<footer className="border-t border-border bg-surface px-(--space-lg) py-(--space-2xl)">
@@ -50,8 +52,7 @@ export const Footer = () => {
 							<span>Zlot</span>
 						</Link>
 						<p className="mt-(--space-md) text-sm leading-relaxed text-text-secondary">
-							Reimagining parking management for the modern era. Efficient, reliable, and built for
-							speed.
+							{t("footer.tagline")}
 						</p>
 						<div className="mt-(--space-lg) flex gap-(--space-md)">
 							{[TwitterLogo, GithubLogo, DiscordLogo].map((Icon, i) => (
@@ -92,11 +93,12 @@ export const Footer = () => {
 				<div className="mt-(--space-2xl) border-t border-border pt-(--space-lg)">
 					<div className="flex flex-col items-center justify-between gap-(--space-md) sm:flex-row">
 						<p className="text-xs text-text-secondary">
-							&copy; {year} Zlot Ops. All rights reserved. Built with precision.
+							&copy; {year} Zlot Ops. {t("footer.copyright")}
 						</p>
 						<div className="flex items-center gap-(--space-md) text-xs text-text-secondary">
 							<span>
-								System Status: <span className="text-success font-medium">Operational</span>
+								{t("footer.status")}:{" "}
+								<span className="text-success font-medium">{t("footer.operational")}</span>
 							</span>
 						</div>
 					</div>

@@ -2,6 +2,7 @@ import { ArrowLeft, IdentificationCard } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAreas } from "@/src/actions/parking-areas";
+import { getTranslator } from "@/src/lib/i18n/server";
 import { EntryForm } from "./entry-form";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 
 const EntryPage = async () => {
 	const areas = await getAreas();
+	const t = await getTranslator();
 
 	const serializedAreas = areas.map((a) => ({
 		id: a.id.toString(),
@@ -29,7 +31,7 @@ const EntryPage = async () => {
 					weight="bold"
 					className="transition-transform group-hover:-translate-x-1"
 				/>
-				Back to Console
+				{t("entry.backToConsole")}
 			</Link>
 
 			<div className="rounded-card border border-border bg-surface shadow-card overflow-hidden backdrop-blur-md">
@@ -40,10 +42,10 @@ const EntryPage = async () => {
 						</div>
 						<div>
 							<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-								Vehicle Entry
+								{t("entry.title")}
 							</h1>
 							<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-50 mt-0.5">
-								Telemetry injection for new arrivals
+								{t("entry.subtitle")}
 							</p>
 						</div>
 					</div>

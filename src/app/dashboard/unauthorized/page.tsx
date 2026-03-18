@@ -1,7 +1,9 @@
 import { ShieldSlash, House, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
+import { getTranslator } from "@/src/lib/i18n/server";
 
-const UnauthorizedPage = () => {
+const UnauthorizedPage = async () => {
+	const t = await getTranslator();
 	return (
 		<div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
 			<div className="relative mb-8">
@@ -17,17 +19,16 @@ const UnauthorizedPage = () => {
 			</div>
 
 			<h1 className="mb-2 font-display text-4xl font-black tracking-tighter text-text-primary uppercase">
-				Access Denied
+				{t("unauthorized.title")}
 			</h1>
 
 			<div className="max-w-md space-y-4">
 				<p className="text-xs font-black uppercase tracking-[0.2em] text-text-secondary/60">
-					Security Protocol: Authorization Failure
+					{t("unauthorized.protocol")}
 				</p>
 
 				<p className="text-sm font-medium leading-relaxed text-text-secondary">
-					Your current security clearance level is insufficient to access this terminal. This
-					interaction has been logged for audit purposes.
+					{t("unauthorized.desc")}
 				</p>
 
 				<div className="pt-6">
@@ -36,7 +37,7 @@ const UnauthorizedPage = () => {
 						className="inline-flex items-center gap-2 rounded-xl bg-surface-elevated px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-text-primary shadow-lg ring-1 ring-border transition-all hover:bg-surface hover:scale-105 active:scale-95"
 					>
 						<House size={16} weight="bold" />
-						Return to Overview
+						{t("unauthorized.return")}
 					</Link>
 				</div>
 			</div>

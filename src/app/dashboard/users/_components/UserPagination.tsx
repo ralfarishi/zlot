@@ -2,6 +2,7 @@
 
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { Table } from "@tanstack/react-table";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface UserPaginationProps<TData> {
 	table: Table<TData>;
@@ -9,13 +10,15 @@ interface UserPaginationProps<TData> {
 }
 
 export const UserPagination = <TData,>({ table, onPageChange }: UserPaginationProps<TData>) => {
+	const { t } = useLocale();
 	if (table.getPageCount() <= 1) return null;
 
 	return (
 		<div className="flex items-center justify-between border-t border-border bg-surface-elevated/30 px-(--space-md) py-3">
 			<div className="flex items-center gap-2">
 				<span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-					Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+					{t("users.page")} {table.getState().pagination.pageIndex + 1} {t("users.of")}{" "}
+					{table.getPageCount()}
 				</span>
 			</div>
 			<div className="flex items-center gap-1">

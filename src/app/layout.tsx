@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Outfit, DM_Sans, JetBrains_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { LocaleProvider } from "@/components/providers/locale-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import type { Locale } from "@/src/lib/i18n";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -42,21 +44,25 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
 	const cookieStore = await cookies();
 	const themeCookie = cookieStore.get("zlot-theme");
 	const theme = (themeCookie?.value === "dark" ? "dark" : "light") as "light" | "dark";
+	const localeCookie = cookieStore.get("zlot-locale");
+	const locale = (localeCookie?.value === "id" ? "id" : "en") as Locale;
 
 	return (
 		<html
-			lang="en"
+			lang={locale}
 			data-theme={theme}
 			className={`${outfit.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
 			suppressHydrationWarning
 		>
 			<body>
 				<ThemeProvider initialTheme={theme}>
-					<QueryProvider>
-						<FramerProvider>
-							<NuqsAdapter>{children}</NuqsAdapter>
-						</FramerProvider>
-					</QueryProvider>
+					<LocaleProvider initialLocale={locale}>
+						<QueryProvider>
+							<FramerProvider>
+								<NuqsAdapter>{children}</NuqsAdapter>
+							</FramerProvider>
+						</QueryProvider>
+					</LocaleProvider>
 				</ThemeProvider>
 			</body>
 		</html>

@@ -18,6 +18,7 @@ import { m } from "framer-motion";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { cn } from "@/lib/utils";
 import { deleteLog } from "@/src/actions/activity-logs";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface LogEntry {
 	id: string;
@@ -36,6 +37,7 @@ interface LogsListProps {
 export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
+	const { t } = useLocale();
 
 	const [search, setSearch] = useQueryState(
 		"q",
@@ -72,10 +74,10 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
 				<div>
 					<h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-						Activity Telemetry
+						{t("logs.activityTelemetry")}
 					</h3>
 					<p className="text-[10px] text-text-secondary uppercase tracking-tight mt-0.5">
-						System interaction & event audit log
+						{t("logs.auditLog")}
 					</p>
 				</div>
 				<div className="flex flex-1 items-center justify-end gap-3 max-w-2xl">
@@ -98,7 +100,7 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 					</div>
 					<div className="flex items-center gap-2 text-[10px] font-black text-text-secondary/40 uppercase tracking-widest whitespace-nowrap">
 						<ArrowsClockwise size={12} className={cn(isPending && "animate-spin")} />
-						{isPending ? "Syncing..." : `${total.toLocaleString()} entries`}
+						{isPending ? t("logs.syncing") : `${total.toLocaleString()} ${t("logs.entries")}`}
 					</div>
 				</div>
 			</div>
@@ -110,14 +112,11 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 						<thead>
 							<tr className="border-b border-border bg-surface-elevated/50">
 								<th className="px-(--space-md) py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
-									Event Signal
-								</th>
+								{t("logs.eventSignal")}</th>
 								<th className="px-(--space-md) py-4 text-left text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
-									Operator
-								</th>
+								{t("logs.operator")}</th>
 								<th className="px-(--space-md) py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
-									Timestamp
-								</th>
+								{t("logs.timestamp")}</th>
 								<th className="px-(--space-md) py-4 w-12" />
 							</tr>
 						</thead>
@@ -135,8 +134,7 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 										colSpan={4}
 										className="px-(--space-md) py-12 text-center text-sm text-text-secondary italic"
 									>
-										No telemetry signals detected
-									</td>
+											{t("logs.noSignals")}</td>
 								</tr>
 							) : (
 								data.map((log) => (
@@ -208,7 +206,7 @@ export const LogsList = ({ data, page, perPage, total }: LogsListProps) => {
 				{totalPages > 1 && (
 					<div className="flex items-center justify-between border-t border-border bg-surface-elevated/30 px-(--space-md) py-3">
 						<span className="text-[10px] font-black uppercase tracking-widest text-text-secondary/50">
-							Page {page} of {totalPages}
+							{t("logs.page")} {page} {t("logs.of")} {totalPages}
 						</span>
 						<div className="flex items-center gap-2">
 							<button

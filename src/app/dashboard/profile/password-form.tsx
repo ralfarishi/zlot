@@ -4,12 +4,14 @@ import React, { useState, useTransition } from "react";
 import { updatePassword } from "@/src/actions/profiles";
 import { ShieldCheck, ArrowsClockwise, CheckCircle, LockKey } from "@phosphor-icons/react";
 import { m, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 export const PasswordForm = ({ userId }: { userId: string }) => {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [errorMessage, setErrorMessage] = useState("");
 	const [passwords, setPasswords] = useState({ new: "", confirm: "" });
+	const { t } = useLocale();
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -46,7 +48,7 @@ export const PasswordForm = ({ userId }: { userId: string }) => {
 			<div className="mb-(--space-md) flex items-center justify-between">
 				<div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
 					<LockKey size={14} weight="bold" />
-					Security Protocol
+					{t("profile.securityProtocol")}
 				</div>
 				<AnimatePresence>
 					{status === "success" && (
@@ -57,7 +59,7 @@ export const PasswordForm = ({ userId }: { userId: string }) => {
 							className="flex items-center gap-1 text-[10px] font-black text-success uppercase"
 						>
 							<CheckCircle size={14} weight="bold" />
-							Credentials Synced
+							{t("profile.credentialsSynced")}
 						</m.span>
 					)}
 				</AnimatePresence>
@@ -70,7 +72,7 @@ export const PasswordForm = ({ userId }: { userId: string }) => {
 							htmlFor="new-password"
 							className="text-[10px] font-black uppercase tracking-widest text-text-secondary select-none"
 						>
-							New Access Key
+							{t("profile.newAccessKey")}
 						</label>
 						<input
 							id="new-password"
@@ -87,7 +89,7 @@ export const PasswordForm = ({ userId }: { userId: string }) => {
 							htmlFor="confirm-password"
 							className="text-[10px] font-black uppercase tracking-widest text-text-secondary select-none"
 						>
-							Confirm Sequence
+							{t("profile.confirmSequence")}
 						</label>
 						<input
 							id="confirm-password"
@@ -122,12 +124,12 @@ export const PasswordForm = ({ userId }: { userId: string }) => {
 					{isPending ? (
 						<>
 							<ArrowsClockwise size={16} weight="bold" className="animate-spin" />
-							ENCRYPTING...
+							{t("profile.encrypting")}
 						</>
 					) : (
 						<>
 							<ShieldCheck size={16} weight="bold" />
-							Update Security Credentials
+							{t("profile.updateCredentials")}
 						</>
 					)}
 				</button>

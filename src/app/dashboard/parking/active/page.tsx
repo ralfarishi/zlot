@@ -2,6 +2,7 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getActiveTransactions } from "@/src/actions/transactions";
+import { getTranslator } from "@/src/lib/i18n/server";
 import { ActiveVehiclesList } from "./active-vehicles-list";
 
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 
 const ActiveVehiclesPage = async () => {
 	const activeTransactions = await getActiveTransactions();
+	const t = await getTranslator();
 
 	return (
 		<div className="space-y-(--space-lg)">
@@ -24,13 +26,13 @@ const ActiveVehiclesPage = async () => {
 							weight="bold"
 							className="transition-transform group-hover:-translate-x-1"
 						/>
-						Back to Console
+						{t("active.backToConsole")}
 					</Link>
 					<h1 className="text-3xl font-black tracking-tighter text-text-primary uppercase">
-						Active Vehicles
+						{t("active.title")}
 					</h1>
 					<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-50 mt-1">
-						Real-time visibility across all operational zones
+						{t("active.subtitle")}
 					</p>
 				</div>
 			</div>

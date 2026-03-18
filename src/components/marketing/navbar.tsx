@@ -15,21 +15,24 @@ import {
 	Files,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/components/providers/theme-provider";
+import { useLocale } from "@/components/providers/locale-provider";
+import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import { m, AnimatePresence, useScroll, useTransform } from "framer-motion";
-
-const NAV_LINKS = [
-	{ href: "/about", label: "About", icon: Info },
-	{ href: "/pricing", label: "Pricing", icon: Tag },
-	{ href: "/contact", label: "Contact", icon: EnvelopeSimple },
-	{ href: "/docs/architecture", label: "Docs", icon: Files },
-] as const;
 
 export const Navbar = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const { theme, toggleTheme } = useTheme();
+	const { t } = useLocale();
 	const { scrollY } = useScroll();
 
 	const close = useCallback(() => setIsOpen(false), []);
+
+	const NAV_LINKS = [
+		{ href: "/about", label: t("nav.about"), icon: Info },
+		{ href: "/pricing", label: t("nav.pricing"), icon: Tag },
+		{ href: "/contact", label: t("nav.contact"), icon: EnvelopeSimple },
+		{ href: "/docs/architecture", label: t("nav.docs"), icon: Files },
+	] as const;
 
 	// Transform for floating effect
 	const navWidth = useTransform(scrollY, [0, 50], ["100%", "95%"]);
@@ -80,7 +83,9 @@ export const Navbar = () => {
 						))}
 					</div>
 
-					<div className="flex items-center gap-4 pl-6 border-l border-border/50">
+					<div className="flex items-center gap-3 pl-6 border-l border-border/50">
+						<LocaleSwitcher />
+
 						<button
 							type="button"
 							onClick={toggleTheme}
@@ -108,7 +113,7 @@ export const Navbar = () => {
 							href="/login"
 							className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-primary px-7 py-2.5 text-sm font-black text-text-inverse transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/20 active:scale-95"
 						>
-							<span className="relative z-10">Sign In</span>
+							<span className="relative z-10">{t("nav.signIn")}</span>
 							<SignIn
 								size={18}
 								weight="bold"
@@ -124,7 +129,7 @@ export const Navbar = () => {
 					type="button"
 					onClick={() => setIsOpen((v) => !v)}
 					className="flex size-10 items-center justify-center rounded-xl bg-surface-elevated/50 text-text-primary hover:bg-primary/5 md:hidden"
-					aria-label="Toggle menu"
+					aria-label={t("nav.toggleMenu")}
 				>
 					<AnimatePresence mode="wait">
 						{isOpen ? (
@@ -188,7 +193,7 @@ export const Navbar = () => {
 								className="mt-4 flex flex-col gap-4 border-t border-border/50 pt-6"
 							>
 								<div className="flex items-center justify-between rounded-2xl bg-surface-elevated/50 p-4">
-									<span className="text-sm font-bold text-text-secondary">Appearance</span>
+									<span className="text-sm font-bold text-text-secondary">{t("nav.appearance")}</span>
 									<button
 										type="button"
 										onClick={toggleTheme}
@@ -207,12 +212,17 @@ export const Navbar = () => {
 									</button>
 								</div>
 
+								<div className="flex items-center justify-between rounded-2xl bg-surface-elevated/50 p-4">
+									<span className="text-sm font-bold text-text-secondary">{t("locale.language")}</span>
+									<LocaleSwitcher variant="pill" />
+								</div>
+
 								<Link
 									href="/login"
 									onClick={close}
 									className="flex w-full items-center justify-center gap-3 rounded-2xl bg-primary py-5 text-lg font-black text-text-inverse shadow-xl shadow-primary/20 active:scale-95"
 								>
-									<span>Sign In to Console</span>
+									<span>{t("nav.signInConsole")}</span>
 									<SignIn size={22} weight="bold" />
 								</Link>
 							</m.div>

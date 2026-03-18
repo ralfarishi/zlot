@@ -26,6 +26,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { deleteArea, updateArea, createArea } from "@/src/actions/parking-areas";
 import { useQueryState, parseAsString } from "nuqs";
+import { useLocale } from "@/src/components/providers/locale-provider";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -53,6 +54,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	const [editData, setEditData] = useState({ namaArea: "", kapasitas: "" });
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [isPending, startTransition] = useTransition();
+	const { t } = useLocale();
 
 	// nuqs state
 	const [search, setSearch] = useQueryState(
@@ -129,7 +131,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 	const columns = useMemo(
 		() => [
 			columnHelper.accessor("namaArea", {
-				header: "Area Name",
+				header: t("areas.areaName"),
 				cell: (info) => {
 					const area = info.row.original;
 					const isEditing = editingId === area.id;
@@ -156,7 +158,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 				},
 			}),
 			columnHelper.accessor("kapasitas", {
-				header: "Capacity",
+				header: t("areas.capacity"),
 				cell: (info) => {
 					const area = info.row.original;
 					const isEditing = editingId === area.id;
@@ -176,7 +178,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 				},
 			}),
 			columnHelper.accessor("terisi", {
-				header: "Occupancy",
+				header: t("areas.occupancy"),
 				cell: (info) => {
 					const occupied = info.getValue();
 					const total = info.row.original.kapasitas;
@@ -206,7 +208,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 			}),
 			columnHelper.display({
 				id: "actions",
-				header: () => <div className="text-right">Actions</div>,
+				header: () => <div className="text-right">{t("vehicles.actions")}</div>,
 				cell: (info) => {
 					const area = info.row.original;
 					const isEditing = editingId === area.id;
@@ -249,7 +251,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 				},
 			}),
 		],
-		[editingId, editData, handleSave, handleEdit],
+		[editingId, editData, handleSave, handleEdit, t],
 	);
 
 	// Memoize sorting state to prevent infinite loops
@@ -277,11 +279,11 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
 				<div>
 					<h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-						Zone Registry
-					</h3>
-					<p className="text-[10px] text-text-secondary uppercase tracking-tight mt-0.5">
-						Physical layout & capacity matrix
-					</p>
+					{t("areas.zoneRegistry")}
+				</h3>
+				<p className="text-[10px] text-text-secondary uppercase tracking-tight mt-0.5">
+					{t("areas.capacityMatrix")}
+				</p>
 				</div>
 				<div className="flex items-center gap-3">
 					<div className="relative group">
@@ -303,7 +305,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 						className="flex h-9 items-center gap-2 rounded-button bg-primary px-4 text-[10px] font-black uppercase tracking-widest text-text-inverse shadow-button transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
 					>
 						{isAdding ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
-						{isAdding ? "Cancel" : "Add Zone"}
+					{isAdding ? t("areas.cancel") : t("areas.addZone")}
 					</button>
 					<div className="flex items-center gap-2 text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">
 						<ArrowsClockwise size={12} className={cn(isPending && "animate-spin")} />
@@ -325,7 +327,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 									htmlFor="new-area-name"
 									className="text-[10px] font-bold uppercase text-text-secondary"
 								>
-									Area Name
+									{t("areas.areaName")}
 								</label>
 								<input
 									id="new-area-name"
@@ -341,7 +343,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 									htmlFor="new-area-capacity"
 									className="text-[10px] font-bold uppercase text-text-secondary"
 								>
-									Capacity
+									{t("areas.capacity")}
 								</label>
 								<input
 									id="new-area-capacity"
@@ -357,7 +359,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 									onClick={handleAdd}
 									className="w-full rounded-button bg-secondary px-3 py-2 text-sm font-bold text-text-inverse shadow-sm hover:opacity-90"
 								>
-									Confirm Area
+									{t("areas.confirmArea")}
 								</button>
 							</div>
 						</div>
@@ -448,14 +450,13 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 			<AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete the zone and all associated
-							data.
-						</AlertDialogDescription>
+						<AlertDialogTitle>{t("areas.deleteTitle")}</AlertDialogTitle>
+					<AlertDialogDescription>
+						{t("areas.deleteDesc")}
+					</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+						<AlertDialogCancel disabled={isPending}>{t("areas.deleteCancel")}</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={(e) => {
 								e.preventDefault();
@@ -464,7 +465,7 @@ export const AreasManager = ({ data }: { data: Area[] }) => {
 							className="bg-danger text-text-inverse hover:bg-danger/90"
 							disabled={isPending}
 						>
-							{isPending ? "Deleting..." : "Delete Zone"}
+							{isPending ? t("areas.deleting") : t("areas.deleteZone")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -14,9 +14,10 @@ import { m } from "framer-motion";
 import { cn } from "@/src/lib/utils";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import { useLocale } from "@/src/components/providers/locale-provider";
 import { ParkingReceipt } from "./parking-receipt";
 import { HistoryTransaction } from "./_components/types";
-import { columns } from "./_components/HistoryColumns";
+import { createHistoryColumns } from "./_components/HistoryColumns";
 import { HistoryToolbar } from "./_components/HistoryToolbar";
 import { HistoryPagination } from "./_components/HistoryPagination";
 
@@ -26,6 +27,9 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 	const [pageIndex, setPageIndex] = useQueryState("page", parseAsInteger.withDefault(1));
 	const [selectedTransaction, setSelectedTransaction] = useState<HistoryTransaction | null>(null);
 	const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+	const { t } = useLocale();
+
+	const columns = useMemo(() => createHistoryColumns(t), [t]);
 
 	// Memoize derived sorting to keep a stable reference
 	const sorting: SortingState = useMemo(
@@ -138,7 +142,7 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 										colSpan={columns.length}
 										className="px-(--space-md) py-(--space-2xl) text-center text-sm text-text-secondary italic"
 									>
-										No transactions found in archive
+										{t("history.table.noTransactions")}
 									</td>
 								</tr>
 							) : (
@@ -182,25 +186,25 @@ export const HistoryTable = ({ data }: { data: HistoryTransaction[] }) => {
 					className="max-w-md p-0 overflow-hidden border-border/50"
 					showCloseButton={false}
 				>
-					<DialogTitle className="sr-only">Parking Receipt Preview</DialogTitle>
+					<DialogTitle className="sr-only">{t("history.table.receiptPreview")}</DialogTitle>
 					<div>
 						{selectedTransaction && (
 							<ParkingReceipt
 								data={{
 									id: selectedTransaction.id.toString(),
-									nomorTransaksi: selectedTransaction.nomorTransaksi,
+									nomorTransaksi: selectedTransaction.nomorTransaksi || `TX-${selectedTransaction.id}`,
 									platNomor: selectedTransaction.kendaraan.platNomor,
 									jenisKendaraan: selectedTransaction.kendaraan.jenisKendaraan,
 									namaArea: selectedTransaction.area.namaArea,
 									waktuMasuk: selectedTransaction.waktuMasuk,
 									waktuKeluar: selectedTransaction.waktuKeluar,
 									durasiJam: selectedTransaction.durasiJam,
-									totalBiaya: selectedTransaction.totalBiaya,
-									tarifPerJam: selectedTransaction.tarif.tarifPerJam,
+									totalBiaya: selectedTransaction.totalBiaya ? Number(selectedTransaction.totalBiaya) : null,
+									tarifPerJam: Number(selectedTransaction.tarif.tarifPerJam),
 									namaPetugas: selectedTransaction.namaPetugas,
 									metodePembayaran: selectedTransaction.metodePembayaran,
-									tunaiDiterima: selectedTransaction.tunaiDiterima,
-									kembalian: selectedTransaction.kembalian,
+									tunaiDiterima: selectedTransaction.tunaiDiterima ? Number(selectedTransaction.tunaiDiterima) : null,
+									kembalian: selectedTransaction.kembalian ? Number(selectedTransaction.kembalian) : null,
 								}}
 								onClose={() => setIsReceiptOpen(false)}
 							/>

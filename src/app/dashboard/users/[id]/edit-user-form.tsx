@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface Profile {
 	id: string;
@@ -25,6 +26,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const { t } = useLocale();
 
 	const handleSubmit = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -93,10 +95,10 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 						</div>
 						<div>
 							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-								Profile Configuration
+								{t("users.profileConfig")}
 							</h3>
 							<p className="text-[10px] font-bold text-text-secondary uppercase opacity-60 mt-0.5">
-								Modify system personnel attributes
+								{t("users.modifyAttributes")}
 							</p>
 						</div>
 					</div>
@@ -110,7 +112,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 								htmlFor="nama-lengkap"
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
-								Full Name
+								{t("users.fullName")}
 							</label>
 							<div className="relative">
 								<input
@@ -140,7 +142,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 								htmlFor="role"
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
-								Access Role
+								{t("users.accessRole")}
 							</label>
 							<div className="relative">
 								<select
@@ -154,9 +156,9 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 											: "border-border focus:border-primary/50 focus:ring-4 focus:ring-primary/5",
 									)}
 								>
-									<option value="admin">System Admin</option>
-									<option value="petugas">Gate Employee</option>
-									<option value="owner">System Owner</option>
+									<option value="admin">{t("users.systemAdmin")}</option>
+									<option value="petugas">{t("users.gateEmployee")}</option>
+									<option value="owner">{t("users.systemOwner")}</option>
 								</select>
 							</div>
 						</div>
@@ -167,7 +169,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 								htmlFor="password"
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
-								Security Override (Reset Password)
+								{t("users.securityOverride")}
 							</label>
 							<div className="relative">
 								<input
@@ -181,7 +183,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 								/>
 							</div>
 							<p className="text-[10px] font-bold text-text-secondary/40 uppercase tracking-tighter pl-1">
-								Only input a value if a credential reset is required
+								{t("users.credentialResetHint")}
 							</p>
 						</div>
 					</div>
@@ -203,7 +205,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 							className="flex items-center justify-center gap-2 rounded-button border border-border bg-surface px-6 py-2.5 text-xs font-black uppercase tracking-widest text-text-secondary transition-all hover:bg-surface-elevated active:scale-95"
 						>
 							<ArrowLeft size={16} weight="bold" />
-							Go Back
+							{t("users.goBack")}
 						</button>
 						<button
 							type="submit"
@@ -213,12 +215,12 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 							{isPending ? (
 								<>
 									<ArrowsClockwise size={16} weight="bold" className="animate-spin" />
-									PROCESSING...
+									{t("users.processing")}
 								</>
 							) : (
 								<>
 									<FloppyDisk size={16} weight="bold" />
-									COMMIT CHANGES
+									{t("users.commitChanges")}
 								</>
 							)}
 						</button>
@@ -232,17 +234,17 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 					<div className="flex items-center gap-2">
 						<WarningCircle size={14} weight="bold" className="text-danger" />
 						<h3 className="text-[10px] font-black uppercase tracking-widest text-danger">
-							Terminal Destruction Zone
+							{t("users.dangerZone")}
 						</h3>
 					</div>
 				</div>
 				<div className="p-(--space-lg) flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<p className="text-xs font-bold text-text-primary tracking-tight">
-							Decommission Personnel Record
+							{t("users.decommission")}
 						</p>
 						<p className="text-[10px] text-text-secondary uppercase mt-0.5">
-							This will permanently purge this user artifact from the system logs
+							{t("users.decommissionDesc")}
 						</p>
 					</div>
 					<button
@@ -252,7 +254,7 @@ export const EditUserForm = ({ profile }: { profile: Profile }) => {
 						className="flex items-center justify-center gap-2 rounded-button bg-danger px-6 py-2.5 text-xs font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-danger/20 transition-all hover:bg-danger/90 active:scale-95 disabled:opacity-50"
 					>
 						<Trash size={16} weight="bold" />
-						Purge Record
+						{t("users.purgeRecord")}
 					</button>
 				</div>
 			</div>

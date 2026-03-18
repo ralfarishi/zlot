@@ -8,11 +8,13 @@ import { formatIDR } from "@/src/lib/utils";
 import { DashboardStats } from "./_components/DashboardStats";
 import { ZoneSaturation } from "./_components/ZoneSaturation";
 import { QuickActionProtocol } from "./_components/QuickActionProtocol";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata = { title: "Mission Control | Zlot" };
 
 const DashboardOverview = async () => {
 	await requireRole(["admin", "owner"]);
+	const t = await getTranslator();
 
 	// Fetch Dashboard Data
 	const [areas, totalPersonnel, totalFleet, dailyRevenue] = await Promise.all([
@@ -38,33 +40,33 @@ const DashboardOverview = async () => {
 
 	const stats = [
 		{
-			label: "Ops Load",
+			label: t("dashboard.overview.stat.opsLoad"),
 			value: `${occupancyRate}%`,
-			sub: `${occupiedSpots}/${totalSpots} Active Slots`,
+			sub: `${occupiedSpots}/${totalSpots} ${t("dashboard.overview.stat.activeSlots")}`,
 			icon: Garage,
 			color: "text-primary",
 			bg: "bg-primary/10",
 		},
 		{
-			label: "Daily Yield",
+			label: t("dashboard.overview.stat.dailyYield"),
 			value: formatIDR(parseFloat(dailyRevenue)),
-			sub: "Last 24h Revenue",
+			sub: t("dashboard.overview.stat.last24h"),
 			icon: CurrencyDollar,
 			color: "text-success",
 			bg: "bg-success/10",
 		},
 		{
-			label: "Registry Size",
+			label: t("dashboard.overview.stat.registrySize"),
 			value: totalFleet,
-			sub: "Verified Units",
+			sub: t("dashboard.overview.stat.verifiedUnits"),
 			icon: Pulse,
 			color: "text-secondary",
 			bg: "bg-secondary/10",
 		},
 		{
-			label: "Personnel",
+			label: t("dashboard.overview.stat.personnel"),
 			value: totalPersonnel,
-			sub: "Active Operators",
+			sub: t("dashboard.overview.stat.activeOperators"),
 			icon: Users,
 			color: "text-accent-2",
 			bg: "bg-accent-2/10",
@@ -77,17 +79,17 @@ const DashboardOverview = async () => {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-3xl font-black tracking-tighter text-text-primary uppercase">
-						Mission Control
+						{t("dashboard.overview.title")}
 					</h1>
 					<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-						Real-time operational telemetry & system state
+						{t("dashboard.overview.subtitle")}
 					</p>
 				</div>
 				<div className="flex items-center gap-3">
 					<div className="px-4 py-2 bg-surface border border-border rounded-button shadow-sm flex items-center gap-2">
 						<div className="size-2 rounded-full bg-success animate-pulse" />
 						<span className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-							Live Delta Sync
+							{t("dashboard.overview.liveSync")}
 						</span>
 					</div>
 				</div>

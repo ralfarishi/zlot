@@ -29,6 +29,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Warning } from "@phosphor-icons/react";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface Rate {
 	id: string;
@@ -36,12 +37,6 @@ interface Rate {
 	tarifPerJam: string;
 	updatedAt: Date;
 }
-
-const VEHICLE_LABELS: Record<string, string> = {
-	motor: "Motorcycle",
-	mobil: "Car",
-	lainnya: "Other",
-};
 
 const VEHICLE_COLORS: Record<string, string> = {
 	motor: "bg-blue-500/10 text-blue-500",
@@ -55,6 +50,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 	const [editValue, setEditValue] = useState("");
 	const [isPending, startTransition] = useTransition();
 	const [isAlertOpen, setIsAlertOpen] = useState(false);
+	const { t, locale } = useLocale();
 
 	// nuqs state
 	const [search, setSearch] = useQueryState(
@@ -115,7 +111,6 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 					router.refresh();
 				}
 			} catch (err) {
-				// Fallback: if the delete fails with a constraint error that wasn't caught on server
 				const message = err instanceof Error ? err.message : "";
 				if (message.includes("referenced") || message.includes("23503")) {
 					setIsAlertOpen(true);
@@ -129,10 +124,10 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
 				<div>
 					<h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-						Registry Delta
+						{t("rates.registryDelta")}
 					</h3>
 					<p className="text-[10px] text-text-secondary uppercase tracking-tight mt-0.5">
-						Live pricing configuration matrix
+						{t("rates.pricingMatrix")}
 					</p>
 				</div>
 				<div className="flex items-center gap-3">
@@ -143,7 +138,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 						/>
 						<input
 							type="text"
-							placeholder="FILTER BY TYPE..."
+							placeholder={t("rates.filterPlaceholder")}
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
 							className="h-9 w-full sm:w-64 rounded-button border border-border bg-surface pl-9 pr-4 text-[10px] font-black uppercase tracking-widest outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
@@ -151,7 +146,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 					</div>
 					<div className="flex items-center gap-2 text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">
 						<ArrowsClockwise size={12} className={cn(isPending && "animate-spin")} />
-						{isPending ? "Syncing..." : "Matrix Valid"}
+						{isPending ? t("rates.syncing") : t("rates.matrixValid")}
 					</div>
 				</div>
 			</div>
@@ -171,7 +166,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 								>
 									<div className="flex items-center gap-2">
 										<Timer size={14} weight="bold" />
-										Vehicle Category
+										{t("rates.vehicleCategory")}
 										{sort === "jenisKendaraan" &&
 											(order === "asc" ? <CaretUp size={10} /> : <CaretDown size={10} />)}
 									</div>
@@ -182,7 +177,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 								>
 									<div className="flex items-center gap-2">
 										<Coin size={14} weight="bold" />
-										Hourly Rate
+										{t("rates.hourlyRate")}
 										{sort === "tarifPerJam" &&
 											(order === "asc" ? <CaretUp size={10} /> : <CaretDown size={10} />)}
 									</div>
@@ -193,14 +188,13 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 								>
 									<div className="flex items-center gap-2">
 										<Calendar size={14} weight="bold" />
-										Last Mutation
+										{t("rates.lastMutation")}
 										{sort === "updatedAt" &&
 											(order === "asc" ? <CaretUp size={10} /> : <CaretDown size={10} />)}
 									</div>
 								</th>
 								<th className="px-(--space-md) py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
-									Protocol
-								</th>
+								{t("rates.protocol")}</th>
 							</tr>
 						</thead>
 						<m.tbody
@@ -217,8 +211,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 										colSpan={4}
 										className="px-(--space-md) py-(--space-2xl) text-center text-sm text-text-secondary italic"
 									>
-										No rates configured yet
-									</td>
+										{t("rates.noRates")}</td>
 								</tr>
 							) : (
 								data.map((rate) => (
@@ -237,7 +230,11 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 													VEHICLE_COLORS[rate.jenisKendaraan] || "bg-secondary/10 text-secondary",
 												)}
 											>
-												{VEHICLE_LABELS[rate.jenisKendaraan] ?? rate.jenisKendaraan}
+												{rate.jenisKendaraan === "motor"
+													? t("rates.motorcycle")
+													: rate.jenisKendaraan === "mobil"
+													? t("rates.car")
+													: t("rates.other")}
 											</span>
 										</td>
 										<td className="px-(--space-md) py-4">
@@ -267,17 +264,23 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 										<td className="px-(--space-md) py-4 text-text-secondary">
 											<div className="flex flex-col">
 												<span className="text-xs font-medium text-text-primary">
-													{new Date(rate.updatedAt).toLocaleDateString("id-ID", {
-														month: "short",
-														day: "numeric",
-														year: "numeric",
-													})}
+													{new Date(rate.updatedAt).toLocaleDateString(
+														locale === "id" ? "id-ID" : "en-US",
+														{
+															month: "short",
+															day: "numeric",
+															year: "numeric",
+														},
+													)}
 												</span>
 												<span className="text-[10px] text-text-secondary/60 font-bold uppercase tracking-tighter">
-													{new Date(rate.updatedAt).toLocaleTimeString("id-ID", {
-														hour: "2-digit",
-														minute: "2-digit",
-													})}
+													{new Date(rate.updatedAt).toLocaleTimeString(
+														locale === "id" ? "id-ID" : "en-US",
+														{
+															hour: "2-digit",
+															minute: "2-digit",
+														},
+													)}
 												</span>
 											</div>
 										</td>
@@ -297,7 +300,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																onClick={() => saveEdit(rate.id)}
 																disabled={isPending}
 																className="flex size-8 items-center justify-center rounded-lg bg-success/10 text-success transition-all hover:bg-success/20 active:scale-90 disabled:opacity-50"
-																aria-label="Save"
+																aria-label={t("rates.saveAria")}
 															>
 																<Check size={18} weight="bold" />
 															</button>
@@ -305,7 +308,7 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																type="button"
 																onClick={cancelEdit}
 																className="flex size-8 items-center justify-center rounded-lg bg-surface-elevated text-text-secondary transition-all hover:bg-border active:scale-90"
-																aria-label="Cancel"
+																aria-label={t("rates.cancelAria")}
 															>
 																<X size={18} weight="bold" />
 															</button>
@@ -322,7 +325,10 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																type="button"
 																onClick={() => startEdit(rate)}
 																className="flex size-8 items-center justify-center rounded-lg text-text-secondary transition-all hover:bg-primary/10 hover:text-primary active:scale-90"
-																aria-label={`Edit ${rate.jenisKendaraan} rate`}
+																aria-label={t("rates.editAria").replace(
+																	"{type}",
+																	rate.jenisKendaraan,
+																)}
 															>
 																<PencilSimple size={18} weight="duotone" />
 															</button>
@@ -331,7 +337,10 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 																onClick={() => handleDelete(rate.id)}
 																disabled={isPending}
 																className="flex size-8 items-center justify-center rounded-lg text-text-secondary transition-all hover:bg-danger/10 hover:text-danger active:scale-90 disabled:opacity-50"
-																aria-label={`Delete ${rate.jenisKendaraan} rate`}
+																aria-label={t("rates.deleteAria").replace(
+																	"{type}",
+																	rate.jenisKendaraan,
+																)}
 															>
 																<Trash size={18} weight="duotone" />
 															</button>
@@ -355,18 +364,16 @@ export const RatesManager = ({ data }: { data: Rate[] }) => {
 							<div className="rounded-lg bg-danger/10 p-2 text-danger">
 								<Warning size={20} weight="bold" />
 							</div>
-							Immutable Protocol
+							{t("rates.immutableProtocol")}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="pt-2 text-sm font-bold leading-relaxed text-text-secondary uppercase tracking-tight">
-							This pricing artifact cannot be purged. It is currently hardcoded into the
-							system&apos;s historical transaction directory. Deletion would breach data integrity
-							protocols.
+							{t("rates.immutableDesc")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="mt-4 flex-row gap-2 sm:gap-2">
 						<AlertDialogAction className="m-0 h-11 flex-1 rounded-xl bg-danger text-[10px] font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-danger/20 hover:bg-danger/90">
-							Acknowledge
-						</AlertDialogAction>
+						{t("rates.acknowledge")}
+					</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>

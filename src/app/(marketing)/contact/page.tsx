@@ -3,25 +3,28 @@
 import { useState, useCallback } from "react";
 import { PaperPlaneTilt, CheckCircle, Envelope, Phone, MapPin } from "@phosphor-icons/react";
 import { m, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/components/providers/locale-provider";
+import type { TranslationKey } from "@/src/lib/i18n/en";
 
 type FormState = "idle" | "sending" | "sent";
 
+const validate = (formData: FormData, t: (key: TranslationKey) => string) => {
+	const newErrors: Record<string, string> = {};
+	const name = formData.get("name")?.toString().trim() ?? "";
+	const email = formData.get("email")?.toString().trim() ?? "";
+	const message = formData.get("message")?.toString().trim() ?? "";
+
+	if (name.length < 2) newErrors.name = t("contact.validation.name");
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = t("contact.validation.email");
+	if (message.length < 10) newErrors.message = t("contact.validation.message");
+
+	return { errors: newErrors, isValid: Object.keys(newErrors).length === 0 };
+};
+
 const ContactPage = () => {
+	const { t } = useLocale();
 	const [formState, setFormState] = useState<FormState>("idle");
 	const [errors, setErrors] = useState<Record<string, string>>({});
-
-	const validate = (formData: FormData) => {
-		const newErrors: Record<string, string> = {};
-		const name = formData.get("name")?.toString().trim() ?? "";
-		const email = formData.get("email")?.toString().trim() ?? "";
-		const message = formData.get("message")?.toString().trim() ?? "";
-
-		if (name.length < 2) newErrors.name = "Name must be at least 2 characters";
-		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Please enter a valid email";
-		if (message.length < 10) newErrors.message = "Message must be at least 10 characters";
-
-		return { errors: newErrors, isValid: Object.keys(newErrors).length === 0 };
-	};
 
 	const handleSubmit = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -29,7 +32,7 @@ const ContactPage = () => {
 			if (formState === "sending") return;
 
 			const formData = new FormData(e.currentTarget);
-			const { errors: validationErrors, isValid } = validate(formData);
+			const { errors: validationErrors, isValid } = validate(formData, t);
 
 			if (!isValid) {
 				setErrors(validationErrors);
@@ -44,7 +47,7 @@ const ContactPage = () => {
 				setFormState("sent");
 			}, 1500);
 		},
-		[formState],
+		[formState, t],
 	);
 
 	return (
@@ -63,12 +66,11 @@ const ContactPage = () => {
 						className="flex flex-col justify-center"
 					>
 						<h1 className="font-display text-6xl font-black tracking-tighter md:text-9xl">
-							Let&apos;s <br />
-							<span className="text-secondary italic">connect.</span>
+							{t("contact.hero.title")} <br />
+							<span className="text-secondary italic">{t("contact.hero.subtitle")}</span>
 						</h1>
 						<p className="mt-8 text-xl font-bold leading-relaxed text-text-secondary md:text-2xl">
-							Have a lot that needs a brain? Or just want to say hi? We&apos;re building the future
-							of parking and we&apos;d love to have you along.
+							{t("contact.hero.description")}
 						</p>
 
 						<div className="mt-12 space-y-6">
@@ -78,7 +80,7 @@ const ContactPage = () => {
 								</div>
 								<div>
 									<p className="text-sm font-bold text-text-secondary uppercase tracking-widest">
-										Email us
+										{t("contact.email.label")}
 									</p>
 									<p className="text-lg font-bold">hello@zlot.ops</p>
 								</div>
@@ -89,7 +91,7 @@ const ContactPage = () => {
 								</div>
 								<div>
 									<p className="text-sm font-bold text-text-secondary uppercase tracking-widest">
-										Call us
+										{t("contact.phone.label")}
 									</p>
 									<p className="text-lg font-bold">+1 (555) ZLOT-OPS</p>
 								</div>
@@ -100,9 +102,9 @@ const ContactPage = () => {
 								</div>
 								<div>
 									<p className="text-sm font-bold text-text-secondary uppercase tracking-widest">
-										Our HQ
+										{t("contact.hq.label")}
 									</p>
-									<p className="text-lg font-bold">The Terminal, Digital District</p>
+									<p className="text-lg font-bold">{t("contact.hq.address")}</p>
 								</div>
 							</div>
 						</div>
@@ -126,15 +128,15 @@ const ContactPage = () => {
 									<div className="mb-8 flex size-24 items-center justify-center rounded-full bg-white/10 text-accent-2">
 										<CheckCircle size={64} weight="duotone" />
 									</div>
-									<h2 className="font-display text-4xl font-bold">Sent!</h2>
+									<h2 className="font-display text-4xl font-bold">{t("contact.form.sent.title")}</h2>
 									<p className="mt-4 text-xl text-text-inverse/70">
-										We&apos;ll get back to you faster than a car clearing the gate.
+										{t("contact.form.sent.description")}
 									</p>
 									<button
 										onClick={() => setFormState("idle")}
 										className="mt-12 rounded-full bg-white px-10 py-4 text-lg font-bold text-primary transition-transform hover:scale-105"
 									>
-										Send Another
+										{t("contact.form.sent.button")}
 									</button>
 								</m.div>
 							) : (
@@ -153,12 +155,12 @@ const ContactPage = () => {
 												htmlFor="name"
 												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
 											>
-												Your Name
+												{t("contact.form.name")}
 											</label>
 											<input
 												id="name"
 												name="name"
-												placeholder="John Wick"
+												placeholder={t("contact.form.namePlaceholder")}
 												className="w-full rounded-2xl border-2 border-border bg-surface px-6 py-4 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
 											/>
 											{errors.name && (
@@ -170,13 +172,13 @@ const ContactPage = () => {
 												htmlFor="email"
 												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
 											>
-												Work Email
+												{t("contact.form.email")}
 											</label>
 											<input
 												id="email"
 												name="email"
 												type="email"
-												placeholder="john@continent.al"
+												placeholder={t("contact.form.emailPlaceholder")}
 												className="w-full rounded-2xl border-2 border-border bg-surface px-6 py-4 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
 											/>
 											{errors.email && (
@@ -188,13 +190,13 @@ const ContactPage = () => {
 												htmlFor="message"
 												className="mb-3 block text-sm font-bold uppercase tracking-widest text-text-secondary"
 											>
-												The Brief
+												{t("contact.form.message")}
 											</label>
 											<textarea
 												id="message"
 												name="message"
 												rows={4}
-												placeholder="Tell us about your parking empire..."
+												placeholder={t("contact.form.messagePlaceholder")}
 												className="w-full resize-none rounded-2xl border-2 border-border bg-surface px-6 py-4 text-lg font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
 											/>
 											{errors.message && (
@@ -207,10 +209,10 @@ const ContactPage = () => {
 											className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-primary py-5 text-xl font-bold text-text-inverse shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
 										>
 											{formState === "sending" ? (
-												"Dispatching..."
+												t("contact.form.sending")
 											) : (
 												<>
-													Send Message
+													{t("contact.form.submit")}
 													<PaperPlaneTilt
 														size={24}
 														weight="bold"

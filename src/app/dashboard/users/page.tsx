@@ -4,6 +4,7 @@ import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { getProfiles } from "@/src/actions/profiles";
 import { UsersTable } from "./users-table";
 import { createClient } from "@/src/lib/supabase/server";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Users" };
 
@@ -22,6 +23,8 @@ const UsersPage = async ({
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();
+
+	const t = await getTranslator();
 
 	const currentUser = profiles.find((p) => p.id === user?.id);
 
@@ -52,10 +55,10 @@ const UsersPage = async ({
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-						User Registry
+						{t("users.title")}
 					</h1>
 					<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-						Manage system access for personnel & administrators
+						{t("users.subtitle")}
 					</p>
 				</div>
 				<Link
@@ -63,7 +66,7 @@ const UsersPage = async ({
 					className="inline-flex items-center justify-center gap-2 rounded-button bg-primary px-4 py-2 text-xs font-black uppercase tracking-widest text-text-inverse shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95"
 				>
 					<Plus size={16} weight="bold" />
-					Provision User
+					{t("users.provision")}
 				</Link>
 			</div>
 

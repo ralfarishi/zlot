@@ -17,7 +17,7 @@ import {
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useQueryState, parseAsInteger, parseAsString } from "nuqs";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { updateVehicle, deleteVehicle } from "@/src/actions/vehicles";
 import {
 	AlertDialog,
@@ -46,6 +46,8 @@ import {
 	getPaginationRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
+import { useLocale } from "@/src/components/providers/locale-provider";
+import { type TranslationKey } from "@/src/lib/i18n/en";
 
 interface Vehicle {
 	id: string;
@@ -56,12 +58,6 @@ interface Vehicle {
 	createdAt: Date;
 }
 
-const VEHICLE_LABELS: Record<string, string> = {
-	motor: "Motorcycle",
-	mobil: "Car",
-	lainnya: "Other",
-};
-
 const VEHICLE_COLORS: Record<string, string> = {
 	motor: "bg-blue-500/10 text-blue-500 ring-blue-500/20",
 	mobil: "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20",
@@ -70,12 +66,12 @@ const VEHICLE_COLORS: Record<string, string> = {
 
 const columnHelper = createColumnHelper<Vehicle>();
 
-const columns = [
+const createColumns = (t: (key: TranslationKey) => string) => [
 	columnHelper.accessor("platNomor", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<IdentificationCard size={14} weight="bold" />
-				Plate Number
+				{t("vehicles.plateNumber")}
 			</div>
 		),
 		cell: (info) => (
@@ -88,25 +84,37 @@ const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Car size={14} weight="bold" />
-				Type
+				{t("vehicles.type")}
 			</div>
 		),
-		cell: (info) => (
-			<span
-				className={cn(
-					"inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ring-1 ring-inset",
-					VEHICLE_COLORS[info.getValue()] || "bg-secondary/10 text-secondary ring-secondary/20",
-				)}
-			>
-				{VEHICLE_LABELS[info.getValue()] ?? info.getValue()}
-			</span>
-		),
+		cell: (info) => {
+			const val = info.getValue();
+			const label =
+				val === "motor"
+					? t("vehicles.motorcycle")
+					: val === "mobil"
+						? t("vehicles.car")
+						: val === "lainnya"
+							? t("vehicles.other")
+							: val;
+
+			return (
+				<span
+					className={cn(
+						"inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ring-1 ring-inset",
+						VEHICLE_COLORS[val] || "bg-secondary/10 text-secondary ring-secondary/20",
+					)}
+				>
+					{label}
+				</span>
+			);
+		},
 	}),
 	columnHelper.accessor("warna", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Palette size={14} weight="bold" />
-				Aesthetic
+				{t("vehicles.aesthetic")}
 			</div>
 		),
 		cell: (info) => {
@@ -134,18 +142,20 @@ const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<UserCircle size={14} weight="bold" />
-				Affiliation
+				{t("vehicles.affiliation")}
 			</div>
 		),
 		cell: (info) => (
 			<span className="text-sm font-bold text-text-primary tracking-tight">
-				{info.getValue() ?? "Guest Unit"}
+				{info.getValue() ?? t("vehicles.guestUnit")}
 			</span>
 		),
 	}),
 	columnHelper.display({
 		id: "actions",
-		header: () => <div className="flex items-center justify-end gap-2">Actions</div>,
+		header: () => (
+			<div className="flex items-center justify-end gap-2">{t("vehicles.actions")}</div>
+		),
 		cell: (info) => (
 			<div className="flex justify-end">
 				<VehicleRowActions vehicle={info.row.original} />
@@ -160,6 +170,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 	const [isPending, startTransition] = useTransition();
 	const [color, setColor] = useState(vehicle.warna || "");
 	const [ownerName, setOwnerName] = useState(vehicle.namaPemilik || "");
+	const { t } = useLocale();
 
 	const handleUpdate = () => {
 		startTransition(async () => {
@@ -208,14 +219,14 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 							<div className="p-2 rounded-lg bg-primary/10 text-primary">
 								<Car size={20} weight="bold" />
 							</div>
-							Registry Calibration
+							{t("vehicles.registryCalibration")}
 						</DialogTitle>
 					</DialogHeader>
 
 					<div className="space-y-6 py-4">
 						<div className="flex flex-col gap-2">
 							<Label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
-								Registry Identification
+								{t("vehicles.registryId")}
 							</Label>
 							<div className="rounded-2xl bg-surface-elevated p-5 border border-border shadow-inner ring-1 ring-border/50">
 								<p className="font-mono text-3xl font-black text-text-primary tracking-[0.2em]">
@@ -235,7 +246,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 						<div className="space-y-5">
 							<div className="space-y-2">
 								<Label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
-									Visual Aesthetic (Color)
+									{t("vehicles.visualAesthetic")}
 								</Label>
 								<div className="flex gap-3">
 									<div className="relative group/color shrink-0">
@@ -263,7 +274,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 
 							<div className="space-y-2">
 								<Label className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
-									Affiliation (Owner)
+									{t("vehicles.affiliationOwner")}
 								</Label>
 								<Input
 									value={ownerName}
@@ -281,7 +292,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 							onClick={() => setIsEditOpen(false)}
 							className="flex-1 rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-2"
 						>
-							Abort
+							{t("vehicles.abort")}
 						</Button>
 						<Button
 							onClick={handleUpdate}
@@ -291,7 +302,7 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 							{isPending ? (
 								<ArrowsClockwise className="animate-spin" size={16} weight="bold" />
 							) : (
-								"Sync Registry"
+								t("vehicles.syncRegistry")
 							)}
 						</Button>
 					</DialogFooter>
@@ -305,26 +316,26 @@ const VehicleRowActions = ({ vehicle }: { vehicle: Vehicle }) => {
 							<div className="p-2 rounded-lg bg-danger/10 text-danger">
 								<Trash size={20} weight="bold" />
 							</div>
-							De-register Vehicle
+							{t("vehicles.deregister")}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-sm font-bold text-text-secondary leading-relaxed pt-2">
-							WARNING: You are about to purge vehicle{" "}
+							{t("vehicles.deregisterDesc")}{" "}
 							<span className="font-mono font-black text-text-primary underline decoration-danger/30">
 								{vehicle.platNomor}
 							</span>{" "}
-							from the active directory. This will archive all associated telemetry.
+							{t("vehicles.deregisterDesc2")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="flex-row gap-2 mt-4 sm:gap-2">
 						<AlertDialogCancel className="flex-1 rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-2 m-0 bg-surface">
-							Retain Record
+							{t("vehicles.retainRecord")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={isPending}
 							className="flex-1 rounded-xl bg-danger hover:bg-danger/90 font-bold uppercase tracking-widest text-[10px] h-12 shadow-lg shadow-danger/20 border-none m-0 text-white"
 						>
-							{isPending ? "Purging..." : "Confirm Purge"}
+							{isPending ? t("vehicles.purging") : t("vehicles.confirmPurge")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
@@ -350,10 +361,13 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 		"order",
 		parseAsString.withDefault("asc").withOptions({ shallow: false }),
 	);
+	const { t } = useLocale();
 	const [page, setPage] = useQueryState(
 		"page",
 		parseAsInteger.withDefault(1).withOptions({ shallow: false }),
 	);
+
+	const columns = useMemo(() => createColumns(t), [t]);
 
 	const toggleSort = (field: string) => {
 		if (sort === field) {
@@ -392,25 +406,30 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 						/>
 						<input
 							type="text"
-							placeholder="SCAN REGISTRY..."
+							placeholder={t("vehicles.searchPlaceholder")}
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
 							className="h-10 w-full rounded-button border border-border bg-surface pl-10 pr-4 text-[10px] font-black uppercase tracking-widest outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
 						/>
 					</div>
 					<div className="flex items-center justify-between rounded-button border border-border bg-surface p-1">
-						{["all", "mobil", "motor", "lainnya"].map((t) => (
+						{[
+							{ id: "all", label: t("vehicles.all") },
+							{ id: "mobil", label: t("vehicles.car") },
+							{ id: "motor", label: t("vehicles.motorcycle") },
+							{ id: "lainnya", label: t("vehicles.other") },
+						].map((tab) => (
 							<button
-								key={t}
-								onClick={() => setType(t)}
+								key={tab.id}
+								onClick={() => setType(tab.id)}
 								className={cn(
 									"flex-1 sm:flex-none px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-sm transition-all",
-									type === t
+									type === tab.id
 										? "bg-primary text-text-inverse shadow-sm"
 										: "text-text-secondary hover:text-text-primary",
 								)}
 							>
-								{t}
+								{tab.label}
 							</button>
 						))}
 					</div>
@@ -418,7 +437,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 				<div className="flex items-center justify-between sm:justify-end gap-4 border-t border-border pt-4 lg:border-0 lg:pt-0">
 					<div className="flex flex-col items-start lg:items-end">
 						<span className="text-[10px] font-black uppercase tracking-widest text-text-secondary/40">
-							Registry Size
+							{t("vehicles.registrySize")}
 						</span>
 						<span className="text-lg font-black tracking-tighter text-text-primary">
 							{data.length}
@@ -487,7 +506,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 										colSpan={columns.length}
 										className="px-(--space-md) py-(--space-2xl) text-center text-sm text-text-secondary italic"
 									>
-										No vehicles found in the registry
+										{t("vehicles.noVehicles")}
 									</td>
 								</tr>
 							) : (
@@ -516,7 +535,7 @@ export const VehiclesTable = ({ data }: { data: Vehicle[] }) => {
 				{table.getPageCount() > 1 && (
 					<div className="flex items-center justify-between border-t border-border bg-surface-elevated/30 px-(--space-md) py-3">
 						<div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-							Fleet Partition {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+							{t("vehicles.fleetPartition")} {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
 						</div>
 						<div className="flex items-center gap-1">
 							<button

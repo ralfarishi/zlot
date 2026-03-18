@@ -1,33 +1,33 @@
 "use client";
 
+import { useLocale } from "@/components/providers/locale-provider";
 import { Users, Target, RocketLaunch, ChatCenteredDots, Heart } from "@phosphor-icons/react";
 import { m } from "framer-motion";
 
-const VALUES = [
-	{
-		icon: RocketLaunch,
-		title: "Built for Speed",
-		description:
-			"We obsess over the milliseconds. Your team shouldn&apos;t wait for the software to catch up to the cars.",
-		color: "text-primary bg-primary/10",
-	},
-	{
-		icon: Users,
-		title: "Human Focused",
-		description:
-			"From the admin setting rates to the employee at the gate, we build for the humans behind the screen.",
-		color: "text-accent-1 bg-accent-1/10",
-	},
-	{
-		icon: Heart,
-		title: "Passion for Ops",
-		description:
-			"We think parking operations are beautiful. We build tools that treat them with the respect they deserve.",
-		color: "text-accent-2 bg-accent-2/10",
-	},
-] as const;
-
 const AboutPage = () => {
+	const { t } = useLocale();
+
+	const VALUES = [
+		{
+			icon: RocketLaunch,
+			title: t("about.values.speed.title"),
+			description: t("about.values.speed.description"),
+			color: "text-primary bg-primary/10",
+		},
+		{
+			icon: Users,
+			title: t("about.values.human.title"),
+			description: t("about.values.human.description"),
+			color: "text-accent-1 bg-accent-1/10",
+		},
+		{
+			icon: Heart,
+			title: t("about.values.passion.title"),
+			description: t("about.values.passion.description"),
+			color: "text-accent-2 bg-accent-2/10",
+		},
+	];
+
 	return (
 		<div className="relative px-(--space-lg) pt-40 pb-(--space-2xl) md:pt-48 md:pb-32 overflow-hidden">
 			{/* Background Decorations */}
@@ -44,8 +44,8 @@ const AboutPage = () => {
 						animate={{ y: 0, opacity: 1 }}
 						className="font-display text-5xl font-black tracking-tighter md:text-8xl"
 					>
-						Parking, <br />
-						<span className="text-secondary italic">Redefined.</span>
+						{t("about.hero.title")} <br />
+						<span className="text-secondary italic">{t("about.hero.subtitle")}</span>
 					</m.h1>
 					<m.p
 						initial={{ y: 20, opacity: 0 }}
@@ -53,8 +53,7 @@ const AboutPage = () => {
 						transition={{ delay: 0.1 }}
 						className="mx-auto mt-(--space-lg) max-w-2xl text-lg leading-relaxed text-text-secondary md:text-2xl font-bold"
 					>
-						Zlot isn&apos;t just a database. It&apos;s a movement to bring parking management into
-						the 21st century. No more clunky 2005 interfaces. Just smooth, fast, and reliable ops.
+						{t("about.hero.description")}
 					</m.p>
 				</div>
 
@@ -68,12 +67,10 @@ const AboutPage = () => {
 					>
 						<h2 className="font-display text-3xl font-bold flex items-center gap-3">
 							<ChatCenteredDots weight="duotone" className="text-primary" />
-							The Zlot Story
+							{t("about.story.title")}
 						</h2>
 						<p className="mt-(--space-md) text-lg leading-relaxed text-text-secondary">
-							We spent weeks watching parking lots operate. We saw the clipboards, the frozen
-							screens, and the frustrated owners. We knew there was a better way. Zlot was born from
-							a desire to make operations invisible—so smooth you forget the software is even there.
+							{t("about.story.body")}
 						</p>
 					</m.div>
 
@@ -86,12 +83,10 @@ const AboutPage = () => {
 					>
 						<h2 className="font-display text-3xl font-bold flex items-center gap-3">
 							<Target weight="duotone" className="text-accent-2" />
-							Our Vision
+							{t("about.vision.title")}
 						</h2>
 						<p className="mt-(--space-md) text-lg leading-relaxed text-text-inverse/80">
-							Our goal is to be the heartbeat of every high-performance parking lot worldwide.
-							We&apos;re building the infrastructure that lets business owners scale from one lot to
-							one thousand without breaking a sweat.
+							{t("about.vision.body")}
 						</p>
 					</m.div>
 				</div>

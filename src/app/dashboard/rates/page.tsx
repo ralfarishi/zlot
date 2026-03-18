@@ -3,6 +3,7 @@ import { getRates } from "@/src/actions/rates";
 import { RatesManager } from "./rates-manager";
 import { CreateRateForm } from "./create-rate-form";
 import { requireRole } from "@/src/lib/auth-guard";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Rates" };
 
@@ -13,6 +14,7 @@ const RatesPage = async ({
 }) => {
 	await requireRole(["admin"]);
 	const params = await searchParams;
+	const t = await getTranslator();
 	const q = params.q?.toLowerCase() || "";
 	const sort = params.sort || "vehicleType";
 	const order = params.order || "asc";
@@ -41,10 +43,10 @@ const RatesPage = async ({
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-						Rate Management
+						{t("rates.title")}
 					</h1>
 					<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-0.5">
-						Set hourly parking rates per vehicle type
+						{t("rates.subtitle")}
 					</p>
 				</div>
 				<CreateRateForm />

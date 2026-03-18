@@ -16,11 +16,13 @@ import {
 } from "@phosphor-icons/react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 const NewUserPage = () => {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const { t } = useLocale();
 
 	const handleSubmit = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -32,11 +34,11 @@ const NewUserPage = () => {
 			const role = formData.get("role")?.toString() ?? "";
 
 			const newErrors: Record<string, string> = {};
-			if (namaLengkap.length < 2) newErrors.namaLengkap = "Name must be at least 2 characters";
+			if (namaLengkap.length < 2) newErrors.namaLengkap = t("users.error.nameLength");
 			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-				newErrors.email = "Enter a valid email address";
-			if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
-			if (!["admin", "petugas", "owner"].includes(role)) newErrors.role = "Select a valid role";
+				newErrors.email = t("users.error.invalidEmail");
+			if (password.length < 8) newErrors.password = t("users.error.passwordLength");
+			if (!["admin", "petugas", "owner"].includes(role)) newErrors.role = t("users.error.selectRole");
 
 			if (Object.keys(newErrors).length > 0) {
 				setErrors(newErrors);
@@ -54,12 +56,12 @@ const NewUserPage = () => {
 					});
 					router.push("/dashboard/users");
 				} catch (err) {
-					const message = err instanceof Error ? err.message : "Failed to create user";
+					const message = err instanceof Error ? err.message : t("users.error.createFailed");
 					setErrors({ form: message });
 				}
 			});
 		},
-		[router],
+		[router, t],
 	);
 
 	return (
@@ -81,10 +83,10 @@ const NewUserPage = () => {
 						</div>
 						<div>
 							<h1 className="text-2xl font-black tracking-tighter text-text-primary uppercase">
-								Provision Personnel
+								{t("users.newTitle")}
 							</h1>
 							<p className="text-xs font-bold text-text-secondary uppercase tracking-widest opacity-60">
-								Authorize new system access record
+								{t("users.newSubtitle")}
 							</p>
 						</div>
 					</div>
@@ -106,14 +108,14 @@ const NewUserPage = () => {
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								<IdentificationCard size={14} weight="bold" />
-								Legal Full Name
+								{t("users.fullName")}
 							</label>
 							<div className="relative">
 								<input
 									id="nama-lengkap"
 									name="namaLengkap"
 									type="text"
-									placeholder="Unit Designation (e.g. John Doe)"
+									placeholder={t("users.namePlaceholder")}
 									className={cn(
 										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm",
 										errors.namaLengkap
@@ -136,14 +138,14 @@ const NewUserPage = () => {
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								<Envelope size={14} weight="bold" />
-								Credential Proxy (Email)
+								{t("users.email")}
 							</label>
 							<div className="relative">
 								<input
 									id="email"
 									name="email"
 									type="email"
-									placeholder="operator@zlot.system"
+									placeholder={t("users.emailPlaceholder")}
 									className={cn(
 										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm",
 										errors.email
@@ -166,7 +168,7 @@ const NewUserPage = () => {
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								<ShieldCheck size={14} weight="bold" />
-								Access clearance
+								{t("users.accessClearance")}
 							</label>
 							<div className="relative">
 								<select
@@ -181,11 +183,11 @@ const NewUserPage = () => {
 									)}
 								>
 									<option value="" disabled>
-										Select privilege level
+										{t("users.selectPrivilege")}
 									</option>
-									<option value="admin">System Admin</option>
-									<option value="petugas">Gate Employee</option>
-									<option value="owner">System Owner</option>
+									<option value="admin">{t("users.systemAdmin")}</option>
+									<option value="petugas">{t("users.gateEmployee")}</option>
+									<option value="owner">{t("users.systemOwner")}</option>
 								</select>
 							</div>
 							{errors.role && (
@@ -202,14 +204,14 @@ const NewUserPage = () => {
 								className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary"
 							>
 								<Lock size={14} weight="bold" />
-								Initial Secret Cipher (Password)
+								{t("users.initialPassword")}
 							</label>
 							<div className="relative">
 								<input
 									id="password"
 									name="password"
 									type="password"
-									placeholder="Minimum 8 characters"
+									placeholder={t("users.passwordPlaceholder")}
 									className={cn(
 										"w-full rounded-button border bg-surface px-4 py-3 text-sm font-bold outline-none transition-all shadow-sm font-mono",
 										errors.password
@@ -234,7 +236,7 @@ const NewUserPage = () => {
 							className="flex items-center justify-center gap-2 rounded-button border border-border bg-surface px-6 py-2.5 text-xs font-black uppercase tracking-widest text-text-secondary transition-all hover:bg-surface-elevated active:scale-95"
 						>
 							<X size={16} weight="bold" />
-							Abort
+							{t("users.abort")}
 						</button>
 						<button
 							type="submit"
@@ -244,12 +246,12 @@ const NewUserPage = () => {
 							{isPending ? (
 								<>
 									<ArrowsClockwise size={16} weight="bold" className="animate-spin" />
-									Initializing...
+									{t("users.initializing")}
 								</>
 							) : (
 								<>
 									<CheckCircle size={16} weight="bold" />
-									Authorize Access
+									{t("users.authorizeAccess")}
 								</>
 							)}
 						</button>

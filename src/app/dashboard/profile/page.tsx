@@ -14,6 +14,7 @@ import {
 import { logout } from "@/src/actions/profiles";
 import { PasswordForm } from "./password-form";
 import { cn } from "@/lib/utils";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 export const metadata: Metadata = {
 	title: "Profile | Zlot",
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
 const ProfilePage = async () => {
 	const user = await requireAuth();
 	const supabase = await createClient();
+	const t = await getTranslator();
 
 	const { data: rawProfile } = await supabase
 		.from("profil")
@@ -71,7 +73,7 @@ const ProfilePage = async () => {
 										: "bg-danger/10 text-danger ring-danger/20",
 								)}
 							>
-								{profile?.isActive ? "Verified Ops" : "Suspended"}
+								{profile?.isActive ? t("profile.verifiedOps") : t("profile.suspended")}
 							</span>
 						</div>
 						<p className="mt-1 flex items-center justify-center gap-2 text-sm font-medium text-text-secondary sm:justify-start">
@@ -82,12 +84,12 @@ const ProfilePage = async () => {
 						<div className="mt-(--space-md) flex flex-wrap justify-center gap-2 sm:justify-start">
 							<div className="flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-bold text-text-primary ring-1 ring-border shadow-sm">
 								<ShieldCheck size={14} weight="fill" className="text-secondary" />
-								{profile?.role?.toUpperCase()} ACCESS
+								{profile?.role?.toUpperCase()} {t("profile.access")}
 							</div>
 							<form action={logout}>
 								<button className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-bold text-danger transition-all hover:bg-danger/20 active:scale-95 ring-1 ring-danger/20">
 									<SignOut size={14} weight="bold" />
-									Terminated Session
+									{t("profile.terminatedSession")}
 								</button>
 							</form>
 						</div>
@@ -100,27 +102,27 @@ const ProfilePage = async () => {
 				<div className="rounded-card border border-border bg-surface p-(--space-lg) shadow-card">
 					<div className="mb-(--space-md) flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
 						<IdentificationBadge size={14} weight="bold" />
-						Registry Artifacts
+						{t("profile.registryArtifacts")}
 					</div>
 
 					<dl className="space-y-(--space-md)">
 						<div className="flex flex-col gap-1 border-b border-border pb-(--space-sm) last:border-0 last:pb-0">
 							<dt className="text-[10px] font-black uppercase tracking-tight text-text-secondary/40">
-								Legal Designation
+								{t("profile.legalDesignation")}
 							</dt>
 							<dd className="text-sm font-bold text-text-primary">{profile?.namaLengkap ?? "—"}</dd>
 						</div>
 
 						<div className="flex flex-col gap-1 border-b border-border pb-(--space-sm) last:border-0 last:pb-0">
 							<dt className="text-[10px] font-black uppercase tracking-tight text-text-secondary/40">
-								Credential Proxy
+								{t("profile.credentialProxy")}
 							</dt>
 							<dd className="font-mono text-xs font-bold text-text-secondary">{user.email}</dd>
 						</div>
 
 						<div className="flex flex-col gap-1 border-b border-border pb-(--space-sm) last:border-0 last:pb-0">
 							<dt className="text-[10px] font-black uppercase tracking-tight text-text-secondary/40">
-								Temporal Entry
+								{t("profile.temporalEntry")}
 							</dt>
 							<dd className="flex items-center gap-2 text-sm font-bold text-text-primary">
 								<Calendar size={16} weight="duotone" className="text-primary" />
@@ -140,7 +142,7 @@ const ProfilePage = async () => {
 				<div className="rounded-card border border-border bg-surface p-(--space-lg) shadow-card">
 					<div className="mb-(--space-md) flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60">
 						<Pulse size={14} weight="bold" />
-						System Status
+						{t("profile.systemStatus")}
 					</div>
 
 					<div className="space-y-(--space-md)">
@@ -155,8 +157,8 @@ const ProfilePage = async () => {
 									<User size={20} weight="bold" />
 								</div>
 								<div>
-									<p className="text-xs font-bold text-text-primary">Account Vitality</p>
-									<p className="text-[10px] text-text-secondary uppercase">Operational Status</p>
+									<p className="text-xs font-bold text-text-primary">{t("profile.accountVitality")}</p>
+									<p className="text-[10px] text-text-secondary uppercase">{t("profile.operationalStatus")}</p>
 								</div>
 							</div>
 							<span
@@ -165,7 +167,7 @@ const ProfilePage = async () => {
 									profile?.isActive ? "text-success" : "text-danger",
 								)}
 							>
-								{profile?.isActive ? "LIVE" : "OFFLINE"}
+								{profile?.isActive ? t("profile.live") : t("profile.offline")}
 							</span>
 						</div>
 
@@ -175,11 +177,11 @@ const ProfilePage = async () => {
 									<ShieldCheck size={20} weight="bold" />
 								</div>
 								<div>
-									<p className="text-xs font-bold text-text-primary">MFA Shield</p>
-									<p className="text-[10px] text-text-secondary uppercase">Security Layer</p>
+									<p className="text-xs font-bold text-text-primary">{t("profile.mfaShield")}</p>
+									<p className="text-[10px] text-text-secondary uppercase">{t("profile.securityLayer")}</p>
 								</div>
 							</div>
-							<span className="text-[10px] font-black uppercase text-text-secondary">Disabled</span>
+							<span className="text-[10px] font-black uppercase text-text-secondary">{t("profile.disabled")}</span>
 						</div>
 					</div>
 				</div>

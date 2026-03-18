@@ -34,14 +34,16 @@ const AnalyticsPage = async () => {
 	}));
 
 	return (
-		<AnalyticsDashboard
-			stats={stats}
-			revenueData={revenueData}
-			occupancyChartData={occupancyChartData}
-			heatmapData={heatmapData}
-			zonePerformance={zonePerformance}
-			revenueVelocity={revenueVelocity}
-		/>
+		<div className="space-y-(--space-lg)">
+			<AnalyticsDashboard
+				stats={stats}
+				revenueData={revenueData}
+				occupancyChartData={occupancyChartData}
+				heatmapData={heatmapData}
+				zonePerformance={zonePerformance}
+				revenueVelocity={revenueVelocity}
+			/>
+		</div>
 	);
 };
 

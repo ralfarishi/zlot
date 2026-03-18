@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatIDR } from "@/lib/utils";
 import { m } from "framer-motion";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 const RevenueTrends = dynamic(() => import("./charts").then((mod) => mod.RevenueTrends), {
 	ssr: false,
@@ -74,6 +75,8 @@ export const AnalyticsDashboard = ({
 	zonePerformance,
 	revenueVelocity,
 }: AnalyticsDashboardProps) => {
+	const { t } = useLocale();
+
 	interface StatCard {
 		label: string;
 		value: string;
@@ -87,7 +90,7 @@ export const AnalyticsDashboard = ({
 
 	const statCards: StatCard[] = [
 		{
-			label: "Daily Revenue",
+			label: t("analytics.stat.dailyRevenue"),
 			value: formatIDR(stats.dailyRevenue),
 			change: `${stats.revenueChange >= 0 ? "+" : ""}${stats.revenueChange}%`,
 			trend: stats.revenueChange >= 0 ? "up" : "down",
@@ -97,7 +100,7 @@ export const AnalyticsDashboard = ({
 			sparkline: <RevenueVelocity data={revenueVelocity} />,
 		},
 		{
-			label: "Active Vehicles",
+			label: t("analytics.stat.activeVehicles"),
 			value: stats.activeVehicles.toString(),
 			change: "",
 			trend: "up",
@@ -106,7 +109,7 @@ export const AnalyticsDashboard = ({
 			bg: "bg-secondary/10",
 		},
 		{
-			label: "Occupancy Rate",
+			label: t("analytics.stat.occupancyRate"),
 			value: `${stats.occupancyRate}%`,
 			change: "",
 			trend: "up",
@@ -115,7 +118,7 @@ export const AnalyticsDashboard = ({
 			bg: "bg-accent-2/10",
 		},
 		{
-			label: "Peak Load Time",
+			label: t("analytics.stat.peakLoadTime"),
 			value: stats.peakHour !== null ? `${String(stats.peakHour).padStart(2, "0")}:00` : "--:--",
 			change: "",
 			trend: "up",
@@ -130,16 +133,16 @@ export const AnalyticsDashboard = ({
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-3xl font-black tracking-tighter text-text-primary uppercase">
-						Operational Intelligence
+						{t("analytics.title")}
 					</h1>
-					<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] opacity-50 mt-1">
-						Visual insights & real-time performance telemetry
+					<p className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] mt-1 opacity-50">
+						{t("analytics.subtitle.details")}
 					</p>
 				</div>
 				<div className="flex items-center gap-2 rounded-full bg-surface-elevated px-3 py-1.5 ring-1 ring-border shadow-sm">
 					<div className="size-2 animate-pulse rounded-full bg-success" />
 					<span className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-						Telemetry Active
+						{t("analytics.telemetryActive")}
 					</span>
 				</div>
 			</div>
@@ -183,7 +186,7 @@ export const AnalyticsDashboard = ({
 										{stat.change}
 									</div>
 									<span className="text-[9px] font-black uppercase tracking-widest text-text-secondary opacity-30">
-										vs Yesterday
+										{t("analytics.vsYesterday")}
 									</span>
 								</div>
 							)}
@@ -202,10 +205,10 @@ export const AnalyticsDashboard = ({
 					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
 						<div>
 							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-								Revenue Pipeline
+								{t("analytics.chart.revenuePipeline")}
 							</h3>
 							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
-								7-Day Aggregated Stream
+								{t("analytics.chart.revenuePipelineDesc")}
 							</p>
 						</div>
 					</div>
@@ -223,10 +226,10 @@ export const AnalyticsDashboard = ({
 					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
 						<div>
 							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-								Zone Distribution
+								{t("analytics.chart.zoneDistribution")}
 							</h3>
 							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
-								Active Occupancy Map
+								{t("analytics.chart.zoneDistributionDesc")}
 							</p>
 						</div>
 						<UsersIcon size={16} className="text-text-secondary opacity-40" />
@@ -257,10 +260,10 @@ export const AnalyticsDashboard = ({
 					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
 						<div>
 							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-								Load Distribution (24H Average)
+								{t("analytics.chart.loadDistribution")}
 							</h3>
 							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
-								Hourly Peak Intensity Mapping
+								{t("analytics.chart.loadDistributionDesc")}
 							</p>
 						</div>
 						<TrendUp size={16} className="text-text-secondary opacity-40" />
@@ -279,10 +282,10 @@ export const AnalyticsDashboard = ({
 					<div className="flex items-center justify-between border-b border-border border-dashed pb-(--space-md) mb-(--space-lg)">
 						<div>
 							<h3 className="text-sm font-black uppercase tracking-widest text-text-primary">
-								Zone Performance Index
+								{t("analytics.chart.zonePerformanceIndex")}
 							</h3>
 							<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
-								30-Day Revenue efficiency
+								{t("analytics.chart.zonePerformanceIndexDesc")}
 							</p>
 						</div>
 					</div>
@@ -304,8 +307,8 @@ export const AnalyticsDashboard = ({
 									/>
 								</div>
 								<div className="flex justify-between text-[8px] font-bold text-text-secondary uppercase opacity-40">
-									<span>{zone.transactionCount} Shifts</span>
-									<span>Avg: {formatIDR(zone.revenue / (zone.transactionCount || 1))}</span>
+									<span>{zone.transactionCount} {t("analytics.chart.shifts")}</span>
+									<span>{t("analytics.chart.avg")}: {formatIDR(zone.revenue / (zone.transactionCount || 1))}</span>
 								</div>
 							</div>
 						))}

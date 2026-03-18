@@ -13,15 +13,16 @@ import { format } from "date-fns";
 import { cn, formatIDR, formatLongDuration } from "@/src/lib/utils";
 import { HistoryTransaction } from "./types";
 import { HistoryActions } from "./HistoryActions";
+import { TranslationKey } from "@/src/lib/i18n/en";
 
 const columnHelper = createColumnHelper<HistoryTransaction>();
 
-export const columns = [
+export const createHistoryColumns = (t: (key: TranslationKey) => string) => [
 	columnHelper.accessor("nomorTransaksi", {
 		header: () => (
 			<div className="flex items-center gap-2">
 				<IdentificationCard size={14} weight="bold" />
-				Ref / Plate
+				{t("history.columns.refPlate")}
 			</div>
 		),
 		cell: (info) => (
@@ -39,7 +40,7 @@ export const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<MapPin size={14} weight="bold" />
-				Zone
+				{t("history.columns.zone")}
 			</div>
 		),
 		cell: (info) => (
@@ -50,7 +51,7 @@ export const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Calendar size={14} weight="bold" />
-				Timeline
+				{t("history.columns.timeline")}
 			</div>
 		),
 		cell: (info) => {
@@ -69,7 +70,7 @@ export const columns = [
 						</div>
 					) : (
 						<span className="text-[9px] font-black uppercase tracking-widest text-success animate-pulse">
-							Active Now
+							{t("history.columns.activeNow")}
 						</span>
 					)}
 				</div>
@@ -80,7 +81,7 @@ export const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Clock size={14} weight="bold" />
-				Duration
+				{t("history.columns.duration")}
 			</div>
 		),
 		cell: (info) => (
@@ -93,7 +94,7 @@ export const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<CurrencyDollar size={14} weight="bold" />
-				Total
+				{t("history.columns.total")}
 			</div>
 		),
 		cell: (info) => (
@@ -106,7 +107,7 @@ export const columns = [
 		header: () => (
 			<div className="flex items-center gap-2">
 				<Tag size={14} weight="bold" />
-				Status
+				{t("history.columns.status")}
 			</div>
 		),
 		cell: (info) => (
@@ -124,7 +125,7 @@ export const columns = [
 	}),
 	columnHelper.display({
 		id: "actions",
-		header: () => <div className="text-right">Actions</div>,
+		header: () => <div className="text-right">{t("history.columns.actions")}</div>,
 		cell: (info) => (
 			<HistoryActions
 				transaction={info.row.original}

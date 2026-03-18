@@ -1,22 +1,21 @@
-import { getProfileById } from "@/src/actions/profiles";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import { getProfiles } from "@/src/actions/profiles";
 import { EditUserForm } from "./edit-user-form";
-
-export const metadata: Metadata = { title: "Edit User" };
+import { requireRole } from "@/src/lib/auth-guard";
+import { getTranslator } from "@/src/lib/i18n/server";
 
 const EditUserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+	await requireRole(["admin"]);
 	const { id } = await params;
-	const profile = await getProfileById(id);
-
+	const profiles = await getProfiles();
+	const profile = profiles.find((p) => p.id === id);
 	if (!profile) notFound();
+	const t = await getTranslator();
 
 	return (
 		<div className="mx-auto max-w-lg">
-			<h1 className="font-display text-2xl font-bold">Edit User</h1>
-			<p className="mt-[var(--space-xs)] text-sm text-text-secondary">
-				Update user profile details
-			</p>
+			<h1 className="font-display text-2xl font-bold">{t("users.editTitle")}</h1>
+			<p className="mt-[--space-xs] text-sm text-text-secondary">{t("users.editSubtitle")}</p>
 
 			<EditUserForm profile={profile} />
 		</div>

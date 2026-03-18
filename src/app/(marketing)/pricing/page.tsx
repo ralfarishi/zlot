@@ -3,63 +3,66 @@
 import Link from "next/link";
 import { Check, Sparkle, Crown, Rocket } from "@phosphor-icons/react";
 import { m } from "framer-motion";
-
-const TIERS = [
-	{
-		name: "Starter",
-		price: "Free",
-		period: "",
-		description: "For small lots getting started with digital management.",
-		icon: Sparkle,
-		features: [
-			"Up to 50 parking spots",
-			"1 employee account",
-			"Basic entry/exit tracking",
-			"Daily reports",
-		],
-		cta: "Get Started",
-		highlighted: false,
-		color: "border-border",
-	},
-	{
-		name: "Pro",
-		price: "$49",
-		period: "/mo",
-		description: "For growing operations that need full visibility.",
-		icon: Rocket,
-		features: [
-			"Unlimited parking spots",
-			"Up to 10 employee accounts",
-			"Real-time occupancy tracking",
-			"Revenue analytics & charts",
-			"Custom rate management",
-			"Priority support",
-		],
-		cta: "Start Free Trial",
-		highlighted: true,
-		color: "border-primary bg-primary/5 ring-4 ring-primary/10",
-	},
-	{
-		name: "Elite",
-		price: "Custom",
-		period: "",
-		description: "For multi-site operators with advanced needs.",
-		icon: Crown,
-		features: [
-			"Everything in Professional",
-			"Unlimited employees",
-			"Multi-site management",
-			"API access",
-			"Custom integrations",
-			"Dedicated account manager",
-		],
-		cta: "Contact Sales",
-		highlighted: false,
-		color: "border-border",
-	},
-] as const;
+import { useLocale } from "@/components/providers/locale-provider";
 
 const PricingPage = () => {
+	const { t } = useLocale();
+
+	const TIERS = [
+		{
+			name: t("pricing.starter.name"),
+			price: "Free",
+			period: "",
+			description: t("pricing.starter.description"),
+			icon: Sparkle,
+			features: [
+				t("pricing.starter.f1"),
+				t("pricing.starter.f2"),
+				t("pricing.starter.f3"),
+				t("pricing.starter.f4"),
+			],
+			cta: t("pricing.starter.cta"),
+			highlighted: false,
+			color: "border-border",
+		},
+		{
+			name: t("pricing.pro.name"),
+			price: "$49",
+			period: "/mo",
+			description: t("pricing.pro.description"),
+			icon: Rocket,
+			features: [
+				t("pricing.pro.f1"),
+				t("pricing.pro.f2"),
+				t("pricing.pro.f3"),
+				t("pricing.pro.f4"),
+				t("pricing.pro.f5"),
+				t("pricing.pro.f6"),
+			],
+			cta: t("pricing.pro.cta"),
+			highlighted: true,
+			color: "border-primary bg-primary/5 ring-4 ring-primary/10",
+		},
+		{
+			name: t("pricing.elite.name"),
+			price: "Custom",
+			period: "",
+			description: t("pricing.elite.description"),
+			icon: Crown,
+			features: [
+				t("pricing.elite.f1"),
+				t("pricing.elite.f2"),
+				t("pricing.elite.f3"),
+				t("pricing.elite.f4"),
+				t("pricing.elite.f5"),
+				t("pricing.elite.f6"),
+			],
+			cta: t("pricing.elite.cta"),
+			highlighted: false,
+			color: "border-border",
+		},
+	];
+
 	return (
 		<div className="relative px-(--space-lg) pt-40 pb-(--space-2xl) md:pt-48 md:pb-32 overflow-hidden">
 			{/* Background Decorations */}
@@ -76,11 +79,11 @@ const PricingPage = () => {
 						animate={{ y: 0, opacity: 1 }}
 						className="font-display text-5xl font-black tracking-tighter md:text-8xl"
 					>
-						Simple pricing. <br />
-						<span className="text-secondary italic">No hidden fees.</span>
+						{t("pricing.hero.title")} <br />
+						<span className="text-secondary italic">{t("pricing.hero.subtitle")}</span>
 					</m.h1>
 					<p className="mt-(--space-lg) text-lg text-text-secondary md:text-2xl font-bold">
-						Pick the plan that fits your ambition. Upgrade anytime.
+						{t("pricing.hero.description")}
 					</p>
 				</div>
 
@@ -97,7 +100,7 @@ const PricingPage = () => {
 						>
 							{tier.highlighted && (
 								<div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-text-inverse uppercase tracking-widest">
-									Most Popular
+									{t("pricing.popular")}
 								</div>
 							)}
 
@@ -129,7 +132,7 @@ const PricingPage = () => {
 							</ul>
 
 							<Link
-								href={tier.name === "Elite" ? "/contact" : "/login"}
+								href={tier.name === t("pricing.elite.name") ? "/contact" : "/login"}
 								className={`mt-12 block rounded-2xl py-4 text-center text-lg font-bold transition-all ${
 									tier.highlighted
 										? "bg-primary text-text-inverse shadow-xl hover:opacity-90 active:scale-95"

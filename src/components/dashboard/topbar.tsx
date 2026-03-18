@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { List, SignOut, User, Sun, Moon } from "@phosphor-icons/react";
 import { logout } from "@/src/actions/profiles";
 import { useTheme } from "@/components/providers/theme-provider";
+import { useLocale } from "@/components/providers/locale-provider";
+import { LocaleSwitcher } from "@/components/shared/locale-switcher";
 import type { UserRole } from "@/src/lib/auth-guard";
 import { cn } from "@/lib/utils";
 import { m, AnimatePresence } from "framer-motion";
@@ -19,6 +21,7 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const { theme, toggleTheme } = useTheme();
+	const { t } = useLocale();
 
 	const handleLogout = () => {
 		startTransition(async () => {
@@ -41,9 +44,11 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 
 					<div className="hidden flex-col md:flex">
 						<p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary/60">
-							System
+							{t("topbar.system")}
 						</p>
-						<h2 className="text-xs font-bold text-text-primary capitalize">{userRole} Dashboard</h2>
+						<h2 className="text-xs font-bold text-text-primary capitalize">
+							{userRole} {t("topbar.dashboard")}
+						</h2>
 					</div>
 				</div>
 
@@ -61,6 +66,8 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 					</div>
 
 					<div className="flex items-center gap-(--space-xs)">
+						<LocaleSwitcher />
+
 						<button
 							type="button"
 							onClick={toggleTheme}
@@ -92,7 +99,7 @@ export const Topbar = ({ userName, userRole, onMenuToggle }: TopbarProps) => {
 								"flex size-9 items-center justify-center rounded-button text-text-secondary transition-all hover:bg-danger/10 hover:text-danger active:scale-95",
 								isPending && "opacity-50",
 							)}
-							title="Sign out"
+							title={t("topbar.signOut")}
 						>
 							<SignOut size={20} weight="bold" />
 						</button>

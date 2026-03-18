@@ -5,6 +5,7 @@ import { logEntry } from "@/src/actions/transactions";
 import { ShieldCheck, ArrowsClockwise, CheckCircle, Check } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { m, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 interface Area {
 	id: string;
@@ -24,6 +25,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 	const [plateNumber, setPlateNumber] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
+	const { t } = useLocale();
 
 	const resetForm = () => {
 		setSuccess(false);
@@ -36,7 +38,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!selectedArea) {
-			setError("Please select a target parking zone.");
+			setError(t("entry.error.selectZone"));
 			return;
 		}
 
@@ -44,12 +46,12 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 		const vehicleType = formData.get("vehicleType")?.toString() as VehicleType;
 
 		if (!plateNumber) {
-			setError("Plate number required for registry.");
+			setError(t("entry.error.plateRequired"));
 			return;
 		}
 
 		if (plateNumber.length > PLATE_MAX_LENGTH) {
-			setError(`Plate number must be ${PLATE_MAX_LENGTH} characters or less.`);
+			setError(t("entry.error.plateLength"));
 			return;
 		}
 
@@ -64,7 +66,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 				setSuccess(true);
 				setTimeout(resetForm, 3000);
 			} catch (err) {
-				const message = err instanceof Error ? err.message : "Protocol failure. Try again.";
+				const message = err instanceof Error ? err.message : t("entry.error.protocolFailure");
 				setError(message);
 			}
 		});
@@ -85,11 +87,11 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 							<CheckCircle size={48} weight="fill" />
 						</div>
 						<h2 className="text-2xl font-black text-text-primary uppercase tracking-tighter">
-							Registration Confirmed
-						</h2>
-						<p className="mt-2 text-sm font-bold text-text-secondary uppercase tracking-widest opacity-60">
-							Vehicle telemetry recorded. Ready for next entry.
-						</p>
+						{t("entry.registrationConfirmed")}
+					</h2>
+					<p className="mt-2 text-sm font-bold text-text-secondary uppercase tracking-widest opacity-60">
+						{t("entry.vehicleTelemetryRecorded")}
+					</p>
 					</m.div>
 				) : (
 					<m.form
@@ -117,7 +119,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									htmlFor="plate-number"
 									className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
 								>
-									Registry (Plate Number)
+									{t("entry.registryPlate")}
 								</label>
 								<input
 									id="plate-number"
@@ -130,11 +132,11 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									}
 									disabled={isPending}
 									maxLength={PLATE_MAX_LENGTH}
-									placeholder="ABC1234"
+									placeholder={t("entry.platePlaceholder")}
 									className="w-full rounded-button border-2 border-border bg-surface-elevated/50 px-4 py-3 text-xl font-black tracking-widest text-text-primary outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all uppercase placeholder:opacity-20"
 								/>
 								<p className="text-[9px] font-bold text-text-secondary/40 uppercase tracking-tight">
-									Max {PLATE_MAX_LENGTH} characters
+									{t("entry.maxLength")}
 								</p>
 							</div>
 							<div className="space-y-2">
@@ -142,7 +144,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									htmlFor="vehicle-type"
 									className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
 								>
-									Classification
+									{t("entry.classification")}
 								</label>
 								<select
 									id="vehicle-type"
@@ -150,9 +152,9 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 									disabled={isPending}
 									className="w-full h-[52px] rounded-button border-2 border-border bg-surface-elevated/50 px-4 py-3 text-sm font-black text-text-primary outline-none focus:border-primary transition-all uppercase appearance-none cursor-pointer"
 								>
-									<option value="mobil">Four-Wheel Artifact (Car)</option>
-									<option value="motor">Two-Wheel Artifact (Cycle)</option>
-									<option value="lainnya">General Transit (Other)</option>
+									<option value="mobil">{t("entry.fourWheel")}</option>
+									<option value="motor">{t("entry.twoWheel")}</option>
+									<option value="lainnya">{t("entry.generalTransit")}</option>
 								</select>
 							</div>
 						</div>
@@ -162,7 +164,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								id="sector-assignment-label"
 								className="text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary/60"
 							>
-								Sector Assignment
+								{t("entry.sectorAssignment")}
 							</label>
 							<div
 								role="group"
@@ -200,7 +202,7 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 												{area.namaArea}
 											</p>
 											<p className="mt-1 text-[9px] font-bold text-text-secondary uppercase opacity-60">
-												{area.kapasitas - area.terisi} Avail
+												{area.kapasitas - area.terisi} {t("entry.avail")}
 											</p>
 										</button>
 									);
@@ -215,11 +217,11 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								</div>
 								<div>
 									<p className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-										Ops Protocol
-									</p>
-									<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
-										Verification active
-									</p>
+									{t("entry.opsProtocol")}
+								</p>
+								<p className="text-[9px] font-bold text-text-secondary uppercase opacity-40">
+									{t("entry.verificationActive")}
+								</p>
 								</div>
 							</div>
 
@@ -229,16 +231,16 @@ export const EntryForm = ({ areas }: { areas: Area[] }) => {
 								className="flex items-center justify-center gap-2 rounded-button bg-primary px-10 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-text-inverse shadow-xl shadow-primary/20 transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
 							>
 								{isPending ? (
-									<>
-										<ArrowsClockwise size={18} weight="bold" className="animate-spin" />
-										Syncing...
-									</>
-								) : (
-									<>
-										<CheckCircle size={18} weight="bold" />
-										Record Entry
-									</>
-								)}
+								<>
+									<ArrowsClockwise size={18} weight="bold" className="animate-spin" />
+									{t("entry.syncing")}
+								</>
+							) : (
+								<>
+									<CheckCircle size={18} weight="bold" />
+									{t("entry.recordEntry")}
+								</>
+							)}
 							</button>
 						</div>
 					</m.form>

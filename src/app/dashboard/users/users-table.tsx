@@ -15,6 +15,7 @@ import { createColumns } from "./_components/UserColumns";
 import { UserToolbar } from "./_components/UserToolbar";
 import { UserPagination } from "./_components/UserPagination";
 import { CaretUp, CaretDown } from "@phosphor-icons/react";
+import { useLocale } from "@/src/components/providers/locale-provider";
 
 export const UsersTable = ({
 	data,
@@ -23,6 +24,7 @@ export const UsersTable = ({
 	data: Profile[];
 	currentUser?: { id: string; role: string };
 }) => {
+	const { t, locale } = useLocale();
 	const [search, setSearch] = useQueryState(
 		"q",
 		parseAsString.withDefault("").withOptions({ shallow: false, throttleMs: 300 }),
@@ -50,7 +52,7 @@ export const UsersTable = ({
 		}
 	};
 
-	const columns = useMemo(() => createColumns(currentUser), [currentUser]);
+	const columns = useMemo(() => createColumns(currentUser, t, locale), [currentUser, t, locale]);
 
 	const table = useReactTable({
 		data,
@@ -130,7 +132,7 @@ export const UsersTable = ({
 										colSpan={columns.length}
 										className="px-(--space-md) py-(--space-2xl) text-center text-sm text-text-secondary italic"
 									>
-										No personnel matching your search
+										{t("users.noPersonnel")}
 									</td>
 								</tr>
 							) : (
